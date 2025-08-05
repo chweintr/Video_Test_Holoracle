@@ -4,11 +4,11 @@ Simple server for Simli integration
 """
 import http.server
 import socketserver
-import webbrowser
 import os
 from pathlib import Path
 
-PORT = 8083
+# Use Railway's PORT environment variable, or default to 8083
+PORT = int(os.environ.get('PORT', 8083))
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -31,9 +31,6 @@ def main():
         print(f"📁 Serving files from: {os.getcwd()}")
         print(f"🌐 Open: http://localhost:{PORT}/working_simli_integration.html")
         print("⏹️  Press Ctrl+C to stop")
-        
-        # Open browser
-        webbrowser.open(f"http://localhost:{PORT}/working_simli_integration.html")
         
         try:
             httpd.serve_forever()

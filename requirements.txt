@@ -1,0 +1,24 @@
+# Web deployment requirements (Railway/Render compatible)
+# Removes only build-problematic audio deps, keeps all core functionality
+
+# Core Web Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+websockets>=11.0
+aiohttp>=3.9.0
+python-multipart>=0.0.6
+
+# AI & Language Models
+openai>=1.0.0
+
+# RAG System
+numpy>=1.24.0
+sentence-transformers>=2.2.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Logging
+python-json-logger>=2.0.7

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indiana Oracle - Working Simli Integration</title>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async type="text/javascript"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(223, 255, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.1) 0%, transparent 50%);
+            animation: etherealFloat 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes etherealFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            font-weight: 300;
+            color: #2c3e50;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .header .subtitle {
+            font-size: 16px;
+            color: #6c757d;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 40px;
+            align-items: start;
+        }
+        
+        .oracle-frame {
+            width: 100%;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .widget-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .placeholder-content {
+            text-align: center;
+            color: #2c3e50;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .placeholder-content .icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            opacity: 0.7;
+            animation: gentleFloat 4s ease-in-out infinite;
+        }
+        
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .placeholder-content h3 {
+            font-size: 28px;
+            margin: 0 0 15px 0;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .placeholder-content p {
+            font-size: 16px;
+            opacity: 0.7;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+        
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: 400;
+            font-size: 14px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(223, 255, 0, 0.3);
+            color: #2c3e50;
+            text-transform: uppercase;
+        }
+        
+        .controls {
+            margin-bottom: 25px;
+        }
+        
+        .controls h3 {
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #2c3e50;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #2c3e50;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            margin: 8px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 400;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(223, 255, 0, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .log {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+        
+        .log strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .log-content div {
+            margin-bottom: 5px;
+            opacity: 0.8;
+            color: #495057;
+            text-transform: uppercase;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .instructions ol {
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            opacity: 0.8;
+            color: #495057;
+            text-transform: uppercase;
+        }
+        
+        .config-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+        
+        .config-section h3 {
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .config-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            width: 100%;
+            color: #2c3e50;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .config-input:focus {
+            outline: none;
+            border-color: rgba(223, 255, 0, 0.5);
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .oracle-frame {
+                height: 500px;
+            }
+        }
+        
+        /* Simli Widget Styling */
+        simli-widget {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            border-radius: 20px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Indiana Oracle</h1>
+            <div class="subtitle">WORKING SIMLI INTEGRATION</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="oracle-frame">
+                <div class="widget-container" id="widgetContainer">
+                    <div id="placeholderContent" class="placeholder-content">
+                        <div class="icon">●</div>
+                        <h3>AVATAR READY</h3>
+                        <p>SIMLI WIDGET WILL APPEAR HERE</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="status" id="status">
+                    READY TO LOAD ORACLE
+                </div>
+                
+                <div class="config-section">
+                    <h3>SIMLI CONFIGURATION</h3>
+                    <input type="text" id="tokenInput" class="config-input" placeholder="YOUR SIMLI TOKEN" value="gAAAAABoknQ5pjetB58-9LOEdJZkoo8p3brJuajlzDM6BfIKJYK5qLQVa6M2cItGSnb9XFyYdGGIX6-wep5NP7k9XnZRgW0MG6IWL6ik1kQL1ZA3Vz6JyzQqUwTj6k0tuj_ZFhvxrmc8VryBE64dK6blBkWzQ-NL834bvzZqEQnJoLk-ikIQ8PQ77QgR0oUvxt2fhmK0oKQQtOOyMfX8mLVsZePr7pHQWiZ87SIB4vZYmRAnFmxQ1JO-OgKE9p9cY8Eg70G9j37Y0bJ1UlwBIwVJek1tjCQrubtpF1NS0u4kUOKziE1KafP8NLI40mqkagxQ8q6bD_wEFCMUwletb1koFxznzcLXtNkJo-I2-m-zGjn8uAdBi7kC7KDehhKvgDy6d48c3vhSFxFNe5xSjUZcLs5kjT2aQA==">
+                    <input type="text" id="agentIdInput" class="config-input" placeholder="YOUR AGENT ID" value="4a857f92-feee-4b70-b973-290baec4d545">
+                    <select id="positionSelect" class="config-input">
+                        <option value="relative">RELATIVE POSITION</option>
+                        <option value="left">LEFT SIDE</option>
+                        <option value="right">RIGHT SIDE</option>
+                    </select>
+                    <input type="text" id="customTextInput" class="config-input" placeholder="CUSTOM BUTTON TEXT" value="CALL ORACLE">
+                </div>
+                
+                <div class="controls">
+                    <h3>ORACLE CONTROLS</h3>
+                    <button onclick="loadWidget()" id="loadBtn">PRESS TO LOAD ORACLE</button>
+                    <button onclick="removeWidget()" id="removeBtn" disabled>CLOSE CHAT</button>
+                </div>
+                
+                <div class="instructions">
+                    <h3>HOW TO USE</h3>
+                    <ol>
+                        <li>ENTER YOUR SIMLI TOKEN AND AGENT ID</li>
+                        <li>CLICK "PRESS TO LOAD ORACLE"</li>
+                        <li>THE ORACLE WIDGET WILL APPEAR IN THE FRAME</li>
+                        <li>CLICK THE WIDGET BUTTON TO START TALKING</li>
+                        <li>SPEAK AND WATCH THE AVATAR RESPOND!</li>
+                    </ol>
+                </div>
+                
+                <div class="log">
+                    <strong>SYSTEM LOG</strong>
+                    <div id="logContent" class="log-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let widgetLoaded = false;
+        let simliWidget = null;
+        
+        // Default configuration from sample code
+        const DEFAULT_TOKEN = 'gAAAAABoknQ5pjetB58-9LOEdJZkoo8p3brJuajlzDM6BfIKJYK5qLQVa6M2cItGSnb9XFyYdGGIX6-wep5NP7k9XnZRgW0MG6IWL6ik1kQL1ZA3Vz6JyzQqUwTj6k0tuj_ZFhvxrmc8VryBE64dK6blBkWzQ-NL834bvzZqEQnJoLk-ikIQ8PQ77QgR0oUvxt2fhmK0oKQQtOOyMfX8mLVsZePr7pHQWiZ87SIB4vZYmRAnFmxQ1JO-OgKE9p9cY8Eg70G9j37Y0bJ1UlwBIwVJek1tjCQrubtpF1NS0u4kUOKziE1KafP8NLI40mqkagxQ8q6bD_wEFCMUwletb1koFxznzcLXtNkJo-I2-m-zGjn8uAdBi7kC7KDehhKvgDy6d48c3vhSFxFNe5xSjUZcLs5kjT2aQA==';
+        const DEFAULT_AGENT_ID = '4a857f92-feee-4b70-b973-290baec4d545';
+        
+        function log(message) {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(elementId, status, color = '#2c3e50') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = status;
+                element.style.color = color;
+            }
+        }
+        
+        function updateButtons() {
+            document.getElementById('loadBtn').disabled = widgetLoaded;
+            document.getElementById('removeBtn').disabled = !widgetLoaded;
+        }
+        
+        function loadWidget() {
+            log('LOADING ORACLE WIDGET...');
+            updateStatus('status', 'LOADING ORACLE...', '#f1c40f');
+            
+            try {
+                const token = document.getElementById('tokenInput').value.trim();
+                const agentId = document.getElementById('agentIdInput').value.trim();
+                const position = document.getElementById('positionSelect').value;
+                const customText = document.getElementById('customTextInput').value.trim();
+                
+                if (!token || !agentId) {
+                    log('ERROR: PLEASE ENTER BOTH TOKEN AND AGENT ID');
+                    updateStatus('status', 'CONFIGURATION REQUIRED', '#e74c3c');
+                    return;
+                }
+                
+                log('TOKEN: ' + token.substring(0, 20) + '...');
+                log('AGENT ID: ' + agentId);
+                log('POSITION: ' + position);
+                log('CUSTOM TEXT: ' + customText);
+                
+                // Clear the container first
+                const container = document.getElementById('widgetContainer');
+                container.innerHTML = '';
+                
+                // Create the Simli widget element using the correct format
+                simliWidget = document.createElement('simli-widget');
+                simliWidget.setAttribute('token', token);
+                simliWidget.setAttribute('agentid', agentId);
+                simliWidget.setAttribute('position', position);
+                simliWidget.setAttribute('customtext', customText);
+                simliWidget.setAttribute('customimage', '');
+                
+                // Add the widget to the container
+                container.appendChild(simliWidget);
+                
+                // Wait a moment for the widget to initialize
+                setTimeout(() => {
+                    widgetLoaded = true;
+                    updateStatus('status', 'ORACLE LOADED');
+                    updateButtons();
+                    
+                    log('SIMLI WIDGET LOADED SUCCESSFULLY!');
+                    log('CLICK THE WIDGET BUTTON TO START TALKING');
+                }, 2000);
+                
+            } catch (error) {
+                log('WIDGET LOADING ERROR: ' + error.message);
+                updateStatus('status', 'LOADING FAILED', '#e74c3c');
+                console.error('Widget error:', error);
+            }
+        }
+        
+        function removeWidget() {
+            log('CLOSING CHAT...');
+            
+            if (simliWidget) {
+                simliWidget.remove();
+                simliWidget = null;
+            }
+            
+            // Show placeholder again
+            const container = document.getElementById('widgetContainer');
+            container.innerHTML = '';
+            
+            // Recreate the placeholder content
+            const placeholderContent = document.createElement('div');
+            placeholderContent.id = 'placeholderContent';
+            placeholderContent.className = 'placeholder-content';
+            placeholderContent.innerHTML = `
+                <div class="icon">●</div>
+                <h3>AVATAR READY</h3>
+                <p>SIMLI WIDGET WILL APPEAR HERE</p>
+            `;
+            
+            container.appendChild(placeholderContent);
+            
+            widgetLoaded = false;
+            updateStatus('status', 'READY TO LOAD ORACLE');
+            updateButtons();
+            
+            log('CHAT CLOSED');
+        }
+        
+        // Initialize
+        log('INDIANA ORACLE SIMLI INTEGRATION READY');
+        log('TOKEN: ' + DEFAULT_TOKEN.substring(0, 20) + '...');
+        log('AGENT ID: ' + DEFAULT_AGENT_ID);
+        log('PRESS "PRESS TO LOAD ORACLE" TO BEGIN');
+        
+        updateButtons();
+    </script>
+</body>
+</html> 

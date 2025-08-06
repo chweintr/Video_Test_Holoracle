@@ -3,6 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Content Security Policy - Allow Simli widget to work -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.simli.com https://*.simli.com;
+        style-src 'self' 'unsafe-inline' https://app.simli.com https://*.simli.com;
+        img-src 'self' data: blob: https://app.simli.com https://*.simli.com https://*.cloudfront.net;
+        media-src 'self' blob: https://app.simli.com https://*.simli.com;
+        connect-src 'self' https://app.simli.com https://*.simli.com https://api.simli.com wss://*.simli.com ws://*.simli.com;
+        frame-src 'self' https://app.simli.com https://*.simli.com;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
     <title>Indiana Oracle - Working Simli Integration</title>
     
     <!-- Simli Widget Script -->
@@ -320,6 +335,12 @@
             border: none !important;
             border-radius: 20px !important;
         }
+        
+        /* Additional fixes for Simli widget */
+        simli-widget iframe {
+            border: none !important;
+            border-radius: 20px !important;
+        }
     </style>
 </head>
 <body>
@@ -394,7 +415,7 @@
             const logContent = document.getElementById('logContent');
             const timestamp = new Date().toLocaleTimeString();
             const logEntry = document.createElement('div');
-            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
             logContent.appendChild(logEntry);
             logContent.scrollTop = logContent.scrollHeight;
             console.log(message);

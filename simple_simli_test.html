@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Content Security Policy - Very permissive for Simli widget -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+        script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+        style-src * 'unsafe-inline' data: blob:;
+        img-src * data: blob:;
+        media-src * data: blob:;
+        connect-src * data: blob:;
+        frame-src * data: blob:;
+        object-src * data: blob:;
+        base-uri *;
+        form-action *;
+    ">
+    
+    <title>Simple Simli Test</title>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async type="text/javascript"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .widget-area {
+            width: 100%;
+            height: 500px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+        }
+        
+        .config-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .config-section h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Simli Widget Test</h1>
+        <p>Testing basic Simli widget functionality with their default AI system.</p>
+        
+        <div class="config-section">
+            <h3>Configuration</h3>
+            <div>
+                <label>Token:</label><br>
+                <input type="text" id="tokenInput" value="gAAAAABoknQ5pjetB58-9LOEdJZkoo8p3brJuajlzDM6BfIKJYK5qLQVa6M2cItGSnb9XFyYdGGIX6-wep5NP7k9XnZRgW0MG6IWL6ik1kQL1ZA3Vz6JyzQqUwTj6k0tuj_ZFhvxrmc8VryBE64dK6blBkWzQ-NL834bvzZqEQnJoLk-ikIQ8PQ77QgR0oUvxt2fhmK0oKQQtOOyMfX8mLVsZePr7pHQWiZ87SIB4vZYmRAnFmxQ1JO-OgKE9p9cY8Eg70G9j37Y0bJ1UlwBIwVJek1tjCQrubtpF1NS0u4kUOKziE1KafP8NLI40mqkagxQ8q6bD_wEFCMUwletb1koFxznzcLXtNkJo-I2-m-zGjn8uAdBi7kC7KDehhKvgDy6d48c3vhSFxFNe5xSjUZcLs5kjT2aQA==">
+            </div>
+            <div>
+                <label>Agent ID:</label><br>
+                <input type="text" id="agentIdInput" value="4a857f92-feee-4b70-b973-290baec4d545">
+            </div>
+            <div>
+                <label>Position:</label><br>
+                <select id="positionSelect">
+                    <option value="relative">Relative</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+            <div>
+                <label>Custom Text:</label><br>
+                <input type="text" id="customTextInput" value="Talk to Oracle">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="loadWidget()">Load Simli Widget</button>
+            <button onclick="removeWidget()" disabled id="removeBtn">Remove Widget</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div class="widget-area" id="widgetArea">
+            <div>Widget will appear here</div>
+        </div>
+        
+        <div class="log" id="log">
+            <strong>Log:</strong><br>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let widgetLoaded = false;
+        let simliWidget = null;
+        
+        function log(message) {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `[${timestamp}] ${message}<br>`;
+            logContent.scrollTop = logContent.scrollHeight;
+            console.log(message);
+        }
+        
+        function loadWidget() {
+            log('Loading Simli widget...');
+            
+            const token = document.getElementById('tokenInput').value.trim();
+            const agentId = document.getElementById('agentIdInput').value.trim();
+            const position = document.getElementById('positionSelect').value;
+            const customText = document.getElementById('customTextInput').value.trim();
+            
+            if (!token || !agentId) {
+                log('ERROR: Token and Agent ID are required');
+                return;
+            }
+            
+            log(`Token: ${token.substring(0, 20)}...`);
+            log(`Agent ID: ${agentId}`);
+            log(`Position: ${position}`);
+            log(`Custom Text: ${customText}`);
+            
+            // Clear the widget area
+            const widgetArea = document.getElementById('widgetArea');
+            widgetArea.innerHTML = '';
+            
+            // Create the Simli widget
+            simliWidget = document.createElement('simli-widget');
+            simliWidget.setAttribute('token', token);
+            simliWidget.setAttribute('agentid', agentId);
+            simliWidget.setAttribute('position', position);
+            simliWidget.setAttribute('customtext', customText);
+            simliWidget.setAttribute('customimage', '');
+            
+            // Add the widget to the area
+            widgetArea.appendChild(simliWidget);
+            
+            // Update UI
+            widgetLoaded = true;
+            document.getElementById('removeBtn').disabled = false;
+            
+            log('Simli widget loaded successfully!');
+            log('Click the widget button to start talking.');
+        }
+        
+        function removeWidget() {
+            log('Removing Simli widget...');
+            
+            if (simliWidget) {
+                simliWidget.remove();
+                simliWidget = null;
+            }
+            
+            // Reset widget area
+            const widgetArea = document.getElementById('widgetArea');
+            widgetArea.innerHTML = '<div>Widget will appear here</div>';
+            
+            // Update UI
+            widgetLoaded = false;
+            document.getElementById('removeBtn').disabled = true;
+            
+            log('Simli widget removed.');
+        }
+        
+        function clearLog() {
+            document.getElementById('logContent').innerHTML = '';
+        }
+        
+        // Initialize
+        log('Simple Simli Test ready');
+        log('Click "Load Simli Widget" to start');
+    </script>
+</body>
+</html> 

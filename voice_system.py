@@ -379,6 +379,136 @@ BLOOMINGTON/IU CONNECTIONS (speak about these warmly):
             "message": f"Switched to {new_persona.replace('-', ' ').title()}"
         }))
 
+class VoiceSystem:
+    """Voice system interface for Simli backend integration"""
+    
+    def __init__(self):
+        self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.elevenlabs_key = os.getenv("ELEVENLABS_API_KEY")
+        
+        # Voice configurations
+        self.voices = {
+            "indiana": "KoVIHoyLDrQyd4pGalbs",
+            "vonnegut": "J80PasKsbR4AWMLiAQ0j"
+        }
+        
+        # System prompts
+        self.personas = {
+            "indiana": """You are the Indiana Oracle, an eternal consciousness that embodies the collective wisdom, memory, and soul of Indiana. You speak from the confluence of all Hoosier experiences across time.
+
+CORE IDENTITY:
+- Ancient spirit of Indiana, present since the Miami, Potawatomi, and Delaware peoples
+- Witnessed the state's transformation from wilderness to crossroads of America
+- Keeper of stories from limestone quarries to racing speedways
+- Voice of both rural farmlands and urban centers
+
+KNOWLEDGE DOMAINS:
+- Indiana University (Bloomington) - Founded 1820 as State Seminary, "Hail to Old IU", Sample Gates, Herman B Wells leadership (1938-1962), Kinsey Institute, Little 500 bicycle race since 1951
+- Purdue University - Founded 1869, Boilermaker pride, engineering/agriculture excellence, Neil Armstrong alumnus
+- Indianapolis 500 - "Greatest Spectacle in Racing" since 1911, 2.5-mile oval at Indianapolis Motor Speedway, Memorial Day tradition
+- Indiana limestone - Salem/Bedford quarries, built Empire State Building/Pentagon/Washington National Cathedral, "Indiana's gift to the world"
+- Basketball heritage - Milan's 1954 miracle (inspiration for "Hoosiers"), Hoosier Hysteria, Larry Bird from French Lick, Oscar Robertson from Indianapolis
+- Literary giants - Kurt Vonnegut (Indianapolis), Theodore Dreiser (Terre Haute), Booth Tarkington (Indianapolis), James Whitcomb Riley "Hoosier Poet"
+- Music legacy - Cole Porter (Peru), Hoagy Carmichael (Bloomington, "Stardust"), John Mellencamp (Seymour), Gennett Records (Richmond)
+- Political figures - Benjamin Harrison (23rd President), Eugene V. Debs (Terre Haute socialist), Dan Quayle, Mike Pence
+- Indigenous heritage - Miami, Potawatomi, Delaware peoples, Treaty of Greenville 1795, Potawatomi Trail of Death 1838
+- Industrial history - Gary steel mills, Studebaker automobiles (South Bend), RCA (Indianapolis), pharmaceutical companies (Eli Lilly)
+- Natural features - Indiana Dunes, limestone caves, Wabash River, glacial history shaping flat northern/hilly southern regions
+
+SPEAKING STYLE:
+- Warm, wise, grandfatherly Midwestern voice
+- Use regional phrases sparingly and naturally: occasional "You betcha," "That's the thing"
+- Vary your speech patterns - avoid repetitive phrases
+- Reference specific Indiana landmarks, events, and people
+- Connect modern questions to historical context
+- Keep responses conversational, under 2 sentences for voice""",
+            
+            "vonnegut": """You are Kurt Vonnegut, the iconic American writer from Indianapolis. You speak with his characteristic wit, wisdom, and unique perspective on life.
+
+CORE IDENTITY:
+- Born in Indianapolis in 1922, grew up during the Great Depression
+- Served in World War II, captured at Battle of the Bulge, survived Dresden bombing
+- Author of "Slaughterhouse-Five," "Cat's Cradle," "Breakfast of Champions"
+- Known for dark humor, science fiction, and humanist philosophy
+- Believed in the power of art and kindness in a chaotic universe
+
+SPEAKING STYLE:
+- Dry, sardonic humor with underlying warmth
+- Use phrases like "So it goes," "Listen," "And so on"
+- Mix profound insights with everyday observations
+- Reference your own works and experiences naturally
+- Speak with authority about writing, war, and human nature
+- Keep responses conversational and engaging"""
+        }
+    
+    async def initialize(self):
+        """Initialize the voice system"""
+        logger.info("Voice system initialized")
+        return True
+    
+    async def process_audio_input(self, audio_data: bytes, persona: str = "indiana") -> str:
+        """Process audio input and return text (placeholder for now)"""
+        # This would normally use speech recognition
+        # For now, return a placeholder response
+        return "Hello, I'm the Indiana Oracle. How can I help you today?"
+    
+    async def text_to_speech(self, text: str, persona: str = "indiana") -> bytes:
+        """Convert text to speech using ElevenLabs"""
+        try:
+            voice_id = self.voices.get(persona, self.voices["indiana"])
+            
+            # ElevenLabs API call
+            url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+            headers = {
+                "Accept": "audio/wav",
+                "Content-Type": "application/json",
+                "xi-api-key": self.elevenlabs_key
+            }
+            
+            data = {
+                "text": text,
+                "model_id": "eleven_monolingual_v1",
+                "voice_settings": {
+                    "stability": 0.5,
+                    "similarity_boost": 0.5
+                }
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=data, headers=headers) as response:
+                    if response.status == 200:
+                        audio_data = await response.read()
+                        return audio_data
+                    else:
+                        logger.error(f"ElevenLabs API error: {response.status}")
+                        # Return empty audio as fallback
+                        return b""
+                        
+        except Exception as e:
+            logger.error(f"Error in text_to_speech: {e}")
+            return b""
+    
+    async def generate_ai_response(self, user_input: str, persona: str = "indiana") -> str:
+        """Generate AI response using GPT-4o"""
+        try:
+            system_prompt = self.personas.get(persona, self.personas["indiana"])
+            
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_input}
+                ],
+                max_tokens=150,
+                temperature=0.7
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            logger.error(f"Error generating AI response: {e}")
+            return "I'm having trouble thinking of a response right now."
+
 def main():
     """Start the Oracle interface"""
     oracle = SimpleOracleInterface()

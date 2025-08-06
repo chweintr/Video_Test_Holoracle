@@ -225,6 +225,57 @@ class SimpleRAG:
         self.save_knowledge_base()
         logger.info("Initialized Indiana knowledge base with enhanced Bloomington stories")
 
+class SimpleRAGSystem:
+    """RAG system interface for Simli backend integration"""
+    
+    def __init__(self):
+        self.rag = SimpleRAG()
+    
+    async def load_knowledge_base(self, filename: str = "indiana_knowledge_base.pkl"):
+        """Load the knowledge base"""
+        try:
+            self.rag.load_knowledge_base(filename)
+            logger.info("Knowledge base loaded successfully")
+            return True
+        except Exception as e:
+            logger.error(f"Error loading knowledge base: {e}")
+            return False
+    
+    async def get_response(self, user_input: str, persona: str = "indiana") -> str:
+        """Get AI response using RAG system"""
+        try:
+            # Search for relevant context
+            relevant_docs = self.rag.search(user_input, top_k=2)
+            
+            # Build context from relevant documents
+            context = ""
+            if relevant_docs:
+                context = "\n\n".join([doc["chunk"] for doc in relevant_docs])
+                context = f"Relevant context:\n{context}\n\n"
+            
+            # Generate response using OpenAI
+            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            
+            system_prompt = f"""You are the {persona.title()} persona. Use the provided context to give accurate, helpful responses about Indiana and related topics. Keep responses conversational and engaging."""
+
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"{context}User question: {user_input}"}
+            ]
+            
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                max_tokens=150,
+                temperature=0.7
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            logger.error(f"Error getting RAG response: {e}")
+            return "I'm having trouble accessing my knowledge right now."
+
 def test_rag_system():
     """Test the RAG system"""
     rag = SimpleRAG()

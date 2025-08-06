@@ -376,10 +376,12 @@
                         <option value="right">RIGHT SIDE</option>
                     </select>
                     <input type="text" id="customTextInput" class="config-input" placeholder="CUSTOM BUTTON TEXT" value="CALL ORACLE">
+                    <input type="text" id="introTextInput" class="config-input" placeholder="INTRODUCTION MESSAGE" value="Hello! I'm your Hoosier Oracle. Ask away!">
                 </div>
                 
                 <div class="controls">
                     <h3>ORACLE CONTROLS</h3>
+                    <button onclick="requestAudioPermission()" id="audioBtn">REQUEST MICROPHONE ACCESS</button>
                     <button onclick="loadWidget()" id="loadBtn">PRESS TO LOAD ORACLE</button>
                     <button onclick="removeWidget()" id="removeBtn" disabled>CLOSE CHAT</button>
                 </div>
@@ -387,7 +389,8 @@
                 <div class="instructions">
                     <h3>HOW TO USE</h3>
                     <ol>
-                        <li>ENTER YOUR SIMLI TOKEN AND AGENT ID</li>
+                        <li>CLICK "REQUEST MICROPHONE ACCESS" FIRST</li>
+                        <li>ALLOW MICROPHONE PERMISSION WHEN PROMPTED</li>
                         <li>CLICK "PRESS TO LOAD ORACLE"</li>
                         <li>THE ORACLE WIDGET WILL APPEAR IN THE FRAME</li>
                         <li>CLICK THE WIDGET BUTTON TO START TALKING</li>
@@ -406,6 +409,7 @@
     <script>
         let widgetLoaded = false;
         let simliWidget = null;
+        let audioPermissionGranted = false;
         
         // Default configuration from sample code
         const DEFAULT_TOKEN = 'gAAAAABoknQ5pjetB58-9LOEdJZkoo8p3brJuajlzDM6BfIKJYK5qLQVa6M2cItGSnb9XFyYdGGIX6-wep5NP7k9XnZRgW0MG6IWL6ik1kQL1ZA3Vz6JyzQqUwTj6k0tuj_ZFhvxrmc8VryBE64dK6blBkWzQ-NL834bvzZqEQnJoLk-ikIQ8PQ77QgR0oUvxt2fhmK0oKQQtOOyMfX8mLVsZePr7pHQWiZ87SIB4vZYmRAnFmxQ1JO-OgKE9p9cY8Eg70G9j37Y0bJ1UlwBIwVJek1tjCQrubtpF1NS0u4kUOKziE1KafP8NLI40mqkagxQ8q6bD_wEFCMUwletb1koFxznzcLXtNkJo-I2-m-zGjn8uAdBi7kC7KDehhKvgDy6d48c3vhSFxFNe5xSjUZcLs5kjT2aQA==';
@@ -430,11 +434,40 @@
         }
         
         function updateButtons() {
-            document.getElementById('loadBtn').disabled = widgetLoaded;
+            document.getElementById('audioBtn').disabled = audioPermissionGranted;
+            document.getElementById('loadBtn').disabled = widgetLoaded || !audioPermissionGranted;
             document.getElementById('removeBtn').disabled = !widgetLoaded;
         }
         
+        async function requestAudioPermission() {
+            log('REQUESTING MICROPHONE ACCESS...');
+            updateStatus('status', 'REQUESTING MICROPHONE ACCESS...', '#f1c40f');
+            
+            try {
+                // Request microphone permission
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                log('MICROPHONE ACCESS GRANTED!');
+                audioPermissionGranted = true;
+                updateStatus('status', 'MICROPHONE READY - LOAD ORACLE');
+                updateButtons();
+                
+                // Stop the stream since we just needed permission
+                stream.getTracks().forEach(track => track.stop());
+                
+            } catch (error) {
+                log('MICROPHONE ACCESS DENIED: ' + error.message);
+                updateStatus('status', 'MICROPHONE ACCESS REQUIRED', '#e74c3c');
+                console.error('Microphone error:', error);
+            }
+        }
+        
         function loadWidget() {
+            if (!audioPermissionGranted) {
+                log('ERROR: MICROPHONE ACCESS REQUIRED FIRST');
+                updateStatus('status', 'REQUEST MICROPHONE ACCESS FIRST', '#e74c3c');
+                return;
+            }
+            
             log('LOADING ORACLE WIDGET...');
             updateStatus('status', 'LOADING ORACLE...', '#f1c40f');
             
@@ -443,6 +476,7 @@
                 const agentId = document.getElementById('agentIdInput').value.trim();
                 const position = document.getElementById('positionSelect').value;
                 const customText = document.getElementById('customTextInput').value.trim();
+                const introText = document.getElementById('introTextInput').value.trim();
                 
                 if (!token || !agentId) {
                     log('ERROR: PLEASE ENTER BOTH TOKEN AND AGENT ID');
@@ -454,6 +488,7 @@
                 log('AGENT ID: ' + agentId);
                 log('POSITION: ' + position);
                 log('CUSTOM TEXT: ' + customText);
+                log('INTRODUCTION: ' + introText);
                 
                 // Clear the container first
                 const container = document.getElementById('widgetContainer');
@@ -467,18 +502,24 @@
                 simliWidget.setAttribute('customtext', customText);
                 simliWidget.setAttribute('customimage', '');
                 
+                // Add custom introduction if provided
+                if (introText) {
+                    simliWidget.setAttribute('custommessage', introText);
+                }
+                
                 // Add the widget to the container
                 container.appendChild(simliWidget);
                 
                 // Wait a moment for the widget to initialize
                 setTimeout(() => {
                     widgetLoaded = true;
-                    updateStatus('status', 'ORACLE LOADED');
+                    updateStatus('status', 'ORACLE LOADED - CLICK WIDGET TO START');
                     updateButtons();
                     
                     log('SIMLI WIDGET LOADED SUCCESSFULLY!');
                     log('CLICK THE WIDGET BUTTON TO START TALKING');
-                }, 2000);
+                    log('IF NOT HEARING YOU, CHECK BROWSER MICROPHONE SETTINGS');
+                }, 3000);
                 
             } catch (error) {
                 log('WIDGET LOADING ERROR: ' + error.message);
@@ -512,7 +553,7 @@
             container.appendChild(placeholderContent);
             
             widgetLoaded = false;
-            updateStatus('status', 'READY TO LOAD ORACLE');
+            updateStatus('status', 'MICROPHONE READY - LOAD ORACLE');
             updateButtons();
             
             log('CHAT CLOSED');
@@ -522,7 +563,9 @@
         log('INDIANA ORACLE SIMLI INTEGRATION READY');
         log('TOKEN: ' + DEFAULT_TOKEN.substring(0, 20) + '...');
         log('AGENT ID: ' + DEFAULT_AGENT_ID);
-        log('PRESS "PRESS TO LOAD ORACLE" TO BEGIN');
+        log('STEP 1: CLICK "REQUEST MICROPHONE ACCESS"');
+        log('STEP 2: ALLOW MICROPHONE PERMISSION');
+        log('STEP 3: CLICK "PRESS TO LOAD ORACLE"');
         
         updateButtons();
     </script>

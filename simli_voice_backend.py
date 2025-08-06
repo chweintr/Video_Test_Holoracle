@@ -51,17 +51,43 @@ class SimliVoiceBackend:
         try:
             logger.info("Initializing voice and RAG systems...")
             
+            # Check environment variables
+            openai_key = os.getenv("OPENAI_API_KEY")
+            elevenlabs_key = os.getenv("ELEVENLABS_API_KEY")
+            
+            if not openai_key:
+                logger.warning("OPENAI_API_KEY not found - some features may not work")
+            if not elevenlabs_key:
+                logger.warning("ELEVENLABS_API_KEY not found - voice synthesis may not work")
+            
             # Initialize RAG system
-            self.rag_system = SimpleRAGSystem()
-            await self.rag_system.load_knowledge_base("indiana_knowledge_base.pkl")
-            logger.info("RAG system initialized")
+            try:
+                self.rag_system = SimpleRAGSystem()
+                await self.rag_system.load_knowledge_base("indiana_knowledge_base.pkl")
+                logger.info("RAG system initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize RAG system: {e}")
+                # Continue without RAG system
+                self.rag_system = None
             
             # Initialize voice system
-            self.voice_system = VoiceSystem()
-            await self.voice_system.initialize()
-            logger.info("Voice system initialized")
+            try:
+                self.voice_system = VoiceSystem()
+                await self.voice_system.initialize()
+                logger.info("Voice system initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize voice system: {e}")
+                # Continue without voice system
+                self.voice_system = None
             
-            return True
+            # Return True if at least one system initialized
+            if self.rag_system is not None or self.voice_system is not None:
+                logger.info("Systems initialization completed")
+                return True
+            else:
+                logger.error("No systems could be initialized")
+                return False
+                
         except Exception as e:
             logger.error(f"Failed to initialize systems: {e}")
             return False
@@ -191,11 +217,33 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.post("/initialize")
 async def initialize_systems():
     """Manually initialize systems"""
-    success = await backend.initialize_systems()
-    return {
-        "success": success,
-        "message": "Systems initialized" if success else "Failed to initialize systems"
-    }
+    try:
+        success = await backend.initialize_systems()
+        
+        # Get detailed status
+        status = {
+            "success": success,
+            "voice_system": backend.voice_system is not None,
+            "rag_system": backend.rag_system is not None,
+            "openai_key": bool(os.getenv("OPENAI_API_KEY")),
+            "elevenlabs_key": bool(os.getenv("ELEVENLABS_API_KEY")),
+            "knowledge_base_exists": os.path.exists("indiana_knowledge_base.pkl")
+        }
+        
+        if success:
+            status["message"] = "Systems initialized successfully"
+        else:
+            status["message"] = "Failed to initialize systems - check logs for details"
+            
+        return status
+        
+    except Exception as e:
+        logger.error(f"Error in manual initialization: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Exception during initialization"
+        }
 
 if __name__ == "__main__":
     # Get port from environment variable (for Railway)

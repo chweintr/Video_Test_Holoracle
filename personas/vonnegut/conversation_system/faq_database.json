@@ -1,0 +1,315 @@
+{
+  "created_at": "2025-07-29T02:15:55.041594",
+  "source_transcript": "../sound_files/transcript_01.txt",
+  "total_entries": 23,
+  "entries": [
+    {
+      "id": 0,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "so it goes"
+      ],
+      "response": "So it goes during the raid, a guard would go to the head of the stairs ever so often to see what it was like outside",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 1,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "so it goes"
+      ],
+      "response": "So it goes, Martin Luther King was shot a month ago he died too",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 2,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "so it goes"
+      ],
+      "response": "So it goes, and every day my government gives me account of corpses created by military science in Vietnam",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 3,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "billy pilgrim"
+      ],
+      "response": "Billy Pilgrim could not sleep on his daughter's wedding night",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 4,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "billy pilgrim"
+      ],
+      "response": "It looked like a Sunday school picture of heaven to Billy Pilgrim, somebody behind him in the box car said, oz, that was I",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 5,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "billy pilgrim"
+      ],
+      "response": "He left me his guns, they rust\r\non trial family door says Billy Pilgrim",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 6,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "unstuck in time"
+      ],
+      "response": "Grim has come unstuck in time",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 7,
+      "type": "famous_quote",
+      "trigger_phrases": [
+        "unstuck in time"
+      ],
+      "response": "He had an hour to kill before the saucer came and went into the living room, swinging the bottle like a dinner bell, turned on the television, he came slightly unstuck in time",
+      "confidence_boost": 0.2,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 0,
+      "type": "philosophical",
+      "trigger_phrases": [
+        "death",
+        "what about death",
+        "thoughts on death",
+        "time",
+        "what about time"
+      ],
+      "response": "He's walked through a door in 1955 and come out another one in 1941\r\nhe's gone back through that door to find himself in 1963\r\nhe's seen his birth and his death many times",
+      "confidence_boost": 0.15,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 0,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is constant",
+        "tell me about constant",
+        "explain constant",
+        "constant",
+        "what is state"
+      ],
+      "response": "He's in a constant state of stage fright, he says, because he never knows what part of his life he is going to have to act in next",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 1,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is faith",
+        "tell me about faith",
+        "explain faith",
+        "faith",
+        "what is loving"
+      ],
+      "response": "Bore no arms, and had a meek faith in a loving Jesus, which most soldiers found putrid",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 2,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is collecting",
+        "tell me about collecting",
+        "explain collecting",
+        "collecting",
+        "what is point"
+      ],
+      "response": "It was a collecting point for prisoners of war",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 3,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is somebody",
+        "tell me about somebody",
+        "explain somebody",
+        "somebody",
+        "what is stopped"
+      ],
+      "response": "Somebody had stopped it again, drink me, it seemed to say",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 4,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is would",
+        "tell me about would",
+        "explain would",
+        "would",
+        "what is raise"
+      ],
+      "response": "He would not raise his eyes to the sky, though he knew there was a flying saucer from trawl samador up there, he would see it soon enough, inside and out, and he would see too, where it came from",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 5,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is americans",
+        "tell me about americans",
+        "explain americans",
+        "americans",
+        "what is arrived"
+      ],
+      "response": "Soon enough, the Americans arrived in Dresden at five in the afternoon",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 7,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is other",
+        "tell me about other",
+        "explain other",
+        "other",
+        "what is indiana"
+      ],
+      "response": "The only other city I'd ever seen was Indianapolis, Indiana the prisoners were taken to the fifth building inside the gate",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 8,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is built",
+        "tell me about built",
+        "explain built",
+        "built",
+        "what is shelter"
+      ],
+      "response": "It had been built as a shelter for pigs about to be butchered now it was going to serve as a home away from home for 100 American prisoners of",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 9,
+      "type": "explanation",
+      "trigger_phrases": [
+        "what is address",
+        "tell me about address",
+        "explain address",
+        "address",
+        "what is since"
+      ],
+      "response": "The address was this, schlachtholf, since Schlacht Hoff meant slaughterhouse",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 0,
+      "type": "character",
+      "trigger_phrases": [
+        "world war",
+        "who is world war",
+        "tell me about world war",
+        "what about world war"
+      ],
+      "response": "Billy first came unstuck while World War Two was in progress",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 1,
+      "type": "character",
+      "trigger_phrases": [
+        "now billy",
+        "who is now billy",
+        "tell me about now billy",
+        "what about now billy"
+      ],
+      "response": "Now Billy was starting to get worried about it",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 4,
+      "type": "character",
+      "trigger_phrases": [
+        "second world",
+        "who is second world",
+        "tell me about second world",
+        "what about second world"
+      ],
+      "response": "It was a movie about American bombers in the Second World War and the gallant men who flew them",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 5,
+      "type": "character",
+      "trigger_phrases": [
+        "the boxcar",
+        "who is the boxcar",
+        "tell me about the boxcar",
+        "what about the boxcar"
+      ],
+      "response": "The Boxcar doors were opened, and the doorways framed the loveliest city that most of the Americans had ever seen, the skyline was intricate and voluptuous and enchanted and absurd",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    },
+    {
+      "id": 9,
+      "type": "character",
+      "trigger_phrases": [
+        "meat locker",
+        "who is meat locker",
+        "tell me about meat locker",
+        "what about meat locker"
+      ],
+      "response": "Since was good old five, the Meat Locker was a very safe shelter",
+      "confidence_boost": 0.1,
+      "source": "transcript",
+      "audio_file": null
+    }
+  ]
+}

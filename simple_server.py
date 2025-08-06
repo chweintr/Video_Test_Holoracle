@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple HTTP server for Railway deployment with CSP headers for Simli widget
+Simple HTTP server for Railway deployment with very permissive CSP headers for Simli widget
 """
 import http.server
 import socketserver
@@ -11,23 +11,23 @@ PORT = int(os.environ.get('PORT', 8083))
 
 class SimliHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
-        # Add CORS and CSP headers for Simli widget
+        # Add CORS and very permissive CSP headers for Simli widget
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         
-        # Content Security Policy that allows Simli widget to work
+        # Very permissive Content Security Policy that allows everything
         csp_policy = (
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.simli.com https://*.simli.com; "
-            "style-src 'self' 'unsafe-inline' https://app.simli.com https://*.simli.com; "
-            "img-src 'self' data: blob: https://app.simli.com https://*.simli.com https://*.cloudfront.net; "
-            "media-src 'self' blob: https://app.simli.com https://*.simli.com; "
-            "connect-src 'self' https://app.simli.com https://*.simli.com https://api.simli.com wss://*.simli.com ws://*.simli.com; "
-            "frame-src 'self' https://app.simli.com https://*.simli.com; "
-            "object-src 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self';"
+            "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; "
+            "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; "
+            "style-src * 'unsafe-inline' data: blob:; "
+            "img-src * data: blob:; "
+            "media-src * data: blob:; "
+            "connect-src * data: blob:; "
+            "frame-src * data: blob:; "
+            "object-src * data: blob:; "
+            "base-uri *; "
+            "form-action *;"
         )
         self.send_header('Content-Security-Policy', csp_policy)
         
@@ -43,7 +43,7 @@ def main():
         print(f"🚀 Simple Server starting on port {PORT}")
         print(f"📁 Serving files from: {os.getcwd()}")
         print(f"🌐 URL: http://localhost:{PORT}/")
-        print("🔒 CSP headers configured for Simli widget")
+        print("🔓 Very permissive CSP headers configured for Simli widget")
         
         try:
             httpd.serve_forever()

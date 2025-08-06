@@ -1,1 +1,1 @@
-web: python simple_server.py 
+web: python simli_voice_backend.py 

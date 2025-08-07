@@ -266,6 +266,7 @@ async def get_personas():
                 "id": "bigfoot",
                 "name": "Brown County Bigfoot",
                 "description": "Legendary cryptid storyteller of Indiana's forests",
+                "simli_face_id": "6926a39d-638b-49c5-9328-79efa034e9a4",
                 "voice": "stock-simli",
                 "knowledge": "cryptid-folklore"
             },
@@ -273,6 +274,7 @@ async def get_personas():
                 "id": "indiana", 
                 "name": "Hoosier Oracle",
                 "description": "Eternal consciousness of Indiana's history and culture",
+                "simli_face_id": "0c2b8b04-5274-41f1-a21c-d5c98322efa9",
                 "voice": "elevenlabs-hoosier",
                 "knowledge": "indiana-history"
             },
@@ -280,6 +282,7 @@ async def get_personas():
                 "id": "vonnegut",
                 "name": "Kurt Vonnegut", 
                 "description": "Indianapolis author with dark humor and humanist wisdom",
+                "simli_face_id": "6ebf0aa7-6fed-443d-a4c6-fd1e3080b215",
                 "voice": "elevenlabs-vonnegut",
                 "knowledge": "vonnegut-corpus"
             }

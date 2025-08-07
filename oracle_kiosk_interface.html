@@ -460,7 +460,7 @@
                 data.personas.forEach(persona => {
                     CONFIG.personas[persona.id] = {
                         name: persona.name,
-                        simliAgentId: CONFIG.simli.agentId, // Will be updated when you get custom IDs
+                        simliAgentId: persona.simli_face_id || CONFIG.simli.agentId,
                         voice: persona.voice,
                         knowledge: persona.knowledge,
                         description: persona.description

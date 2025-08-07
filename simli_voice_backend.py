@@ -178,6 +178,14 @@ async def simli_test():
     else:
         return {"message": "simple_simli_test.html not found"}
 
+@app.get("/kiosk")
+async def oracle_kiosk():
+    """Serve the Oracle Kiosk interface"""
+    if os.path.exists("oracle_kiosk_interface.html"):
+        return FileResponse("oracle_kiosk_interface.html")
+    else:
+        return {"message": "oracle_kiosk_interface.html not found"}
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -218,7 +226,7 @@ async def debug_environment():
 
 @app.post("/process-audio")
 async def process_audio(audio_data: dict):
-    """Process audio input from Simli widget"""
+    """Process audio input from Simli widget with persona routing"""
     try:
         # Extract audio data and persona
         audio_base64 = audio_data.get("audio")
@@ -227,10 +235,17 @@ async def process_audio(audio_data: dict):
         if not audio_base64:
             raise HTTPException(status_code=400, detail="No audio data provided")
         
+        # Validate persona
+        valid_personas = ["bigfoot", "indiana", "vonnegut"]
+        if persona not in valid_personas:
+            persona = "indiana"  # Default fallback
+        
+        logger.info(f"Processing audio for persona: {persona}")
+        
         # Decode base64 audio
         audio_bytes = base64.b64decode(audio_base64)
         
-        # Process through voice system
+        # Process through voice system with persona-specific routing
         result = await backend.process_audio_input(audio_bytes, persona)
         
         return JSONResponse(content=result)
@@ -241,6 +256,35 @@ async def process_audio(audio_data: dict):
             status_code=500,
             content={"success": False, "error": str(e)}
         )
+
+@app.get("/personas")
+async def get_personas():
+    """Get available personas and their configurations"""
+    return {
+        "personas": [
+            {
+                "id": "bigfoot",
+                "name": "Brown County Bigfoot",
+                "description": "Legendary cryptid storyteller of Indiana's forests",
+                "voice": "stock-simli",
+                "knowledge": "cryptid-folklore"
+            },
+            {
+                "id": "indiana", 
+                "name": "Hoosier Oracle",
+                "description": "Eternal consciousness of Indiana's history and culture",
+                "voice": "elevenlabs-hoosier",
+                "knowledge": "indiana-history"
+            },
+            {
+                "id": "vonnegut",
+                "name": "Kurt Vonnegut", 
+                "description": "Indianapolis author with dark humor and humanist wisdom",
+                "voice": "elevenlabs-vonnegut",
+                "knowledge": "vonnegut-corpus"
+            }
+        ]
+    }
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

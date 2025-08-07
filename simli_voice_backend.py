@@ -132,6 +132,10 @@ class SimliVoiceBackend:
 # Initialize the backend
 backend = SimliVoiceBackend()
 
+# Mount static files for assets
+if os.path.exists("assets"):
+    app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize systems on startup"""
@@ -185,6 +189,14 @@ async def oracle_kiosk():
         return FileResponse("oracle_kiosk_interface.html")
     else:
         return {"message": "oracle_kiosk_interface.html not found"}
+
+@app.get("/holographic")
+async def oracle_holographic():
+    """Serve the Holographic Oracle interface with frame overlay"""
+    if os.path.exists("oracle_kiosk_holographic.html"):
+        return FileResponse("oracle_kiosk_holographic.html")
+    else:
+        return {"message": "oracle_kiosk_holographic.html not found"}
 
 @app.get("/health")
 async def health_check():

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana - Holographic Oracle</title>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async type="text/javascript"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a1628;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Main Kiosk Container */
+        .kiosk-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Holographic Frame Container */
+        .holographic-frame {
+            position: relative;
+            width: 550px;
+            height: 550px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Background Frame Layer (Bottom) */
+        .frame-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/frame_basic.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+        }
+        
+        /* Avatar Container - Positioned in center of frame */
+        .avatar-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;  /* Adjusted to fit inside frame */
+            height: 350px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Simli Widget Container */
+        .simli-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Idle/Transition Videos */
+        .video-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        #idleVideo {
+            display: block;
+        }
+        
+        #transitionVideo {
+            display: none;
+        }
+        
+        /* Foreground Frame Overlay (Top) - Black becomes transparent */
+        .frame-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/frame_overlay.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 10;
+            pointer-events: none;
+            mix-blend-mode: screen; /* Makes black transparent */
+        }
+        
+        /* Persona Selection Buttons */
+        .persona-buttons {
+            position: absolute;
+            bottom: 80px;
+            display: flex;
+            gap: 30px;
+            z-index: 20;
+        }
+        
+        .persona-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(147, 51, 234, 0.2));
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .persona-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(147, 51, 234, 0.4));
+            border-color: #00ffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .persona-btn.active {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.5), rgba(147, 51, 234, 0.5));
+            border-color: #ff00ff;
+            color: #ff00ff;
+            box-shadow: 0 5px 30px rgba(147, 51, 234, 0.4);
+        }
+        
+        /* Status Display */
+        .status-display {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Hide Simli's teaser icon */
+        .simli-teaser-icon,
+        [class*="simli-teaser"],
+        [class*="simli-bottom"],
+        [class*="constellation"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 255, 255, 0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        /* Glow Effects */
+        @keyframes glow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+            }
+            50% { 
+                filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+            }
+        }
+        
+        .holographic-frame {
+            animation: glow 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <!-- Status Display -->
+        <div class="status-display" id="statusDisplay">
+            System: Initializing...
+        </div>
+        
+        <!-- Holographic Frame Container -->
+        <div class="holographic-frame">
+            <!-- Background Frame (Bottom Layer) -->
+            <div class="frame-background"></div>
+            
+            <!-- Avatar Container (Middle Layer) -->
+            <div class="avatar-container">
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                
+                <!-- Idle Video -->
+                <video id="idleVideo" class="video-layer" loop muted autoplay>
+                    <!-- Placeholder particle effect -->
+                </video>
+                
+                <!-- Transition Video -->
+                <video id="transitionVideo" class="video-layer" muted>
+                </video>
+                
+                <!-- Simli Widget Container -->
+                <div class="simli-container" id="simliContainer">
+                    <!-- Simli widget will be injected here -->
+                </div>
+            </div>
+            
+            <!-- Foreground Frame Overlay (Top Layer) -->
+            <div class="frame-overlay"></div>
+        </div>
+        
+        <!-- Persona Selection Buttons -->
+        <div class="persona-buttons">
+            <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
+                Brown County Bigfoot
+            </button>
+            <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
+                Hoosier Oracle
+            </button>
+            <button class="persona-btn" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
+                Kurt Vonnegut
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration - Will be loaded from backend
+        let CONFIG = {
+            simli: {
+                token: 'gAAAAABoknQ5pjetB58-9LOEdJZkoo8p3brJuajlzDM6BfIKJYK5qLQVa6M2cItGSnb9XFyYdGGIX6-wep5NP7k9XnZRgW0MG6IWL6ik1kQL1ZA3Vz6JyzQqUwTj6k0tuj_ZFhvxrmc8VryBE64dK6blBkWzQ-NL834bvzZqEQnJoLk-ikIQ8PQ77QgR0oUvxt2fhmK0oKQQtOOyMfX8mLVsZePr7pHQWiZ87SIB4vZYmRAnFmxQ1JO-OgKE9p9cY8Eg70G9j37Y0bJ1UlwBIwVJek1tjCQrubtpF1NS0u4kUOKziE1KafP8NLI40mqkagxQ8q6bD_wEFCMUwletb1koFxznzcLXtNkJo-I2-m-zGjn8uAdBi7kC7KDehhKvgDy6d48c3vhSFxFNe5xSjUZcLs5kjT2aQA==',
+                agentId: '4a857f92-feee-4b70-b973-290baec4d545'
+            },
+            personas: {}
+        };
+        
+        // Backend API base URL
+        const API_BASE = window.location.origin;
+        
+        // State Management
+        let currentState = 'IDLE';
+        let currentPersona = null;
+        let simliWidget = null;
+        
+        // DOM Elements
+        const idleVideo = document.getElementById('idleVideo');
+        const transitionVideo = document.getElementById('transitionVideo');
+        const simliContainer = document.getElementById('simliContainer');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        
+        // Update Status Display
+        function updateStatus(message) {
+            statusDisplay.textContent = `System: ${message}`;
+            console.log(`[Oracle] ${message}`);
+        }
+        
+        // Switch Persona
+        async function switchPersona(personaId) {
+            if (currentState !== 'IDLE' && currentState !== 'LIVE') {
+                console.log('Cannot switch during transition');
+                return;
+            }
+            
+            // Update button states
+            document.querySelectorAll('.persona-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
+            
+            // If already in a session, end it first
+            if (currentState === 'LIVE') {
+                await endSession();
+            }
+            
+            // Start transition
+            currentState = 'TRANSITION_IN';
+            currentPersona = personaId;
+            updateStatus(`Summoning ${CONFIG.personas[personaId]?.name || personaId}...`);
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            idleVideo.style.display = 'none';
+            
+            // Simulate transition (or play actual transition video if available)
+            setTimeout(() => {
+                loadSimliWidget(personaId);
+            }, 1500);
+        }
+        
+        // Load Simli Widget
+        function loadSimliWidget(personaId) {
+            currentState = 'LOADING';
+            updateStatus(`Connecting to ${CONFIG.personas[personaId]?.name || personaId}...`);
+            
+            // Hide loading spinner
+            loadingSpinner.style.display = 'none';
+            
+            // Show Simli container
+            simliContainer.style.display = 'flex';
+            
+            // Clear previous widget
+            simliContainer.innerHTML = '';
+            
+            // Create widget div
+            const widgetDiv = document.createElement('div');
+            widgetDiv.id = 'simli-widget-container';
+            widgetDiv.style.width = '100%';
+            widgetDiv.style.height = '100%';
+            simliContainer.appendChild(widgetDiv);
+            
+            // Get persona config
+            const persona = CONFIG.personas[personaId];
+            
+            // Initialize Simli widget
+            if (window.Simli) {
+                simliWidget = new window.Simli({
+                    containerId: 'simli-widget-container',
+                    token: CONFIG.simli.token,
+                    agentId: persona?.simliAgentId || CONFIG.simli.agentId,
+                    position: 'relative',
+                    width: 350,
+                    height: 350,
+                    hideTeaser: true,
+                    customText: persona?.name || 'Oracle',
+                    onReady: () => {
+                        currentState = 'LIVE';
+                        updateStatus(`${persona?.name || personaId} Active`);
+                    },
+                    onError: (error) => {
+                        console.error('Simli error:', error);
+                        updateStatus('Connection error');
+                        returnToIdle();
+                    }
+                });
+            } else {
+                // Fallback for testing
+                simliContainer.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #00ffff;">
+                        <div style="text-align: center;">
+                            <h3>${persona?.name || personaId}</h3>
+                            <p>Simli loading...</p>
+                        </div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    currentState = 'LIVE';
+                    updateStatus(`${persona?.name || personaId} Active (Mock)`);
+                }, 1000);
+            }
+        }
+        
+        // End Session
+        async function endSession() {
+            if (currentState !== 'LIVE') return;
+            
+            currentState = 'TRANSITION_OUT';
+            updateStatus('Releasing spirit...');
+            
+            // Clear Simli widget
+            if (simliWidget) {
+                simliWidget.destroy?.();
+                simliWidget = null;
+            }
+            simliContainer.style.display = 'none';
+            simliContainer.innerHTML = '';
+            
+            // Show loading spinner briefly
+            loadingSpinner.style.display = 'block';
+            
+            setTimeout(() => {
+                returnToIdle();
+            }, 1000);
+        }
+        
+        // Return to Idle
+        function returnToIdle() {
+            currentState = 'IDLE';
+            currentPersona = null;
+            updateStatus('Ready');
+            
+            // Hide everything except idle state
+            loadingSpinner.style.display = 'none';
+            simliContainer.style.display = 'none';
+            idleVideo.style.display = 'block';
+            
+            // Clear button states
+            document.querySelectorAll('.persona-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+        
+        // Hide Simli teaser icon
+        function hideSimliTeaser() {
+            const selectors = [
+                '.simli-teaser-icon',
+                '[class*="simli-teaser"]',
+                '[class*="simli-bottom"]',
+                '[class*="constellation"]',
+                '.simli-widget-teaser'
+            ];
+            
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.display = 'none';
+                    el.style.visibility = 'hidden';
+                    el.style.opacity = '0';
+                });
+            });
+        }
+        
+        // Load persona configurations from backend
+        async function loadPersonaConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/personas`);
+                const data = await response.json();
+                
+                // Update CONFIG with backend data
+                data.personas.forEach(persona => {
+                    CONFIG.personas[persona.id] = {
+                        name: persona.name,
+                        simliAgentId: persona.simli_face_id || CONFIG.simli.agentId,
+                        voice: persona.voice,
+                        knowledge: persona.knowledge,
+                        description: persona.description
+                    };
+                });
+                
+                console.log('Loaded personas:', Object.keys(CONFIG.personas));
+                updateStatus('Ready');
+                
+            } catch (error) {
+                console.error('Failed to load personas:', error);
+                // Use fallback config
+                CONFIG.personas = {
+                    bigfoot: { 
+                        name: 'Brown County Bigfoot', 
+                        simliAgentId: '6926a39d-638b-49c5-9328-79efa034e9a4' 
+                    },
+                    indiana: { 
+                        name: 'Hoosier Oracle', 
+                        simliAgentId: '0c2b8b04-5274-41f1-a21c-d5c98322efa9' 
+                    },
+                    vonnegut: { 
+                        name: 'Kurt Vonnegut', 
+                        simliAgentId: '6ebf0aa7-6fed-443d-a4c6-fd1e3080b215' 
+                    }
+                };
+                updateStatus('Ready (Offline Mode)');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            updateStatus('Initializing...');
+            
+            // Load persona configurations
+            await loadPersonaConfig();
+            
+            // Continuously hide teaser icon
+            setInterval(hideSimliTeaser, 500);
+            
+            // Add ESC key to return to idle
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && currentState === 'LIVE') {
+                    endSession();
+                }
+            });
+        });
+        
+        // Wait for Simli script to load
+        let simliCheckInterval = setInterval(() => {
+            if (window.Simli) {
+                console.log('Simli library loaded');
+                clearInterval(simliCheckInterval);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -170,6 +170,35 @@ async def health_check():
         "rag_system": backend.rag_system is not None
     }
 
+@app.get("/debug-env")
+async def debug_environment():
+    """Debug endpoint to see what environment variables are available"""
+    import os
+    
+    # Get all environment variables that might be relevant
+    env_vars = {}
+    for key, value in os.environ.items():
+        if any(keyword in key.upper() for keyword in ['OPENAI', 'ELEVEN', 'SIMLI', 'HEYGEN', 'API', 'KEY']):
+            # Only show first/last few chars for security
+            if value:
+                masked_value = f"{value[:8]}...{value[-4:]}" if len(value) > 12 else "***MASKED***"
+                env_vars[key] = masked_value
+            else:
+                env_vars[key] = "EMPTY"
+    
+    return {
+        "environment_variables": env_vars,
+        "total_env_vars": len(os.environ),
+        "working_directory": os.getcwd(),
+        "python_path": os.environ.get("PYTHONPATH", "Not set"),
+        "direct_checks": {
+            "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY") is not None,
+            "ELEVENLABS_API_KEY": os.getenv("ELEVENLABS_API_KEY") is not None,
+            "SIMLI_API_KEY": os.getenv("SIMLI_API_KEY") is not None,
+            "SIMLI_FACE_ID": os.getenv("SIMLI_FACE_ID") is not None
+        }
+    }
+
 @app.post("/process-audio")
 async def process_audio(audio_data: dict):
     """Process audio input from Simli widget"""

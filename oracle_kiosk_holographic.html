@@ -336,8 +336,27 @@
             }, 1500);
         }
         
-        // Load Simli Widget
-        function loadSimliWidget(personaId) {
+        // Load Simli Widget with retry logic
+        function loadSimliWidget(personaId, retryCount = 0) {
+            const maxRetries = 10; // Wait up to 5 seconds
+            
+            if (retryCount >= maxRetries) {
+                console.error('Simli library failed to load after retries');
+                updateStatus('Simli loading timeout - check network connection');
+                return;
+            }
+            
+            // Check if Simli is loaded yet
+            if (!window.Simli) {
+                console.log(`Waiting for Simli library... attempt ${retryCount + 1}`);
+                updateStatus(`Loading Simli library... (${retryCount + 1}/${maxRetries})`);
+                
+                setTimeout(() => {
+                    loadSimliWidget(personaId, retryCount + 1);
+                }, 500);
+                return;
+            }
+            
             currentState = 'LOADING';
             updateStatus(`Connecting to ${CONFIG.personas[personaId]?.name || personaId}...`);
             
@@ -360,13 +379,13 @@
             // Get persona config
             const persona = CONFIG.personas[personaId];
             
-            // Initialize Simli widget
-            if (window.Simli) {
-                console.log('Creating Simli widget with config:', {
-                    token: CONFIG.simli.token ? 'Token present' : 'No token',
-                    agentId: persona?.simliAgentId || CONFIG.simli.agentId
-                });
-                
+            console.log('Creating Simli widget with config:', {
+                token: CONFIG.simli.token ? 'Token present' : 'No token',
+                agentId: persona?.simliAgentId || CONFIG.simli.agentId,
+                containerId: 'simli-widget-container'
+            });
+            
+            try {
                 simliWidget = new window.Simli({
                     containerId: 'simli-widget-container',
                     token: CONFIG.simli.token,
@@ -391,12 +410,20 @@
                             if (callButton) {
                                 console.log('Auto-clicking call button');
                                 callButton.click();
+                            } else {
+                                console.log('Call button not found, looking for alternative selectors...');
+                                // Try more generic selectors
+                                const altButton = document.querySelector('button, .button, [role="button"]');
+                                if (altButton) {
+                                    console.log('Found alternative button, clicking...');
+                                    altButton.click();
+                                }
                             }
-                        }, 500);
+                        }, 1000);
                     },
                     onError: (error) => {
-                        console.error('Simli error:', error);
-                        updateStatus('Connection error');
+                        console.error('Simli widget error:', error);
+                        updateStatus(`Connection error: ${error}`);
                         returnToIdle();
                     },
                     onCallStart: () => {
@@ -409,19 +436,13 @@
                         returnToIdle();
                     }
                 });
-            } else {
-                console.error('Simli library not loaded!');
-                // Fallback for testing
-                simliContainer.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #00ffff;">
-                        <div style="text-align: center;">
-                            <h3>${persona?.name || personaId}</h3>
-                            <p>Simli library not loaded - check console</p>
-                        </div>
-                    </div>
-                `;
                 
-                updateStatus('Simli library loading error');
+                console.log('Simli widget created successfully');
+                
+            } catch (error) {
+                console.error('Error creating Simli widget:', error);
+                updateStatus(`Widget creation failed: ${error.message}`);
+                returnToIdle();
             }
         }
         
@@ -547,13 +568,19 @@
             });
         });
         
-        // Wait for Simli script to load
-        let simliCheckInterval = setInterval(() => {
+        // Check Simli script loading on startup
+        function checkSimliLoaded() {
             if (window.Simli) {
-                console.log('Simli library loaded');
-                clearInterval(simliCheckInterval);
+                console.log('Simli library loaded and ready');
+                return true;
+            } else {
+                console.log('Simli library not yet available');
+                return false;
             }
-        }, 1000);
+        }
+        
+        // Initial check after page load
+        setTimeout(checkSimliLoaded, 1000);
     </script>
 </body>
 </html>

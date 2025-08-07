@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: simli-voice-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python simli_voice_backend.py
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: SIMLI_API_KEY
+        sync: false
+      - key: SIMLI_FACE_ID
+        sync: false

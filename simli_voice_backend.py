@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 # Load environment variables from .env file
@@ -138,9 +139,9 @@ async def startup_event():
     if not success:
         logger.error("Failed to initialize systems on startup")
 
-@app.get("/")
-async def root():
-    """Root endpoint"""
+@app.get("/api/status")
+async def api_status():
+    """API status endpoint"""
     # Check if systems are initialized
     voice_ready = backend.voice_system is not None
     rag_ready = backend.rag_system is not None
@@ -160,6 +161,22 @@ async def root():
             "knowledge_base_exists": os.path.exists("indiana_knowledge_base.pkl")
         }
     }
+
+@app.get("/")
+async def root():
+    """Serve the main Simli integration HTML"""
+    if os.path.exists("working_simli_integration.html"):
+        return FileResponse("working_simli_integration.html")
+    else:
+        return {"message": "Simli Voice Backend is running. HTML interface not found."}
+
+@app.get("/simli-test")
+async def simli_test():
+    """Serve the simple Simli test HTML"""
+    if os.path.exists("simple_simli_test.html"):
+        return FileResponse("simple_simli_test.html")
+    else:
+        return {"message": "simple_simli_test.html not found"}
 
 @app.get("/health")
 async def health_check():

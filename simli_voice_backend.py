@@ -198,6 +198,43 @@ async def oracle_holographic():
     else:
         return {"message": "oracle_kiosk_holographic.html not found"}
 
+@app.get("/cdn-test")
+async def simli_cdn_test():
+    """Serve the Simli CDN test page"""
+    if os.path.exists("simli_cdn_test.html"):
+        return FileResponse("simli_cdn_test.html")
+    else:
+        return {"message": "simli_cdn_test.html not found"}
+
+@app.get("/v3")
+async def oracle_kiosk_v3():
+    """Serve the Oracle Kiosk v3.0 - Fresh version without cache issues"""
+    if os.path.exists("oracle_kiosk_v3.html"):
+        return FileResponse("oracle_kiosk_v3.html")
+    else:
+        return {"message": "oracle_kiosk_v3.html not found"}
+
+@app.get("/simli-config")
+async def get_simli_config():
+    """Expose Simli token/agent configuration from environment for the frontend.
+
+    Looks for SIMLI_TOKEN first, then SIMLI_API_KEY (backward compat). Also allows
+    overriding default agent via SIMLI_AGENT_ID. Returns minimal info to avoid
+    leaking keys in logs.
+    """
+    token = os.getenv("SIMLI_TOKEN") or os.getenv("SIMLI_API_KEY")
+    agent_id = os.getenv("SIMLI_AGENT_ID")
+
+    # Fallback agent id to Indiana persona if not explicitly provided
+    if not agent_id:
+        agent_id = "0c2b8b04-5274-41f1-a21c-d5c98322efa9"
+
+    return {
+        "token_present": bool(token),
+        "token": token or "",
+        "agentId": agent_id,
+    }
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -206,6 +243,13 @@ async def health_check():
         "voice_system": backend.voice_system is not None,
         "rag_system": backend.rag_system is not None
     }
+
+@app.get("/mock")
+async def mock_page():
+    """Serve the simplified mock avatar page."""
+    if os.path.exists("mock_avatar.html"):
+        return FileResponse("mock_avatar.html")
+    return {"message": "mock_avatar.html not found"}
 
 @app.get("/debug-env")
 async def debug_environment():

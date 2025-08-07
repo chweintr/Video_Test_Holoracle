@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echoes of Indiana — Avatar Mock</title>
+  <!-- Strict CSP to reduce extension/script interference in previews -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; connect-src 'self'; frame-ancestors 'self';">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --cyan:#4de3ff; --magenta:#ff4df3; --violet:#7e6bff; }
+    html, body { height:100%; }
+    body{
+      margin:0; padding:0; overflow:hidden; color:#e7faff;
+      font-family:'Orbitron', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:#000 url('assets/landingpage.png') center center / cover no-repeat fixed;
+    }
+    header, footer{ position:relative; z-index:5; }
+    .status-pill{
+      background:rgba(22,52,38,0.55);
+      border:1px solid rgba(56,178,127,0.55);
+      padding:0.4rem 1rem; border-radius:0.5rem;
+    }
+    h1{
+      text-shadow:0 0 8px var(--cyan), 0 0 20px var(--cyan), 0 0 38px var(--violet);
+      font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+    }
+    .btn{
+      border:1px solid rgba(109,213,255,0.45); border-radius:10px; padding:0.9rem 1.2rem;
+      background:linear-gradient(135deg, rgba(0,0,0,0.40) 0%, rgba(77,227,255,0.15) 100%);
+      box-shadow:0 0 15px rgba(77,227,255,0.15);
+      text-transform:uppercase; color:var(--cyan);
+    }
+    .btn.active{
+      border-color:rgba(255,77,243,0.7);
+      background:linear-gradient(135deg, rgba(0,0,0,0.40) 0%, rgba(255,77,243,0.15) 100%);
+      box-shadow:0 0 20px rgba(255,77,243,0.35); color:var(--magenta);
+    }
+    .layer{ position:absolute; inset:0; pointer-events:none; z-index:1; }
+    .light-spill{ background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(77,227,255,0.18), transparent 40%); mix-blend-mode:screen; }
+    .mount{ width:min(280px, 38vmin); height:min(280px, 38vmin);
+      background:rgba(0,0,0,0.85); border:1px solid rgba(77,227,255,0.45);
+      box-shadow:0 0 18px rgba(77,227,255,0.45) inset; display:flex; align-items:center; justify-content:center; z-index:2; }
+
+    /* Test output */
+    #testlog{ position:fixed; right:8px; bottom:8px; max-width:52ch; font:12px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color:#9ee8ff; opacity:.9; background:rgba(0,0,0,0.42); padding:.5rem .6rem; border-radius:.4rem; border:1px solid rgba(114,232,255,0.25); z-index:10; }
+    .hidden{ display:none !important; }
+  </style>
+  <!-- This page is a purely visual mock for kiosk layout -->
+</head>
+<body>
+  <noscript><div style="position:fixed;top:8px;left:8px;z-index:9999;background:#111;color:#fff;padding:6px 8px;border:1px solid #444">This demo requires JavaScript.</div></noscript>
+
+  <div class="layer light-spill" id="parallaxLayer"></div>
+  <header class="flex flex-col items-center gap-2 pt-6">
+    <div class="status-pill text-sm"><span class="opacity-80">System</span> <span class="font-medium text-emerald-300">Brown County Bigfoot Active (Mock)</span></div>
+  </header>
+  <div class="w-full text-center mt-4">
+    <h1 class="text-2xl md:text-4xl">Echoes of Indiana</h1>
+  </div>
+  <main class="w-full h-[72vh] flex items-center justify-center">
+    <div id="simli-mount" class="mount">SIMLI Mount</div>
+  </main>
+  <footer class="flex gap-6 justify-center pb-10">
+    <button class="btn active">Brown County Bigfoot</button>
+    <button class="btn">Hoosier Oracle</button>
+    <button class="btn">Kurt Vonnegut</button>
+  </footer>
+  <pre id="testlog" class="hidden"></pre>
+
+  <script>
+    // ======= CONFIG =======
+    const ENABLE_PARALLAX = true; // set false to disable mouse effect quickly
+    const BG_URL = 'assets/landingpage.png';
+    // =======================
+
+    function log(results){
+      try{
+        console.table(results);
+        const el = document.getElementById('testlog');
+        el.classList.remove('hidden');
+        el.textContent = results.map(r => `${r.pass ? '✔' : '✖'} ${r.test}`).join('\n');
+      }catch(_){/* ignore */}
+    }
+
+    function runSelfTests(){
+      const results = [];
+      const ok = (name, pass) => results.push({ test:name, pass:!!pass });
+
+      ok('Buttons rendered', document.querySelectorAll('.btn').length === 3);
+      ok('SIMLI mount present', !!document.getElementById('simli-mount'));
+      // Background check: if CSS url failed, computed style may not contain url()
+      const bg = getComputedStyle(document.body).backgroundImage;
+      ok('Background reference present', /url\(/.test(bg));
+
+      // Parallax layer present
+      ok('Parallax layer present', !!document.getElementById('parallaxLayer'));
+
+      log(results);
+    }
+
+    function setupParallax(){
+      if(!ENABLE_PARALLAX) return;
+      const light = document.getElementById('parallaxLayer');
+      if(!light) return;
+      let mx = 50, my = 50, ticking = false;
+      function update(){
+        light.style.setProperty('--mx', mx + '%');
+        light.style.setProperty('--my', my + '%');
+        ticking = false;
+      }
+      // rAF-throttled mouse handler
+      addEventListener('mousemove', e => {
+        mx = (e.clientX / innerWidth) * 100;
+        my = (e.clientY / innerHeight) * 100;
+        if(!ticking){ requestAnimationFrame(update); ticking = true; }
+      }, { passive:true });
+    }
+
+    // Graceful background load: if file missing, keep gradient fallback
+    function verifyBackground(){
+      if(!BG_URL) return;
+      const img = new Image();
+      img.onload = () => { /* success: CSS already points to file */ };
+      img.onerror = () => {
+        // Replace with gradient fallback so text is readable
+        document.body.style.background = 'radial-gradient(60vmax 60vmax at 15% 20%, rgba(77,227,255,0.12), transparent 60%),\\
+                                          radial-gradient(70vmax 70vmax at 85% 30%, rgba(255,77,243,0.10), transparent 60%),\\
+                                          radial-gradient(80vmax 80vmax at 50% 85%, rgba(126,107,255,0.10), transparent 60%),\\
+                                          #000';
+      };
+      img.src = BG_URL;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupParallax();
+      verifyBackground();
+      runSelfTests();
+    });
+  </script>
+  <!-- Visit /v3 for the live widget version -->
+</body>
+</html>
+
+

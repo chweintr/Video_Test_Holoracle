@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Indiana - Holographic Oracle v2.1</title>
-    <!-- Cache buster: 2025-08-07-14:30 -->
+    <title>Echoes of Indiana - Holographic Oracle v3.0</title>
     
     <!-- Simli Widget Script - Primary CDN with error handling -->
     <script src="https://app.simli.com/simli-widget/index.js" async type="text/javascript" 
@@ -181,16 +180,6 @@
             backdrop-filter: blur(10px);
         }
         
-        /* Hide Simli's teaser icon */
-        .simli-teaser-icon,
-        [class*="simli-teaser"],
-        [class*="simli-bottom"],
-        [class*="constellation"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
-        
         /* Loading Animation */
         .loading-spinner {
             position: absolute;
@@ -223,13 +212,26 @@
         .holographic-frame {
             animation: glow 4s ease-in-out infinite;
         }
+        
+        /* DEBUG: Show if new background is loading */
+        .frame-background::after {
+            content: "NEW CURVED BACKGROUND v3.0";
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: #00ff00;
+            background: rgba(0,0,0,0.8);
+            padding: 2px 5px;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
     <div class="kiosk-container">
         <!-- Status Display -->
         <div class="status-display" id="statusDisplay">
-            System: Initializing...
+            System: Initializing v3.0...
         </div>
         
         <!-- Holographic Frame Container -->
@@ -276,11 +278,13 @@
     </div>
     
     <script>
+        console.log('🚀 LOADING ORACLE KIOSK v3.0 - NEW VERSION');
+        
         // Configuration - Will be loaded from backend
         let CONFIG = {
             simli: {
-                token: 'gAAAAABoknQ5pjetB58-9LOEdJZkoo8p3brJuajlzDM6BfIKJYK5qLQVa6M2cItGSnb9XFyYdGGIX6-wep5NP7k9XnZRgW0MG6IWL6ik1kQL1ZA3Vz6JyzQqUwTj6k0tuj_ZFhvxrmc8VryBE64dK6blBkWzQ-NL834bvzZqEQnJoLk-ikIQ8PQ77QgR0oUvxt2fhmK0oKQQtOOyMfX8mLVsZePr7pHQWiZ87SIB4vZYmRAnFmxQ1JO-OgKE9p9cY8Eg70G9j37Y0bJ1UlwBIwVJek1tjCQrubtpF1NS0u4kUOKziE1KafP8NLI40mqkagxQ8q6bD_wEFCMUwletb1koFxznzcLXtNkJo-I2-m-zGjn8uAdBi7kC7KDehhKvgDy6d48c3vhSFxFNe5xSjUZcLs5kjT2aQA==',
-                agentId: '4a857f92-feee-4b70-b973-290baec4d545'
+                token: '',
+                agentId: ''
             },
             personas: {}
         };
@@ -303,7 +307,7 @@
         // Update Status Display
         function updateStatus(message) {
             statusDisplay.textContent = `System: ${message}`;
-            console.log(`[Oracle] ${message}`);
+            console.log(`[Oracle v3.0] ${message}`);
         }
         
         // Switch Persona
@@ -339,9 +343,9 @@
             }, 1500);
         }
         
-        // Load Simli Widget using custom element approach
+        // Load Simli Widget using custom element approach - VERSION 3.0
         function loadSimliWidget(personaId, retryCount = 0) {
-            const maxRetries = 5;
+            const maxRetries = 3; // CHANGED TO 3 for v3.0
             
             if (retryCount >= maxRetries) {
                 console.error('Simli library failed to load after retries, using fallback');
@@ -353,8 +357,8 @@
             const isSimliReady = window.customElements && customElements.get('simli-widget');
             
             if (!isSimliReady) {
-                console.log(`Waiting for Simli widget registration... attempt ${retryCount + 1}`);
-                updateStatus(`Loading Simli library... (${retryCount + 1}/${maxRetries})`);
+                console.log(`[v3.0] Waiting for Simli widget registration... attempt ${retryCount + 1}`);
+                updateStatus(`Loading Simli library... (${retryCount + 1}/${maxRetries})`); // NEW VERSION SHOWS /3
                 
                 setTimeout(() => {
                     loadSimliWidget(personaId, retryCount + 1);
@@ -377,16 +381,16 @@
             // Get persona config
             const persona = CONFIG.personas[personaId];
             
-            console.log('Creating Simli custom element with config:', {
+            console.log('[v3.0] Creating Simli custom element with config:', {
                 token: CONFIG.simli.token ? 'Token present' : 'No token',
-                agentId: persona?.simliAgentId || CONFIG.simli.agentId
+                agentId: CONFIG.simli.agentId || '(missing)'
             });
             
             try {
                 // Create the Simli custom element
                 const simliElement = document.createElement('simli-widget');
                 simliElement.setAttribute('token', CONFIG.simli.token);
-                simliElement.setAttribute('agentid', persona?.simliAgentId || CONFIG.simli.agentId);
+                simliElement.setAttribute('agentid', CONFIG.simli.agentId);
                 simliElement.setAttribute('position', 'relative');
                 simliElement.setAttribute('customtext', persona?.name || 'Talk to Oracle');
                 simliElement.setAttribute('width', '350');
@@ -394,7 +398,7 @@
                 
                 // Add event listeners
                 simliElement.addEventListener('ready', () => {
-                    console.log('Simli widget ready');
+                    console.log('[v3.0] Simli widget ready');
                     currentState = 'LIVE';
                     updateStatus(`${persona?.name || personaId} Ready - Click to Talk`);
                     
@@ -403,19 +407,19 @@
                 });
                 
                 simliElement.addEventListener('error', (event) => {
-                    console.error('Simli widget error:', event.detail);
+                    console.error('[v3.0] Simli widget error:', event.detail);
                     updateStatus(`Connection error: ${event.detail}`);
                     returnToIdle();
                 });
                 
                 simliElement.addEventListener('callstart', () => {
-                    console.log('Call started');
+                    console.log('[v3.0] Call started');
                     updateStatus(`${persona?.name || personaId} Active`);
                     document.querySelector('.frame-overlay').classList.add('active');
                 });
                 
                 simliElement.addEventListener('callend', () => {
-                    console.log('Call ended');
+                    console.log('[v3.0] Call ended');
                     returnToIdle();
                 });
                 
@@ -430,10 +434,10 @@
                 simliContainer.appendChild(simliElement);
                 simliWidget = simliElement;
                 
-                console.log('Simli custom element created successfully');
+                console.log('[v3.0] Simli custom element created successfully');
                 
             } catch (error) {
-                console.error('Error creating Simli widget:', error);
+                console.error('[v3.0] Error creating Simli widget:', error);
                 updateStatus(`Widget creation failed: ${error.message}`);
                 returnToIdle();
             }
@@ -441,11 +445,11 @@
         
         // Mock Widget for testing when Simli CDN is unavailable
         function loadMockWidget(personaId) {
-            console.log('Loading mock widget for testing');
+            console.log('[v3.0] Loading mock widget for testing');
             currentState = 'LOADING';
             
             const persona = CONFIG.personas[personaId];
-            updateStatus(`Mock ${persona?.name || personaId} - Testing Mode`);
+            updateStatus(`Mock ${persona?.name || personaId} - Testing Mode v3.0`);
             
             // Hide loading spinner
             loadingSpinner.style.display = 'none';
@@ -472,7 +476,7 @@
             
             mockDiv.innerHTML = `
                 <div style="margin-bottom: 20px; font-size: 18px; font-weight: bold;">
-                    ${persona?.name || personaId}
+                    ${persona?.name || personaId} v3.0
                 </div>
                 <div style="margin-bottom: 20px; color: #aaaaaa; font-size: 14px;">
                     Mock Mode - Simli CDN Unavailable
@@ -492,7 +496,7 @@
             simliContainer.appendChild(mockDiv);
             
             currentState = 'LIVE';
-            updateStatus(`${persona?.name || personaId} Ready (Mock Mode)`);
+            updateStatus(`${persona?.name || personaId} Ready (Mock Mode v3.0)`);
             
             // Show overlay
             document.querySelector('.frame-overlay').classList.add('active');
@@ -501,13 +505,13 @@
         // Mock call starter
         function startMockCall(personaId) {
             const persona = CONFIG.personas[personaId];
-            updateStatus(`${persona?.name || personaId} Active (Mock)`);
+            updateStatus(`${persona?.name || personaId} Active (Mock v3.0)`);
             
             // Replace button with active indicator
             const mockDiv = simliContainer.querySelector('div');
             mockDiv.innerHTML = `
                 <div style="margin-bottom: 20px; font-size: 18px; font-weight: bold; color: #00ff00;">
-                    ${persona?.name || personaId} 
+                    ${persona?.name || personaId} v3.0
                 </div>
                 <div style="margin-bottom: 20px; color: #00ff00; font-size: 14px;">
                     ● LIVE - Mock Conversation Active
@@ -520,7 +524,7 @@
                 </div>
             `;
             
-            console.log(`Mock call started for ${personaId}`);
+            console.log(`[v3.0] Mock call started for ${personaId}`);
         }
         
         // End Session
@@ -554,7 +558,7 @@
         function returnToIdle() {
             currentState = 'IDLE';
             currentPersona = null;
-            updateStatus('Ready');
+            updateStatus('Ready v3.0');
             
             // Hide overlay
             document.querySelector('.frame-overlay').classList.remove('active');
@@ -567,26 +571,6 @@
             // Clear button states
             document.querySelectorAll('.persona-btn').forEach(btn => {
                 btn.classList.remove('active');
-            });
-        }
-        
-        // Hide Simli teaser icon
-        function hideSimliTeaser() {
-            const selectors = [
-                '.simli-teaser-icon',
-                '[class*="simli-teaser"]',
-                '[class*="simli-bottom"]',
-                '[class*="constellation"]',
-                '.simli-widget-teaser'
-            ];
-            
-            selectors.forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(el => {
-                    el.style.display = 'none';
-                    el.style.visibility = 'hidden';
-                    el.style.opacity = '0';
-                });
             });
         }
         
@@ -607,11 +591,11 @@
                     };
                 });
                 
-                console.log('Loaded personas:', Object.keys(CONFIG.personas));
-                updateStatus('Ready');
+                console.log('[v3.0] Loaded personas:', Object.keys(CONFIG.personas));
+                updateStatus('Ready v3.0');
                 
             } catch (error) {
-                console.error('Failed to load personas:', error);
+                console.error('[v3.0] Failed to load personas:', error);
                 // Use fallback config
                 CONFIG.personas = {
                     bigfoot: { 
@@ -627,19 +611,49 @@
                         simliAgentId: '6ebf0aa7-6fed-443d-a4c6-fd1e3080b215' 
                     }
                 };
-                updateStatus('Ready (Offline Mode)');
+                updateStatus('Ready (Offline Mode v3.0)');
             }
         }
 
+        // Check Simli custom elements on startup
+        function checkSimliLoaded() {
+            const isReady = window.customElements && customElements.get('simli-widget');
+            if (isReady) {
+                console.log('[v3.0] Simli custom elements ready');
+                return true;
+            } else {
+                console.log('[v3.0] Simli custom elements not yet available');
+                // Check script loading status
+                const scripts = document.querySelectorAll('script[src*="simli"]');
+                scripts.forEach((script, index) => {
+                    console.log(`[v3.0] Script ${index + 1}: ${script.src}`);
+                    console.log(`  - loaded: ${script.readyState || 'unknown'}`);
+                    console.log(`  - error: ${script.onerror ? 'has error handler' : 'no error handler'}`);
+                });
+                return false;
+            }
+        }
+        
         // Initialize
         window.addEventListener('load', async () => {
-            updateStatus('Initializing...');
+            console.log('🚀 [v3.0] ORACLE KIOSK INITIALIZING');
+            updateStatus('Initializing v3.0...');
             
+            // Fetch Simli token/agent from backend config
+            try {
+                const cfgRes = await fetch(`${API_BASE}/simli-config`);
+                const cfg = await cfgRes.json();
+                CONFIG.simli.token = cfg.token || '';
+                CONFIG.simli.agentId = cfg.agentId || '';
+                if (!cfg.token_present) {
+                    console.warn('[v3.0] No SIMLI token available from backend; widget will 400.');
+                }
+            } catch (e) {
+                console.warn('[v3.0] Failed to load /simli-config');
+            }
+
             // Load persona configurations
             await loadPersonaConfig();
-            
-            // Continuously hide teaser icon
-            setInterval(hideSimliTeaser, 500);
             
             // Add ESC key to return to idle
             document.addEventListener('keydown', (e) => {
@@ -648,25 +662,6 @@
                 }
             });
         });
-        
-        // Check Simli custom elements on startup
-        function checkSimliLoaded() {
-            const isReady = window.customElements && customElements.get('simli-widget');
-            if (isReady) {
-                console.log('Simli custom elements ready');
-                return true;
-            } else {
-                console.log('Simli custom elements not yet available');
-                // Check script loading status
-                const scripts = document.querySelectorAll('script[src*="simli"]');
-                scripts.forEach((script, index) => {
-                    console.log(`Script ${index + 1}: ${script.src}`);
-                    console.log(`  - loaded: ${script.readyState || 'unknown'}`);
-                    console.log(`  - error: ${script.onerror ? 'has error handler' : 'no error handler'}`);
-                });
-                return false;
-            }
-        }
         
         // Initial check after page load
         setTimeout(checkSimliLoaded, 2000);

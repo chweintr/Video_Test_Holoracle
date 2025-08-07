@@ -641,13 +641,15 @@
             
             // Fetch Simli token/agent from backend config
             try {
+                // First get agentId
                 const cfgRes = await fetch(`${API_BASE}/simli-config`);
                 const cfg = await cfgRes.json();
-                CONFIG.simli.token = cfg.token || '';
                 CONFIG.simli.agentId = cfg.agentId || '';
-                if (!cfg.token_present) {
-                    console.warn('[v3.0] No SIMLI token available from backend; widget will 400.');
-                }
+                // Then request a fresh session token
+                const tokRes = await fetch(`${API_BASE}/simli-token`);
+                const tok = await tokRes.json();
+                CONFIG.simli.token = tok.token || '';
+                if (!CONFIG.simli.token) console.warn('[v3.0] No Simli session token received');
             } catch (e) {
                 console.warn('[v3.0] Failed to load /simli-config');
             }

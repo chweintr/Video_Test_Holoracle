@@ -231,9 +231,62 @@ async def get_simli_config():
 
     return {
         "token_present": bool(token),
-        "token": token or "",
+        # Do not include the raw token here for security; use /simli-token to fetch a fresh session token
+        "token": "", 
         "agentId": agent_id,
     }
+
+@app.get("/simli-token")
+async def create_simli_session_token():
+    """Create a short-lived Simli session token using SIMLI_API_KEY and SIMLI_AGENT_ID.
+
+    Falls back to SIMLI_TOKEN if API key is not available.
+    """
+    api_key = os.getenv("SIMLI_API_KEY")
+    agent_id = os.getenv("SIMLI_AGENT_ID") or "0c2b8b04-5274-41f1-a21c-d5c98322efa9"
+
+    # If an explicit session token is configured, return it (legacy behavior)
+    configured_session_token = os.getenv("SIMLI_TOKEN")
+    if not api_key and configured_session_token:
+        return {"token": configured_session_token, "agentId": agent_id, "source": "env_session_token"}
+
+    if not api_key:
+        return JSONResponse(status_code=400, content={
+            "error": "SIMLI_API_KEY not set",
+            "message": "Set SIMLI_API_KEY in environment to let the backend mint session tokens"
+        })
+
+    url = "https://api.simli.ai/createE2ESessionToken"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={"agentId": agent_id},
+                timeout=15,
+            ) as resp:
+                data = await resp.json()
+                if resp.status != 200:
+                    return JSONResponse(status_code=resp.status, content={
+                        "error": data,
+                        "message": "Failed to create Simli session token"
+                    })
+                token = data.get("token") or data.get("sessionToken") or data.get("e2eSessionToken")
+                if not token:
+                    return JSONResponse(status_code=500, content={
+                        "error": data,
+                        "message": "Simli token not found in response"
+                    })
+                return {"token": token, "agentId": agent_id, "source": "api"}
+    except Exception as e:
+        logger.error(f"Simli token generation error: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Error while creating Simli session token"
+        })
 
 @app.get("/health")
 async def health_check():

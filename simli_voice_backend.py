@@ -223,7 +223,7 @@ async def get_simli_config():
     leaking keys in logs.
     """
     token = os.getenv("SIMLI_TOKEN") or os.getenv("SIMLI_API_KEY")
-    agent_id = os.getenv("SIMLI_AGENT_ID")
+    agent_id = os.getenv("SIMLI_AGENT_ID") or os.getenv("SIMLI_FACE_ID")
 
     # Fallback agent id to Indiana persona if not explicitly provided
     if not agent_id:
@@ -237,18 +237,37 @@ async def get_simli_config():
     }
 
 @app.get("/simli-token")
-async def create_simli_session_token():
-    """Create a short-lived Simli session token using SIMLI_API_KEY and SIMLI_AGENT_ID.
+@app.post("/simli-token")
+async def create_simli_session_token(agentId: Optional[str] = None, persona: Optional[str] = None):
+    """Create a short-lived Simli session token using SIMLI_API_KEY.
 
-    Falls back to SIMLI_TOKEN if API key is not available.
+    Priority of agent selection:
+    1) explicit query param agentId
+    2) persona→agent mapping from /personas
+    3) env SIMLI_AGENT_ID or SIMLI_FACE_ID
+    4) default hoosier fallback id
     """
     api_key = os.getenv("SIMLI_API_KEY")
-    agent_id = os.getenv("SIMLI_AGENT_ID") or "0c2b8b04-5274-41f1-a21c-d5c98322efa9"
+    # Resolve agent id
+    resolved_agent_id = None
+    if agentId:
+        resolved_agent_id = agentId
+    elif persona:
+        # Map persona to agent via in-memory list from get_personas()
+        persona_map = {
+            "bigfoot": "6926a39d-638b-49c5-9328-79efa034e9a4",
+            # Reuse Bigfoot head for Hoosier temporarily
+            "indiana": "6926a39d-638b-49c5-9328-79efa034e9a4",
+            "vonnegut": "6ebf0aa7-6fed-443d-a4c6-fd1e3080b215",
+        }
+        resolved_agent_id = persona_map.get(persona)
+    if not resolved_agent_id:
+        resolved_agent_id = os.getenv("SIMLI_AGENT_ID") or os.getenv("SIMLI_FACE_ID") or "0c2b8b04-5274-41f1-a21c-d5c98322efa9"
 
     # If an explicit session token is configured, return it (legacy behavior)
     configured_session_token = os.getenv("SIMLI_TOKEN")
     if not api_key and configured_session_token:
-        return {"token": configured_session_token, "agentId": agent_id, "source": "env_session_token"}
+        return {"token": configured_session_token, "agentId": resolved_agent_id, "source": "env_session_token"}
 
     if not api_key:
         return JSONResponse(status_code=400, content={
@@ -265,11 +284,16 @@ async def create_simli_session_token():
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
-                json={"agentId": agent_id},
+                json={"agentId": resolved_agent_id},
                 timeout=15,
             ) as resp:
                 data = await resp.json()
                 if resp.status != 200:
+                    # Fallback: if SIMLI_TOKEN is configured, return it so frontend can proceed
+                    env_token = os.getenv("SIMLI_TOKEN")
+                    if env_token:
+                        logger.warning(f"Simli API returned {resp.status}; falling back to SIMLI_TOKEN from env")
+                        return {"token": env_token, "agentId": resolved_agent_id, "source": "env_fallback", "api_status": resp.status, "api_error": data}
                     return JSONResponse(status_code=resp.status, content={
                         "error": data,
                         "message": "Failed to create Simli session token"
@@ -280,7 +304,7 @@ async def create_simli_session_token():
                         "error": data,
                         "message": "Simli token not found in response"
                     })
-                return {"token": token, "agentId": agent_id, "source": "api"}
+                return {"token": token, "agentId": resolved_agent_id, "source": "api"}
     except Exception as e:
         logger.error(f"Simli token generation error: {e}")
         return JSONResponse(status_code=500, content={

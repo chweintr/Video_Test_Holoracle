@@ -43,8 +43,8 @@
         /* Holographic Frame Container */
         .holographic-frame {
             position: relative;
-            width: 550px;
-            height: 550px;
+            width: 420px;
+            height: 420px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -70,8 +70,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 350px;  /* Adjusted to fit inside frame */
-            height: 350px;
+            width: 420px;
+            height: 420px;
             z-index: 2;
             display: flex;
             align-items: center;
@@ -85,6 +85,8 @@
             display: none;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
         
         /* Idle/Transition Videos */
@@ -225,6 +227,9 @@
             padding: 2px 5px;
             z-index: 100;
         }
+
+        /* Attempt to suppress Simli teaser/launcher button injected by widget */
+        .simli-widget-teaser, .simli-widget-button, [class*="teaser"], [id*="teaser"], simli-teaser { display: none !important; }
     </style>
 </head>
 <body>
@@ -338,7 +343,20 @@
             idleVideo.style.display = 'none';
             
             // Simulate transition (or play actual transition video if available)
-            setTimeout(() => {
+            setTimeout(async () => {
+                // Ensure a fresh token for this persona before creating the widget
+                try {
+                    const resp = await fetch(`${API_BASE}/simli-token?persona=${encodeURIComponent(personaId)}`);
+                    const data = await resp.json();
+                    if (data && data.token) {
+                        CONFIG.simli.token = data.token;
+                        CONFIG.simli.agentId = data.agentId || CONFIG.simli.agentId;
+                    } else {
+                        console.warn('[v3.0] No token for persona', personaId, data);
+                    }
+                } catch (e) {
+                    console.warn('[v3.0] Failed to mint token for persona', personaId, e);
+                }
                 loadSimliWidget(personaId);
             }, 1500);
         }
@@ -389,12 +407,19 @@
             try {
                 // Create the Simli custom element
                 const simliElement = document.createElement('simli-widget');
+                if (!CONFIG.simli.token) {
+                    updateStatus('Missing Simli token; cannot start session');
+                    console.error('[v3.0] Missing Simli token; aborting widget creation');
+                    returnToIdle();
+                    return;
+                }
                 simliElement.setAttribute('token', CONFIG.simli.token);
                 simliElement.setAttribute('agentid', CONFIG.simli.agentId);
                 simliElement.setAttribute('position', 'relative');
                 simliElement.setAttribute('customtext', persona?.name || 'Talk to Oracle');
-                simliElement.setAttribute('width', '350');
-                simliElement.setAttribute('height', '350');
+                simliElement.setAttribute('width', '420');
+                simliElement.setAttribute('height', '420');
+                simliElement.setAttribute('showteaser', 'false');
                 
                 // Add event listeners
                 simliElement.addEventListener('ready', () => {
@@ -646,7 +671,7 @@
                 const cfg = await cfgRes.json();
                 CONFIG.simli.agentId = cfg.agentId || '';
                 // Then request a fresh session token
-                const tokRes = await fetch(`${API_BASE}/simli-token`);
+                const tokRes = await fetch(`${API_BASE}/simli-token?persona=indiana`, { method: 'GET' });
                 const tok = await tokRes.json();
                 CONFIG.simli.token = tok.token || '';
                 if (!CONFIG.simli.token) console.warn('[v3.0] No Simli session token received');

@@ -10,11 +10,15 @@ import logging
 from typing import Optional
 import aiohttp
 import numpy as np
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Import the voice system components
 from voice_system import VoiceSystem
@@ -82,10 +86,10 @@ class SimliVoiceBackend:
             
             # Return True if at least one system initialized
             if self.rag_system is not None or self.voice_system is not None:
-                logger.info("Systems initialization completed")
+                logger.info(f"Systems initialization completed - RAG: {self.rag_system is not None}, Voice: {self.voice_system is not None}")
                 return True
             else:
-                logger.error("No systems could be initialized")
+                logger.error("No systems could be initialized - check environment variables and dependencies")
                 return False
                 
         except Exception as e:
@@ -137,10 +141,24 @@ async def startup_event():
 @app.get("/")
 async def root():
     """Root endpoint"""
+    # Check if systems are initialized
+    voice_ready = backend.voice_system is not None
+    rag_ready = backend.rag_system is not None
+    
+    # Systems are considered initialized if at least one is ready
+    systems_initialized = voice_ready or rag_ready
+    
     return {
         "message": "Simli Voice Backend",
         "status": "running",
-        "systems_initialized": backend.voice_system is not None and backend.rag_system is not None
+        "systems_initialized": systems_initialized,
+        "voice_system_ready": voice_ready,
+        "rag_system_ready": rag_ready,
+        "environment": {
+            "openai_key": bool(os.getenv("OPENAI_API_KEY")),
+            "elevenlabs_key": bool(os.getenv("ELEVENLABS_API_KEY")),
+            "knowledge_base_exists": os.path.exists("indiana_knowledge_base.pkl")
+        }
     }
 
 @app.get("/health")
@@ -227,7 +245,8 @@ async def initialize_systems():
             "rag_system": backend.rag_system is not None,
             "openai_key": bool(os.getenv("OPENAI_API_KEY")),
             "elevenlabs_key": bool(os.getenv("ELEVENLABS_API_KEY")),
-            "knowledge_base_exists": os.path.exists("indiana_knowledge_base.pkl")
+            "knowledge_base_exists": os.path.exists("indiana_knowledge_base.pkl"),
+            "systems_initialized": (backend.voice_system is not None or backend.rag_system is not None)
         }
         
         if success:
@@ -242,7 +261,12 @@ async def initialize_systems():
         return {
             "success": False,
             "error": str(e),
-            "message": "Exception during initialization"
+            "message": "Exception during initialization",
+            "voice_system": backend.voice_system is not None,
+            "rag_system": backend.rag_system is not None,
+            "openai_key": bool(os.getenv("OPENAI_API_KEY")),
+            "elevenlabs_key": bool(os.getenv("ELEVENLABS_API_KEY")),
+            "knowledge_base_exists": os.path.exists("indiana_knowledge_base.pkl")
         }
 
 if __name__ == "__main__":

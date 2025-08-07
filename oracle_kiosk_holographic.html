@@ -103,7 +103,7 @@
             display: none;
         }
         
-        /* Foreground Frame Overlay (Top) - Black becomes transparent */
+        /* Foreground Frame Overlay (Top) - Only shows when avatar is active */
         .frame-overlay {
             position: absolute;
             top: 0;
@@ -117,6 +117,12 @@
             z-index: 10;
             pointer-events: none;
             mix-blend-mode: screen; /* Makes black transparent */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .frame-overlay.active {
+            opacity: 1;
         }
         
         /* Persona Selection Buttons */
@@ -356,6 +362,11 @@
             
             // Initialize Simli widget
             if (window.Simli) {
+                console.log('Creating Simli widget with config:', {
+                    token: CONFIG.simli.token ? 'Token present' : 'No token',
+                    agentId: persona?.simliAgentId || CONFIG.simli.agentId
+                });
+                
                 simliWidget = new window.Simli({
                     containerId: 'simli-widget-container',
                     token: CONFIG.simli.token,
@@ -363,33 +374,54 @@
                     position: 'relative',
                     width: 350,
                     height: 350,
-                    hideTeaser: true,
-                    customText: persona?.name || 'Oracle',
+                    hideTeaser: false,  // Show teaser/call button initially
+                    autoStart: false,   // Don't auto-start the call
+                    customText: persona?.name || 'Talk to Oracle',
                     onReady: () => {
+                        console.log('Simli widget ready');
                         currentState = 'LIVE';
-                        updateStatus(`${persona?.name || personaId} Active`);
+                        updateStatus(`${persona?.name || personaId} Ready - Click to Talk`);
+                        
+                        // Show overlay when avatar is active
+                        document.querySelector('.frame-overlay').classList.add('active');
+                        
+                        // Try to auto-click the call button after a short delay
+                        setTimeout(() => {
+                            const callButton = document.querySelector('.simli-call-button, [class*="simli-button"], button[class*="call"]');
+                            if (callButton) {
+                                console.log('Auto-clicking call button');
+                                callButton.click();
+                            }
+                        }, 500);
                     },
                     onError: (error) => {
                         console.error('Simli error:', error);
                         updateStatus('Connection error');
                         returnToIdle();
+                    },
+                    onCallStart: () => {
+                        console.log('Call started');
+                        updateStatus(`${persona?.name || personaId} Active`);
+                        document.querySelector('.frame-overlay').classList.add('active');
+                    },
+                    onCallEnd: () => {
+                        console.log('Call ended');
+                        returnToIdle();
                     }
                 });
             } else {
+                console.error('Simli library not loaded!');
                 // Fallback for testing
                 simliContainer.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #00ffff;">
                         <div style="text-align: center;">
                             <h3>${persona?.name || personaId}</h3>
-                            <p>Simli loading...</p>
+                            <p>Simli library not loaded - check console</p>
                         </div>
                     </div>
                 `;
                 
-                setTimeout(() => {
-                    currentState = 'LIVE';
-                    updateStatus(`${persona?.name || personaId} Active (Mock)`);
-                }, 1000);
+                updateStatus('Simli library loading error');
             }
         }
         
@@ -421,6 +453,9 @@
             currentState = 'IDLE';
             currentPersona = null;
             updateStatus('Ready');
+            
+            // Hide overlay
+            document.querySelector('.frame-overlay').classList.remove('active');
             
             // Hide everything except idle state
             loadingSpinner.style.display = 'none';

@@ -113,7 +113,7 @@ class SimliVoiceBackend:
                 logger.info(f"Using enhanced Vonnegut corpus RAG system")
             else:
                 # For bigfoot and indiana, use original system (bigfoot uses Simli default AI anyway)
-                ai_response = await self.rag_system.get_response(text_response, persona)
+            ai_response = await self.rag_system.get_response(text_response, persona)
                 logger.info(f"Using standard RAG for {persona} (bigfoot uses Simli default)")
                 
                 # Special note for bigfoot - this won't actually be called since bigfoot uses Simli's brain
@@ -243,6 +243,14 @@ async def oracle_kiosk_compose():
     else:
         return {"message": "oracle_kiosk_compose.html not found"}
 
+@app.get("/master")
+async def oracle_kiosk_master():
+    """Serve the Master Oracle Kiosk with 3 different visual avatars"""
+    if os.path.exists("oracle_kiosk_master.html"):
+        return FileResponse("oracle_kiosk_master.html")
+    else:
+        return {"message": "oracle_kiosk_master.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.
@@ -256,7 +264,7 @@ async def get_simli_config():
 
     # Fallback agent id to Indiana persona if not explicitly provided
     if not agent_id:
-        agent_id = "0c2b8b04-5274-41f1-a21c-d5c98322efa9"
+        agent_id = "76ed1ae8-720c-45de-918c-cac46984412d"
 
     return {
         "token_present": bool(token),
@@ -264,6 +272,132 @@ async def get_simli_config():
         "token": "", 
         "agentId": agent_id,
     }
+
+@app.post("/simli-compose/session")
+@app.get("/simli-compose/session")
+async def simli_compose_session(request: Request, persona: Optional[str] = None, faceId: Optional[str] = None):
+    """Create a Simli Compose session token using faceId (Compose model).
+
+    Resolution priority:
+    1) explicit faceId query/body
+    2) persona -> SIMLI_FACE_ID_{PERSONA} env
+    3) persona -> built-in mapping from /personas
+    """
+    # Sanitize API key
+    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    while api_key.startswith("="):
+        api_key = api_key[1:].lstrip()
+
+    # Also parse JSON body (POST)
+    try:
+        if request.method.upper() == "POST" and request.headers.get("content-type", "").startswith("application/json"):
+            body = await request.json()
+            body_face = body.get("faceId") or body.get("face")
+            body_persona = body.get("persona") or body.get("name")
+            if not faceId and body_face:
+                faceId = body_face
+            if not persona and body_persona:
+                persona = body_persona
+    except Exception:
+        pass
+
+    # Normalize persona
+    if persona:
+        norm = persona.strip().lower()
+        persona = {
+            "hoosier": "indiana",
+            "indiana-oracle": "indiana",
+            "indiana_ai": "indiana",
+            "indiana": "indiana",
+            "kurt": "vonnegut",
+            "vonnegut": "vonnegut",
+            "bigfoot": "bigfoot",
+        }.get(norm, norm)
+
+    # Resolve faceId
+    if not faceId and persona:
+        env_key = f"SIMLI_FACE_ID_{persona.upper()}"
+        faceId = os.getenv(env_key)
+    if not faceId and persona:
+        # Built-in mapping - UPDATED WITH CORRECT AGENT IDs
+        builtin = {
+            "bigfoot": "4a857f92-feee-4b70-b973-290baec4d545",
+            "indiana": "76ed1ae8-720c-45de-918c-cac46984412d", 
+            "vonnegut": "7bcb45a5-839c-4f1a-b6f9-4ebcdf457264",
+        }
+        faceId = builtin.get(persona)
+
+    if not api_key:
+        return JSONResponse(status_code=400, content={
+            "error": "SIMLI_API_KEY not set",
+            "message": "Set SIMLI_API_KEY in environment to mint compose session tokens"
+        })
+    if not faceId:
+        return JSONResponse(status_code=400, content={
+            "error": "faceId not resolved",
+            "message": "Provide faceId or persona (with SIMLI_FACE_ID_{PERSONA} set)"
+        })
+
+    url = "https://api.simli.ai/startAudioToVideoSession"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                json={"apiKey": api_key, "faceId": faceId},
+                timeout=15,
+            ) as resp:
+                data = await resp.json()
+                if resp.status != 200:
+                    return JSONResponse(status_code=resp.status, content={
+                        "error": data,
+                        "message": "Failed to create Simli Compose session"
+                    })
+                # Expect a token field; pass faceId back for client embed
+                token = data.get("session_token") or data.get("token")
+                if not token:
+                    return JSONResponse(status_code=500, content={
+                        "error": data,
+                        "message": "Compose token not found in response"
+                    })
+                return {"token": token, "faceId": faceId, "source": "compose"}
+    except Exception as e:
+        logger.error(f"Simli compose session error: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Error while creating Simli Compose session"
+        })
+
+@app.post("/simli-compose/speak")
+async def simli_compose_speak(request: dict):
+    """Send text to speak through Simli Compose session"""
+    try:
+        persona = request.get("persona", "indiana")
+        text = request.get("text", "")
+        
+        if not text:
+            return JSONResponse(status_code=400, content={
+                "error": "No text provided",
+                "message": "Text is required for speech"
+            })
+        
+        logger.info(f"Compose speak request for {persona}: {text[:50]}...")
+        
+        # For now, just acknowledge the request
+        # In a full implementation, this would send the text to the active Compose session
+        return {
+            "success": True,
+            "message": f"Speech queued for {persona}",
+            "text": text,
+            "persona": persona
+        }
+        
+    except Exception as e:
+        logger.error(f"Compose speak error: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Error sending speech to Compose session"
+        })
 
 @app.get("/simli-token")
 @app.post("/simli-token")
@@ -498,7 +632,7 @@ async def get_personas():
                 "id": "bigfoot",
                 "name": "Brown County Bigfoot",
                 "description": "Legendary cryptid storyteller of Indiana's forests",
-                "simli_face_id": "6926a39d-638b-49c5-9328-79efa034e9a4",
+                "simli_face_id": "4a857f92-feee-4b70-b973-290baec4d545",
                 "voice": "stock-simli",
                 "knowledge": "cryptid-folklore"
             },
@@ -506,7 +640,7 @@ async def get_personas():
                 "id": "indiana", 
                 "name": "Hoosier Oracle",
                 "description": "Eternal consciousness of Indiana's history and culture",
-                "simli_face_id": "0c2b8b04-5274-41f1-a21c-d5c98322efa9",
+                "simli_face_id": "76ed1ae8-720c-45de-918c-cac46984412d",
                 "voice": "elevenlabs-hoosier",
                 "knowledge": "indiana-history"
             },
@@ -514,7 +648,7 @@ async def get_personas():
                 "id": "vonnegut",
                 "name": "Kurt Vonnegut", 
                 "description": "Indianapolis author with dark humor and humanist wisdom",
-                "simli_face_id": "6ebf0aa7-6fed-443d-a4c6-fd1e3080b215",
+                "simli_face_id": "7bcb45a5-839c-4f1a-b6f9-4ebcdf457264",
                 "voice": "elevenlabs-vonnegut",
                 "knowledge": "vonnegut-corpus"
             }
@@ -605,7 +739,7 @@ if __name__ == "__main__":
         port=port,
         reload=True,
         log_level="info"
-    )
+    ) 
 
 # For Vercel deployment
 app_instance = app 

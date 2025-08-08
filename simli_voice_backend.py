@@ -18,8 +18,9 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (don't override production)
+if os.getenv("RAILWAY_ENVIRONMENT") != "production":
+    load_dotenv(override=False)
 
 # Import the voice system components
 from voice_system import VoiceSystem
@@ -267,13 +268,9 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
     3) env SIMLI_AGENT_ID or SIMLI_FACE_ID
     4) default hoosier fallback id
     """
-    api_key = os.getenv("SIMLI_API_KEY")
-    logger.info(f"DEBUG: SIMLI_API_KEY = {repr(api_key)}")  # Debug what we actually get
-    
-    # Railway environment variable corruption fix - strip leading space and equals
-    if api_key and api_key.startswith(' ='):
-        api_key = api_key[2:].strip()
-        logger.info(f"DEBUG: Cleaned SIMLI_API_KEY = {repr(api_key)}")  # Debug cleaned value
+    api_key = (os.getenv("SIMLI_API_KEY") or "").strip().lstrip("=").strip()
+    logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")  # Debug raw value
+    logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")  # Debug cleaned value
     # Resolve agent id
     resolved_agent_id = None
     if agentId:

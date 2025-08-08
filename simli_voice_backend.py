@@ -301,10 +301,9 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
             async with session.post(
                 url,
                 headers={
-                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
-                json={"agentId": resolved_agent_id},  # Back to original working format
+                json={"simliAPIKey": api_key},  # Confirmed working format
                 timeout=15,
             ) as resp:
                 data = await resp.json()
@@ -318,8 +317,8 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
                         "error": data,
                         "message": "Failed to create Simli session token"
                     })
-                # Check for token in various response formats (back to original)
-                token = data.get("token") or data.get("sessionToken") or data.get("e2eSessionToken")
+                # API returns session_token field (confirmed)
+                token = data.get("session_token")
                 if not token:
                     return JSONResponse(status_code=500, content={
                         "error": data,

@@ -477,7 +477,7 @@
                 // Create Simli widget
                 const simliElement = document.createElement('simli-widget');
                 simliElement.setAttribute('token', CONFIG.currentToken);
-                simliElement.setAttribute('agentid', tokenData.agentId || persona.faceID);
+                // Don't set agentid when using session token - it's embedded in the token
                 simliElement.setAttribute('position', 'relative');
                 simliElement.setAttribute('width', '420');
                 simliElement.setAttribute('height', '420');

@@ -301,7 +301,6 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
             async with session.post(
                 url,
                 headers={
-                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
                 json={"agentId": resolved_agent_id, "simliAPIKey": api_key},

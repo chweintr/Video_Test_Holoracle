@@ -346,14 +346,17 @@ async def simli_compose_session(request: Request, persona: Optional[str] = None,
         logger.info(f"Using builtin faceId for {persona}: {faceId}")
 
     if not api_key:
+        logger.error("SIMLI_API_KEY not set or empty")
         return JSONResponse(status_code=400, content={
             "error": "SIMLI_API_KEY not set",
             "message": "Set SIMLI_API_KEY in environment to mint compose session tokens"
         })
     if not faceId:
+        logger.error(f"faceId not resolved for persona {persona}. Checked env var and builtin mapping.")
         return JSONResponse(status_code=400, content={
-            "error": "faceId not resolved",
-            "message": "Provide faceId or persona (with SIMLI_FACE_ID_{PERSONA} set)"
+            "error": "faceId not resolved", 
+            "message": f"Provide faceId or persona (with SIMLI_FACE_ID_{persona.upper()} set)",
+            "debug": f"persona={persona}, env_key=SIMLI_FACE_ID_{persona.upper()}"
         })
 
     url = "https://api.simli.ai/startAudioToVideoSession"

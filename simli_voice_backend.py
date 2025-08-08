@@ -330,18 +330,20 @@ async def simli_compose_session(request: Request, persona: Optional[str] = None,
             "bigfoot": "bigfoot",
         }.get(norm, norm)
 
-    # Resolve faceId
+    # Resolve faceId - CHECK ENV FIRST, then builtin mapping
     if not faceId and persona:
         env_key = f"SIMLI_FACE_ID_{persona.upper()}"
         faceId = os.getenv(env_key)
+        logger.info(f"Checking {env_key}: {faceId}")
     if not faceId and persona:
-        # Built-in mapping - UPDATED WITH CORRECT AGENT IDs
+        # Built-in mapping - UPDATED WITH CORRECT AGENT IDs  
         builtin = {
             "bigfoot": "4a857f92-feee-4b70-b973-290baec4d545",
             "indiana": "76ed1ae8-720c-45de-918c-cac46984412d", 
             "vonnegut": "7bcb45a5-839c-4f1a-b6f9-4ebcdf457264",
         }
         faceId = builtin.get(persona)
+        logger.info(f"Using builtin faceId for {persona}: {faceId}")
 
     if not api_key:
         return JSONResponse(status_code=400, content={

@@ -271,26 +271,15 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
     api_key = (os.getenv("SIMLI_API_KEY") or "").strip().lstrip("=").strip()
     logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")  # Debug raw value
     logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")  # Debug cleaned value
-    # Resolve agent id
-    resolved_agent_id = None
-    if agentId:
-        resolved_agent_id = agentId
-    elif persona:
-        # Map persona to agent via in-memory list from get_personas()
-        persona_map = {
-            "bigfoot": "6926a39d-638b-49c5-9328-79efa034e9a4",
-            # Reuse Bigfoot head for Hoosier temporarily
-            "indiana": "6926a39d-638b-49c5-9328-79efa034e9a4",
-            "vonnegut": "6ebf0aa7-6fed-443d-a4c6-fd1e3080b215",
-        }
-        resolved_agent_id = persona_map.get(persona)
-    if not resolved_agent_id:
-        resolved_agent_id = os.getenv("SIMLI_AGENT_ID") or os.getenv("SIMLI_FACE_ID") or "0c2b8b04-5274-41f1-a21c-d5c98322efa9"
+    # TEMPORARY FIX: Don't send agentId with session tokens
+    # Session tokens already contain the agent/face info
+    # The 400 error happens when we try to use face IDs as agent IDs
+    resolved_agent_id = None  # Let Simli use whatever is in the token
 
     # If an explicit session token is configured, return it (legacy behavior)
     configured_session_token = os.getenv("SIMLI_TOKEN")
     if configured_session_token:  # Use session token if available, regardless of API key
-        return {"token": configured_session_token, "agentId": resolved_agent_id, "source": "env_session_token"}
+        return {"token": configured_session_token, "source": "env_session_token"}
 
     if not api_key:
         return JSONResponse(status_code=400, content={
@@ -315,7 +304,7 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
                     env_token = os.getenv("SIMLI_TOKEN")
                     if env_token:
                         logger.warning(f"Simli API returned {resp.status}; falling back to SIMLI_TOKEN from env")
-                        return {"token": env_token, "agentId": resolved_agent_id, "source": "env_fallback", "api_status": resp.status, "api_error": data}
+                        return {"token": env_token, "source": "env_fallback", "api_status": resp.status, "api_error": data}
                     return JSONResponse(status_code=resp.status, content={
                         "error": data,
                         "message": "Failed to create Simli session token"
@@ -327,7 +316,8 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
                         "error": data,
                         "message": "Simli token not found in response"
                     })
-                return {"token": token, "agentId": resolved_agent_id, "source": "api"}
+                # Don't return agentId - session tokens already contain all needed info
+                return {"token": token, "source": "api"}
     except Exception as e:
         logger.error(f"Simli token generation error: {e}")
         return JSONResponse(status_code=500, content={

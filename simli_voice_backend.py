@@ -259,6 +259,14 @@ async def oracle_kiosk_master():
     else:
         return {"message": "oracle_kiosk_master.html not found"}
 
+@app.get("/webrtc")
+async def oracle_kiosk_webrtc():
+    """Serve the WebRTC Compose Oracle Kiosk with actual Simli WebRTC"""
+    if os.path.exists("oracle_kiosk_webrtc.html"):
+        return FileResponse("oracle_kiosk_webrtc.html")
+    else:
+        return {"message": "oracle_kiosk_webrtc.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.

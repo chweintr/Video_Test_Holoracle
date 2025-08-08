@@ -56,19 +56,10 @@ h1{
 }
 .mount{
   width:min(340px, 44vmin); aspect-ratio:1/1;
-  background:#000; border:1px solid rgba(77,227,255,0.45);
-  box-shadow:0 0 18px rgba(77,227,255,0.45) inset, 0 0 26px rgba(77,227,255,0.25);
-  border-radius:12px; display:grid; place-items:center; position:relative; z-index:2;
-  color:#777; font-size:12px; letter-spacing:0.1em;
+  background:transparent; border:1px solid rgba(77,227,255,0.45);
+  box-shadow:0 0 26px rgba(77,227,255,0.25);
+  border-radius:12px; position:relative; z-index:2;
 }
-#testlog{
-  position:fixed; right:8px; bottom:8px; max-width:64ch;
-  font:12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  color:#9ee8ff; background:rgba(0,0,0,0.45);
-  padding:.55rem .7rem; border-radius:.45rem; border:1px solid rgba(114,232,255,0.25); z-index:10;
-  white-space:pre-wrap;
-}
-.hidden{ display:none !important; }
 </style>
 </head>
 <body>
@@ -78,14 +69,13 @@ h1{
   <div class="subtitle text-xs md:text-sm mt-1">LIVE HOLOGRAPHIC CONVERSATIONS POWERED BY RESEARCH</div>
   </div>
 <main class="w-full h-[70vh] flex items-center justify-center">
-  <div class="mount" aria-label="SIMLI avatar mount">SIMLI MOUNT</div>
+  <div class="mount" aria-label="SIMLI avatar mount"></div>
 </main>
 <footer class="flex gap-6 justify-center pb-10">
   <button class="btn active" data-agent="bigfoot">Brown County Bigfoot</button>
   <button class="btn" data-agent="oracle">Hoosier Oracle</button>
   <button class="btn" data-agent="vonnegut">Kurt Vonnegut</button>
 </footer>
-<pre id="testlog" class="hidden"></pre>
 <script>
 (function(){
   const light = document.getElementById('parallaxLayer');
@@ -110,17 +100,7 @@ h1{
     console.log('[Agent]', btn.dataset.agent);
   }));
 })();
-(function(){
-  const el = document.getElementById('testlog');
-  const results = [];
-  const ok = (name, pass, info='') => results.push(`${pass ? '✔' : '✖'} ${name}${info ? ' — ' + info : ''}`);
-  const bg = getComputedStyle(document.body).backgroundImage;
-  ok('Background image reference present', /url\(/.test(bg));
-  ok('Parallax layer present', !!document.getElementById('parallaxLayer'));
-  ok('Three buttons rendered', document.querySelectorAll('.btn').length === 3);
-  el.textContent = results.join('\n');
-  el.classList.remove('hidden');
-})();
+
 </script>
 </body>
 </html>

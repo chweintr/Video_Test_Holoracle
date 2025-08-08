@@ -23,7 +23,7 @@ load_dotenv()
 
 # Import the voice system components
 from voice_system import VoiceSystem
-from rag_system import SimpleRAGSystem
+from personas.persona_rag_system import SimpleRAGSystem, PersonaRAGSystem
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -65,11 +65,12 @@ class SimliVoiceBackend:
             if not elevenlabs_key:
                 logger.warning("ELEVENLABS_API_KEY not found - voice synthesis may not work")
             
-            # Initialize RAG system
+            # Initialize persona-specific RAG system
             try:
-                self.rag_system = SimpleRAGSystem()
+                self.rag_system = SimpleRAGSystem()  # Keep for backward compatibility
+                self.persona_rag_system = PersonaRAGSystem()
                 await self.rag_system.load_knowledge_base("indiana_knowledge_base.pkl")
-                logger.info("RAG system initialized successfully")
+                logger.info("Persona RAG system initialized successfully")
             except Exception as e:
                 logger.error(f"Failed to initialize RAG system: {e}")
                 # Continue without RAG system
@@ -98,15 +99,25 @@ class SimliVoiceBackend:
             return False
     
     async def process_audio_input(self, audio_data: bytes, persona: str = "indiana") -> dict:
-        """Process audio input through the voice system"""
+        """Process audio input through the persona-specific voice system"""
         try:
             logger.info(f"Processing audio input for persona: {persona}")
             
             # Convert audio to text using voice system
             text_response = await self.voice_system.process_audio_input(audio_data, persona)
             
-            # Generate AI response using RAG
-            ai_response = await self.rag_system.get_response(text_response, persona)
+            # Generate AI response - ONLY use custom system for Vonnegut
+            if persona == "vonnegut" and hasattr(self, 'persona_rag_system') and self.persona_rag_system:
+                ai_response = await self.persona_rag_system.get_persona_response(persona, text_response)
+                logger.info(f"Using enhanced Vonnegut corpus RAG system")
+            else:
+                # For bigfoot and indiana, use original system (bigfoot uses Simli default AI anyway)
+                ai_response = await self.rag_system.get_response(text_response, persona)
+                logger.info(f"Using standard RAG for {persona} (bigfoot uses Simli default)")
+                
+                # Special note for bigfoot - this won't actually be called since bigfoot uses Simli's brain
+                if persona == "bigfoot":
+                    logger.info("Note: Bigfoot should use Simli's default AI, not this backend")
             
             # Convert AI response to speech
             audio_response = await self.voice_system.text_to_speech(ai_response, persona)
@@ -119,7 +130,8 @@ class SimliVoiceBackend:
                 "text_response": text_response,
                 "ai_response": ai_response,
                 "audio_response": audio_base64,
-                "audio_format": "wav"
+                "audio_format": "wav",
+                "persona_system": "enhanced" if hasattr(self, 'persona_rag_system') else "fallback"
             }
             
         except Exception as e:
@@ -213,6 +225,14 @@ async def oracle_kiosk_v3():
         return FileResponse("oracle_kiosk_v3.html")
     else:
         return {"message": "oracle_kiosk_v3.html not found"}
+
+@app.get("/enhanced")
+async def oracle_kiosk_enhanced():
+    """Serve the Enhanced Oracle Kiosk with Vonnegut corpus integration"""
+    if os.path.exists("oracle_kiosk_enhanced.html"):
+        return FileResponse("oracle_kiosk_enhanced.html")
+    else:
+        return {"message": "oracle_kiosk_enhanced.html not found"}
 
 @app.get("/simli-config")
 async def get_simli_config():
@@ -389,6 +409,40 @@ async def process_audio(audio_data: dict):
             status_code=500,
             content={"success": False, "error": str(e)}
         )
+
+@app.post("/test-vonnegut-text")
+async def test_vonnegut_text(request: dict):
+    """Test endpoint to directly send text to Vonnegut's enhanced RAG system"""
+    try:
+        text = request.get("text", "")
+        if not text:
+            return JSONResponse(status_code=400, content={"error": "No text provided"})
+        
+        logger.info(f"Testing Vonnegut with text: {text}")
+        
+        # Use persona RAG directly for text-to-text testing
+        if hasattr(backend, 'persona_rag_system') and backend.persona_rag_system:
+            response = await backend.persona_rag_system.get_persona_response("vonnegut", text)
+            
+            return {
+                "success": True,
+                "text_input": text,
+                "vonnegut_response": response,
+                "system": "enhanced_corpus",
+                "message": "Using authentic Vonnegut corpus and personality"
+            }
+        else:
+            return JSONResponse(status_code=503, content={
+                "error": "Persona RAG system not available",
+                "message": "Enhanced Vonnegut system not initialized"
+            })
+            
+    except Exception as e:
+        logger.error(f"Error in test-vonnegut-text endpoint: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Failed to process Vonnegut text"
+        })
 
 @app.get("/personas")
 async def get_personas():

@@ -268,6 +268,7 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
     4) default hoosier fallback id
     """
     api_key = os.getenv("SIMLI_API_KEY")
+    logger.info(f"DEBUG: SIMLI_API_KEY = {repr(api_key)}")  # Debug what we actually get
     # Resolve agent id
     resolved_agent_id = None
     if agentId:

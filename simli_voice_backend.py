@@ -113,7 +113,7 @@ class SimliVoiceBackend:
                 logger.info(f"Using enhanced Vonnegut corpus RAG system")
             else:
                 # For bigfoot and indiana, use original system (bigfoot uses Simli default AI anyway)
-            ai_response = await self.rag_system.get_response(text_response, persona)
+                ai_response = await self.rag_system.get_response(text_response, persona)
                 logger.info(f"Using standard RAG for {persona} (bigfoot uses Simli default)")
                 
                 # Special note for bigfoot - this won't actually be called since bigfoot uses Simli's brain

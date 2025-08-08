@@ -286,7 +286,7 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
 
     # If an explicit session token is configured, return it (legacy behavior)
     configured_session_token = os.getenv("SIMLI_TOKEN")
-    if not api_key and configured_session_token:
+    if configured_session_token:  # Use session token if available, regardless of API key
         return {"token": configured_session_token, "agentId": resolved_agent_id, "source": "env_session_token"}
 
     if not api_key:

@@ -12,7 +12,7 @@ import aiohttp
 import numpy as np
 from dotenv import load_dotenv
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -235,6 +235,14 @@ async def oracle_kiosk_enhanced():
     else:
         return {"message": "oracle_kiosk_enhanced.html not found"}
 
+@app.get("/compose")
+async def oracle_kiosk_compose():
+    """Serve the Compose Oracle Kiosk using Simli Compose API"""
+    if os.path.exists("oracle_kiosk_compose.html"):
+        return FileResponse("oracle_kiosk_compose.html")
+    else:
+        return {"message": "oracle_kiosk_compose.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.
@@ -259,7 +267,7 @@ async def get_simli_config():
 
 @app.get("/simli-token")
 @app.post("/simli-token")
-async def create_simli_session_token(agentId: Optional[str] = None, persona: Optional[str] = None):
+async def create_simli_session_token(request: Request, agentId: Optional[str] = None, persona: Optional[str] = None):
     """Create a short-lived Simli session token using SIMLI_API_KEY.
 
     Priority of agent selection:
@@ -268,26 +276,62 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
     3) env SIMLI_AGENT_ID or SIMLI_FACE_ID
     4) default hoosier fallback id
     """
-    api_key = (os.getenv("SIMLI_API_KEY") or "").strip().lstrip("=").strip()
-    logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")  # Debug raw value
-    logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")  # Debug cleaned value
-    # Use a single known working agent ID for all personas (workaround)
-    # The visual will be the same but voices/RAG will differ
-    # Get from env or use a default
-    resolved_agent_id = os.getenv("SIMLI_AGENT_ID", "default-agent")
-    
-    # If you have actual agent IDs from Simli dashboard, update this mapping:
-    # persona_agent_map = {
-    #     "bigfoot": "actual-bigfoot-agent-id",
-    #     "indiana": "actual-indiana-agent-id", 
-    #     "vonnegut": "actual-vonnegut-agent-id"
-    # }
-    # resolved_agent_id = persona_agent_map.get(persona, resolved_agent_id)
+    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    # Remove any accidental leading equals signs and stray whitespace
+    while api_key.startswith("="):
+        api_key = api_key[1:].lstrip()
+    logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")
+    logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")
+
+    # Try to read persona/agentId from JSON body as well (POST)
+    try:
+        if request.method.upper() == "POST" and request.headers.get("content-type", "").startswith("application/json"):
+            body = await request.json()
+            body_agent = body.get("agentId") or body.get("agent")
+            body_persona = body.get("persona") or body.get("name")
+            if not agentId and body_agent:
+                agentId = body_agent
+            if not persona and body_persona:
+                persona = body_persona
+    except Exception:
+        pass
+
+    # Normalize persona and synonyms
+    if persona:
+        norm = persona.strip().lower()
+        persona = {
+            "hoosier": "indiana",
+            "indiana-oracle": "indiana",
+            "indiana_ai": "indiana",
+            "indiana": "indiana",
+            "kurt": "vonnegut",
+            "vonnegut": "vonnegut",
+            "bigfoot": "bigfoot",
+        }.get(norm, norm)
+
+    # Resolve agent ID with strict fallbacks (never return null)
+    resolved_agent_id = None
+    if agentId:
+        resolved_agent_id = agentId
+    elif persona:
+        # Allow per-persona overrides via SIMLI_AGENT_ID_INDIANA / _VONNEGUT / _BIGFOOT
+        env_key = f"SIMLI_AGENT_ID_{persona.upper()}"
+        resolved_agent_id = os.getenv(env_key)
+        if not resolved_agent_id:
+            resolved_agent_id = os.getenv("SIMLI_AGENT_ID")
+    else:
+        resolved_agent_id = os.getenv("SIMLI_AGENT_ID")
+
+    if not resolved_agent_id:
+        return JSONResponse(status_code=400, content={
+            "error": "SIMLI_AGENT_ID not configured",
+            "message": "Provide agentId in query/body, or set SIMLI_AGENT_ID (or SIMLI_AGENT_ID_{INDIANA|VONNEGUT|BIGFOOT}) in environment."
+        })
 
     # If an explicit session token is configured, return it (legacy behavior)
     configured_session_token = os.getenv("SIMLI_TOKEN")
-    if configured_session_token:  # Use session token if available, regardless of API key
-        return {"token": configured_session_token, "source": "env_session_token"}
+    if configured_session_token:  # Use session token if available, include agentId
+        return {"token": configured_session_token, "agentId": resolved_agent_id, "source": "env_session_token"}
 
     if not api_key:
         return JSONResponse(status_code=400, content={
@@ -312,7 +356,7 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
                     env_token = os.getenv("SIMLI_TOKEN")
                     if env_token:
                         logger.warning(f"Simli API returned {resp.status}; falling back to SIMLI_TOKEN from env")
-                        return {"token": env_token, "source": "env_fallback", "api_status": resp.status, "api_error": data}
+                        return {"token": env_token, "agentId": resolved_agent_id, "source": "env_fallback", "api_status": resp.status, "api_error": data}
                     return JSONResponse(status_code=resp.status, content={
                         "error": data,
                         "message": "Failed to create Simli session token"

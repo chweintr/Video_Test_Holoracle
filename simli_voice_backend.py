@@ -271,10 +271,18 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
     api_key = (os.getenv("SIMLI_API_KEY") or "").strip().lstrip("=").strip()
     logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")  # Debug raw value
     logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")  # Debug cleaned value
-    # TEMPORARY FIX: Don't send agentId with session tokens
-    # Session tokens already contain the agent/face info
-    # The 400 error happens when we try to use face IDs as agent IDs
-    resolved_agent_id = None  # Let Simli use whatever is in the token
+    # Use a single known working agent ID for all personas (workaround)
+    # The visual will be the same but voices/RAG will differ
+    # Get from env or use a default
+    resolved_agent_id = os.getenv("SIMLI_AGENT_ID", "default-agent")
+    
+    # If you have actual agent IDs from Simli dashboard, update this mapping:
+    # persona_agent_map = {
+    #     "bigfoot": "actual-bigfoot-agent-id",
+    #     "indiana": "actual-indiana-agent-id", 
+    #     "vonnegut": "actual-vonnegut-agent-id"
+    # }
+    # resolved_agent_id = persona_agent_map.get(persona, resolved_agent_id)
 
     # If an explicit session token is configured, return it (legacy behavior)
     configured_session_token = os.getenv("SIMLI_TOKEN")
@@ -316,8 +324,8 @@ async def create_simli_session_token(agentId: Optional[str] = None, persona: Opt
                         "error": data,
                         "message": "Simli token not found in response"
                     })
-                # Don't return agentId - session tokens already contain all needed info
-                return {"token": token, "source": "api"}
+                # Return both token and agentId - widget needs both
+                return {"token": token, "agentId": resolved_agent_id, "source": "api"}
     except Exception as e:
         logger.error(f"Simli token generation error: {e}")
         return JSONResponse(status_code=500, content={

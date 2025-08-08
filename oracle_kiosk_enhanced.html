@@ -474,10 +474,10 @@
                     throw new Error('Simli widget not ready');
                 }
                 
-                // Create Simli widget
+                // Create Simli widget with both token and agentId
                 const simliElement = document.createElement('simli-widget');
                 simliElement.setAttribute('token', CONFIG.currentToken);
-                // Don't set agentid when using session token - it's embedded in the token
+                simliElement.setAttribute('agentid', tokenData.agentId || 'default-agent');
                 simliElement.setAttribute('position', 'relative');
                 simliElement.setAttribute('width', '420');
                 simliElement.setAttribute('height', '420');

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Echoes of Indiana — Preview</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; connect-src 'self'; frame-ancestors 'self';"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cyan:#4de3ff; --magenta:#ff4df3; --violet:#7e6bff;
+  --mx:50%; --my:50%;
+  --title-font:'Michroma', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  --ui-font:'Rajdhani', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+html, body { height:100%; }
+body{
+  margin:0; padding:0; overflow:hidden; color:#e7faff;
+  font-family:var(--ui-font);
+  background:#000 url('/assets/landing-foreground.png') center center / cover no-repeat fixed;
+}
+h1{
+  font-family:var(--title-font);
+  text-shadow:0 0 8px var(--cyan), 0 0 20px var(--cyan), 0 0 38px var(--violet);
+  font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+}
+.subtitle{
+  font-family:var(--title-font);
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--magenta);
+  text-shadow:0 0 8px var(--magenta), 0 0 22px var(--magenta);
+}
+.btn{
+  font-family:var(--ui-font);
+  border:1px solid rgba(109,213,255,0.45); border-radius:10px; padding:0.9rem 1.2rem;
+  background:linear-gradient(135deg, rgba(0,0,0,0.40) 0%, rgba(77,227,255,0.15) 100%);
+  box-shadow:0 0 15px rgba(77,227,255,0.15);
+  text-transform:uppercase; color:var(--cyan);
+  transition:border-color .18s ease, box-shadow .18s ease, transform .12s ease, color .18s ease;
+}
+.btn:hover,.btn:focus-visible{
+  box-shadow:0 0 24px rgba(77,227,255,0.35), 0 0 2px rgba(77,227,255,0.9) inset;
+  transform:translateY(-1px);
+}
+.btn.active{
+  border-color:rgba(255,77,243,0.7);
+  background:linear-gradient(135deg, rgba(0,0,0,0.40) 0%, rgba(255,77,243,0.15) 100%);
+  box-shadow:0 0 24px rgba(255,77,243,0.35);
+  color:var(--magenta);
+}
+.layer{ position:absolute; inset:0; pointer-events:none; z-index:1; }
+.light-spill{
+  background:radial-gradient(circle at var(--mx) var(--my), rgba(77,227,255,0.18), transparent 40%);
+  mix-blend-mode:screen;
+}
+.mount{
+  width:min(340px, 44vmin); aspect-ratio:1/1;
+  background:#000; border:1px solid rgba(77,227,255,0.45);
+  box-shadow:0 0 18px rgba(77,227,255,0.45) inset, 0 0 26px rgba(77,227,255,0.25);
+  border-radius:12px; display:grid; place-items:center; position:relative; z-index:2;
+  color:#777; font-size:12px; letter-spacing:0.1em;
+}
+#testlog{
+  position:fixed; right:8px; bottom:8px; max-width:64ch;
+  font:12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color:#9ee8ff; background:rgba(0,0,0,0.45);
+  padding:.55rem .7rem; border-radius:.45rem; border:1px solid rgba(114,232,255,0.25); z-index:10;
+  white-space:pre-wrap;
+}
+.hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="layer light-spill" id="parallaxLayer"></div>
+<div class="w-full text-center mt-6 select-none">
+  <h1 class="text-2xl md:text-4xl tracking-wider">ECHOES OF INDIANA</h1>
+  <div class="subtitle text-xs md:text-sm mt-1">LIVE HOLOGRAPHIC CONVERSATIONS POWERED BY RESEARCH</div>
+  </div>
+<main class="w-full h-[70vh] flex items-center justify-center">
+  <div class="mount" aria-label="SIMLI avatar mount">SIMLI MOUNT</div>
+</main>
+<footer class="flex gap-6 justify-center pb-10">
+  <button class="btn active" data-agent="bigfoot">Brown County Bigfoot</button>
+  <button class="btn" data-agent="oracle">Hoosier Oracle</button>
+  <button class="btn" data-agent="vonnegut">Kurt Vonnegut</button>
+</footer>
+<pre id="testlog" class="hidden"></pre>
+<script>
+(function(){
+  const light = document.getElementById('parallaxLayer');
+  if(!light) return;
+  let mx=50, my=50, ticking=false;
+  function update(){
+    light.style.setProperty('--mx', mx + '%');
+    light.style.setProperty('--my', my + '%');
+    ticking=false;
+  }
+  addEventListener('mousemove', e=>{
+    mx = (e.clientX / innerWidth) * 100;
+    my = (e.clientY / innerHeight) * 100;
+    if(!ticking){ requestAnimationFrame(update); ticking=true; }
+  }, { passive:true });
+})();
+(function(){
+  const buttons = document.querySelectorAll('.btn');
+  buttons.forEach(btn => btn.addEventListener('click', () => {
+    buttons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    console.log('[Agent]', btn.dataset.agent);
+  }));
+})();
+(function(){
+  const el = document.getElementById('testlog');
+  const results = [];
+  const ok = (name, pass, info='') => results.push(`${pass ? '✔' : '✖'} ${name}${info ? ' — ' + info : ''}`);
+  const bg = getComputedStyle(document.body).backgroundImage;
+  ok('Background image reference present', /url\(/.test(bg));
+  ok('Parallax layer present', !!document.getElementById('parallaxLayer'));
+  ok('Three buttons rendered', document.querySelectorAll('.btn').length === 3);
+  el.textContent = results.join('\n');
+  el.classList.remove('hidden');
+})();
+</script>
+</body>
+</html>
+
+

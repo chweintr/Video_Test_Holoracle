@@ -243,6 +243,14 @@ async def oracle_kiosk_compose():
     else:
         return {"message": "oracle_kiosk_compose.html not found"}
 
+@app.get("/preview")
+async def oracle_kiosk_preview():
+    """Serve the visual-only kiosk preview (no Simli)."""
+    if os.path.exists("oracle_kiosk_preview.html"):
+        return FileResponse("oracle_kiosk_preview.html")
+    else:
+        return {"message": "oracle_kiosk_preview.html not found"}
+
 @app.get("/master")
 async def oracle_kiosk_master():
     """Serve the Master Oracle Kiosk with 3 different visual avatars"""

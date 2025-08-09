@@ -15,7 +15,7 @@
     .subtitle{ font-family:var(--title); letter-spacing:.14em; text-transform:uppercase; color:var(--magenta); text-shadow:0 0 8px var(--magenta),0 0 22px var(--magenta); }
     .layer{ position:absolute; inset:0; pointer-events:none; z-index:1; }
     .light{ background:radial-gradient(circle at var(--mx) var(--my), rgba(77,227,255,.18), transparent 40%); mix-blend-mode:screen; }
-    .mount{ width:512px; height:512px; border:1px solid rgba(77,227,255,.45); box-shadow:0 0 26px rgba(77,227,255,.25); border-radius:12px; position:relative; z-index:2; overflow:hidden; }
+    .mount{ width:420px; height:420px; border:1px solid rgba(77,227,255,.45); box-shadow:0 0 26px rgba(77,227,255,.25); border-radius:12px; position:relative; z-index:2; overflow:hidden; }
     .btn{ border:1px solid rgba(109,213,255,.45); border-radius:10px; padding:.9rem 1.2rem; background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(77,227,255,.15)); color:var(--cyan); text-transform:uppercase; transition:all .18s ease; }
     .btn.active{ border-color:rgba(255,77,243,.7); color:var(--magenta); box-shadow:0 0 24px rgba(255,77,243,.35); }
   </style>
@@ -47,12 +47,22 @@
 
   (function(){
     const API_BASE = window.location.origin;
+    // Agent IDs (Bigfoot provided; others fallback to backend persona mapping/env)
+    const AGENTS = {
+      bigfoot: '4a857f92-feee-4b70-b973-290baec4d545',
+      indiana: null,
+      vonnegut: null,
+    };
     const mount = document.getElementById('mount');
     const buttons = Array.from(document.querySelectorAll('.btn'));
     let currentEl = null;
 
     async function fetchToken(persona){
-      const res = await fetch(`${API_BASE}/simli-token?persona=${encodeURIComponent(persona)}`);
+      const agentId = AGENTS[persona];
+      const url = agentId
+        ? `${API_BASE}/simli-token?agentId=${encodeURIComponent(agentId)}`
+        : `${API_BASE}/simli-token?persona=${encodeURIComponent(persona)}`;
+      const res = await fetch(url);
       if(!res.ok) throw new Error('Token request failed');
       return res.json(); // { token, agentId }
     }
@@ -75,6 +85,7 @@
         el.setAttribute('token', token);
         el.setAttribute('agentid', agentId);
         el.style.cssText = 'display:block;width:100%;height:100%;border:0;';
+        // Optional positioning attributes are ignored in embedded mount scenario
         el.addEventListener('ready', ()=>console.log('Widget ready:', persona));
         el.addEventListener('error', e=>console.error('Widget error:', e.detail||e));
         mount.appendChild(el);

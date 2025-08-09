@@ -603,7 +603,10 @@ function showAvatar(personaId) {
             avatarElement.appendChild(video);
             
             // Initialize WebRTC connection to show actual Simli video
-            initializeWebRTC(video, personaId);
+            console.log(`[DEBUG] About to call initializeWebRTC for ${personaId}`);
+            initializeWebRTC(video, personaId).catch(error => {
+                console.error(`[DEBUG] initializeWebRTC failed for ${personaId}:`, error);
+            });
             
             if (DEBUG) console.log(`[Master Oracle] Created video placeholder for ${personaId}`);
         } else {

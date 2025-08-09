@@ -6,8 +6,7 @@
 <title>Echoes of Indiana — Master Oracle</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com https://app.simli.com https://unpkg.com 'unsafe-inline'; connect-src 'self' https://api.simli.ai https://app.simli.com wss://api.simli.ai; frame-src 'self' https://app.simli.com; media-src 'self' blob: https://api.simli.ai;"/>
 
-<!-- Official Simli Widget SDK -->
-<script src="https://app.simli.com/simli-widget/index.js" async></script>
+<!-- Using Compose API with WebRTC - Widget SDK not needed -->
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -371,27 +370,27 @@ if (DEBUG) console.log('🚀 LOADING MASTER ORACLE KIOSK - Beautiful Design');
   }, { passive:true });
 })();
 
-// Configuration - Using Widget SDK with Agent IDs
+// Configuration - Using Compose API with Face IDs (WORKING APPROACH)
 const CONFIG = {
     personas: {
         bigfoot: { 
             name: 'Brown County Bigfoot', 
-            agentId: '4a857f92-feee-4b70-b973-290baec4d545', // These should be Agent IDs for Widget
+            faceId: '6926a39d-638b-49c5-9328-79efa034e9a4', // Face IDs for Compose API
             enhanced: false
         },
         indiana: { 
             name: 'Hoosier Oracle', 
-            agentId: '76ed1ae8-720c-45de-918c-cac46984412d', // These should be Agent IDs for Widget
+            faceId: '0c2b8b04-5274-41f1-a21c-d5c98322efa9', // Face IDs for Compose API
             enhanced: false
         },
         vonnegut: { 
             name: 'Kurt Vonnegut', 
-            agentId: '7bcb45a5-839c-4f1a-b6f9-4ebcdf457264', // These should be Agent IDs for Widget
+            faceId: '6ebf0aa7-6fed-443d-a4c6-fd1e3080b215', // Face IDs for Compose API
             enhanced: true
         }
     },
     currentSession: null,
-    useWidgetSDK: true // Use Widget SDK instead of Compose API
+    useComposeAPI: true // Back to Compose API - this was working!
 };
 
 const API_BASE = window.location.origin;
@@ -517,9 +516,9 @@ async function loadAvatar(personaId) {
     const persona = CONFIG.personas[personaId];
     
     try {
-        if (CONFIG.useWidgetSDK) {
-            // Create E2E session token for Widget SDK
-            const response = await fetch(`${API_BASE}/simli-token?persona=${encodeURIComponent(personaId)}`, {
+        if (CONFIG.useComposeAPI) {
+            // Create Compose session (WORKING APPROACH)
+            const response = await fetch(`${API_BASE}/simli-compose/session?persona=${encodeURIComponent(personaId)}`, {
                 method: 'POST'
             });
             
@@ -528,21 +527,21 @@ async function loadAvatar(personaId) {
             // If user switched during fetch, ignore this result
             if (personaId !== currentPersona) return;
 
-            if (sessionData.token && sessionData.agentId) {
+            if (sessionData.token) {
                 CONFIG.currentSession = sessionData;
                 showAvatar(personaId);
                 if (persona.enhanced) {
                     updateStatus(`${persona.name} Active - Enhanced Corpus`);
                 } else {
-                    updateStatus(`${persona.name} Active - Widget SDK`);
+                    updateStatus(`${persona.name} Active - Compose Mode`);
                 }
                 currentState = 'LIVE';
             } else {
-                throw new Error('Failed to create E2E session token');
+                throw new Error('Failed to create Compose session');
             }
         } else {
-            // Use Compose API (fallback)
-            await loadSimliCompose(personaId);
+            // Use Widget API (fallback)
+            await loadSimliWidget(personaId);
         }
         
     } catch (error) {
@@ -567,54 +566,27 @@ function showAvatar(personaId) {
     if (avatarElement) {
         avatarElement.classList.add('active');
         
-        // ACTUALLY EMBED SIMLI WIDGET SDK
+        // SIMPLE COMPOSE API APPROACH - no widget SDK
         if (CONFIG.currentSession && CONFIG.currentSession.token) {
-            // Wait for Simli SDK to load, then create widget
-            const checkSDK = () => {
-                if (typeof window.createSimliWidget === 'function' || customElements.get('simli-widget')) {
-                    // Create Simli widget element
-                    const simliWidget = document.createElement('simli-widget');
-                    
-                    // Set required attributes
-                    simliWidget.setAttribute('token', CONFIG.currentSession.token);
-                    simliWidget.setAttribute('agentid', CONFIG.currentSession.agentId);
-                    
-                    // Style the widget to fill container  
-                    simliWidget.style.cssText = `
-                        width: 100%;
-                        height: 100%;
-                        display: block;
-                        border-radius: 12px;
-                    `;
-                    
-                    // Clear and add widget
-                    avatarElement.innerHTML = '';
-                    avatarElement.appendChild(simliWidget);
-                    
-                    if (DEBUG) console.log(`[Master Oracle] Created Simli widget for ${personaId} with token ${CONFIG.currentSession.token.substring(0, 10)}...`);
-                } else {
-                    // SDK not loaded yet, show loading and retry
-                    const loadingDiv = document.createElement('div');
-                    loadingDiv.style.cssText = `
-                        width: 100%;
-                        height: 100%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: var(--cyan);
-                        font-size: 12px;
-                        font-family: var(--ui-font);
-                    `;
-                    loadingDiv.textContent = 'Loading Simli SDK...';
-                    avatarElement.innerHTML = '';
-                    avatarElement.appendChild(loadingDiv);
-                    
-                    // Retry in 500ms
-                    setTimeout(checkSDK, 500);
-                }
-            };
+            // Create iframe pointing to Simli Compose embed
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = `
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 12px;
+                background: #000;
+            `;
             
-            checkSDK();
+            // Use Compose token in embed URL
+            const embedUrl = `https://app.simli.com/embed?token=${encodeURIComponent(CONFIG.currentSession.token)}&faceId=${encodeURIComponent(CONFIG.currentSession.faceId)}`;
+            iframe.src = embedUrl;
+            
+            // Clear and add iframe
+            avatarElement.innerHTML = '';
+            avatarElement.appendChild(iframe);
+            
+            if (DEBUG) console.log(`[Master Oracle] Created Compose iframe for ${personaId}: ${embedUrl}`);
         } else {
             // Fallback placeholder if no session
             const placeholder = document.createElement('div');

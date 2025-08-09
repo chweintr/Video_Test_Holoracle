@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana — Main Kiosk</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000 url('assets/landing-foreground2.png') center/cover fixed;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Parallax light effect */
+        .parallax-layer {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(77,227,255,0.15), transparent 40%);
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .title {
+            font-size: 2.5em;
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
+            margin-bottom: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 1em;
+            color: #ff4df3;
+            text-shadow: 0 0 10px #ff4df3;
+            margin-bottom: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            z-index: 10;
+            position: relative;
+        }
+        
+        /* FIXED 420x420 Container - Simli Native Size */
+        .hologram-window {
+            width: 420px;
+            height: 420px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 30px rgba(0,255,255,0.3), 0 0 60px rgba(126,107,255,0.2);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.9);
+            position: relative;
+            overflow: hidden;
+            z-index: 5;
+        }
+        
+        /* Status Display */
+        .status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.95);
+            padding: 5px 10px;
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 5px;
+            font-size: 11px;
+            z-index: 20;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Idle State */
+        .idle-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            color: rgba(0,255,255,0.8);
+        }
+        
+        .idle-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0,255,255,0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Persona Buttons */
+        .persona-controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .persona-btn {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+            border: 2px solid rgba(77,227,255,0.5);
+            color: #00ffff;
+            padding: 12px 24px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            border-radius: 8px;
+            letter-spacing: 0.05em;
+            position: relative;
+        }
+        
+        .persona-btn:hover {
+            border-color: #00ffff;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25));
+            box-shadow: 0 0 20px rgba(0,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        
+        .persona-btn.active {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,77,243,0.25));
+            border-color: #ff4df3;
+            color: #ff4df3;
+            box-shadow: 0 0 25px rgba(255,77,243,0.5);
+        }
+        
+        .persona-btn.enhanced {
+            border-color: rgba(255,255,0,0.6);
+            color: #ffff00;
+        }
+        
+        .persona-btn.enhanced:hover {
+            border-color: #ffff00;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,0,0.15));
+            box-shadow: 0 0 20px rgba(255,255,0,0.4);
+        }
+        
+        .persona-btn.enhanced.active {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,0,0.25));
+            border-color: #ffff00;
+            color: #ffff00;
+            box-shadow: 0 0 25px rgba(255,255,0,0.5);
+        }
+        
+        /* Loading State */
+        .loading-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(0,0,0,0.8);
+            z-index: 15;
+        }
+        
+        .loading-state.active {
+            display: flex;
+        }
+        
+        /* Avatar Container */
+        .avatar-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        .avatar-container.active {
+            display: block;
+        }
+        
+        /* End Session Button */
+        .end-session-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.5);
+            color: #ff6666;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            display: none;
+            z-index: 25;
+        }
+        
+        .end-session-btn.active {
+            display: block;
+        }
+        
+        .end-session-btn:hover {
+            background: rgba(255,0,0,0.4);
+            border-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Parallax Background Effect -->
+    <div class="parallax-layer" id="parallaxLayer"></div>
+    
+    <div class="title">Echoes of Indiana</div>
+    <div class="subtitle">Holographic Conversations Powered by Research</div>
+    
+    <!-- Fixed 420x420 Hologram Window -->
+    <div class="hologram-window" id="hologramWindow">
+        <div class="status" id="status">System: Ready</div>
+        
+        <!-- Idle State -->
+        <div class="idle-state" id="idleState">
+            <div class="idle-spinner"></div>
+            <div>Select Oracle</div>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="idle-spinner"></div>
+            <div style="margin-top: 20px;">Summoning...</div>
+        </div>
+        
+        <!-- Avatar Containers -->
+        <div class="avatar-container" id="avatarBigfoot"></div>
+        <div class="avatar-container" id="avatarIndiana"></div>
+        <div class="avatar-container" id="avatarVonnegut"></div>
+        
+        <!-- End Session Button -->
+        <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
+            END SESSION
+        </div>
+    </div>
+    
+    <!-- Persona Controls -->
+    <div class="persona-controls">
+        <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
+            Brown County Bigfoot
+        </button>
+        <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
+            Hoosier Oracle
+        </button>
+        <button class="persona-btn enhanced" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
+            Kurt Vonnegut [ENHANCED]
+        </button>
+    </div>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    <script>
+        console.log('🚀 Loading Main Kiosk - 3 Personas');
+        
+        // WHAT WORKED: Simple widget embed with correct agent IDs
+        const CONFIG = {
+            personas: {
+                bigfoot: {
+                    name: 'Brown County Bigfoot',
+                    agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                    enhanced: false,
+                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head'
+                },
+                indiana: {
+                    name: 'Hoosier Oracle', 
+                    agentId: '76ed1ae8-720c-45de-918c-cac46984412d',
+                    enhanced: false,
+                    description: 'Hoosier KB with system prompt; SIMLI stock voice/head'
+                },
+                vonnegut: {
+                    name: 'Kurt Vonnegut',
+                    agentId: '7bcb45a5-839c-4f1a-b6f9-4ebcdf457264',
+                    enhanced: true,
+                    description: 'Vonnegut KB with custom prompt (placeholder for now)'
+                }
+            }
+        };
+        
+        const API_BASE = window.location.origin;
+        let currentPersona = null;
+        let currentWidget = null;
+        
+        // DOM elements
+        const status = document.getElementById('status');
+        const idleState = document.getElementById('idleState');
+        const loadingState = document.getElementById('loadingState');
+        const endSessionBtn = document.getElementById('endSessionBtn');
+        const parallaxLayer = document.getElementById('parallaxLayer');
+        
+        // Parallax mouse effect
+        let mouseX = 50, mouseY = 50, ticking = false;
+        function updateParallax() {
+            parallaxLayer.style.setProperty('--mx', mouseX + '%');
+            parallaxLayer.style.setProperty('--my', mouseY + '%');
+            ticking = false;
+        }
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 100;
+            mouseY = (e.clientY / window.innerHeight) * 100;
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        }, { passive: true });
+        
+        function updateStatus(msg) {
+            status.textContent = `System: ${msg}`;
+            console.log('[Main Kiosk]', msg);
+        }
+        
+        async function switchPersona(personaId) {
+            console.log(`[Main Kiosk] Switching to: ${personaId}`);
+            
+            // Update button states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
+            
+            // End current session if active
+            if (currentPersona && currentWidget) {
+                await endCurrentSession();
+            }
+            
+            // Start new session
+            currentPersona = personaId;
+            const persona = CONFIG.personas[personaId];
+            
+            updateStatus(`Summoning ${persona.name}...`);
+            
+            // Show loading state
+            idleState.style.display = 'none';
+            loadingState.classList.add('active');
+            
+            try {
+                // Get token using WORKING approach
+                const response = await fetch(`${API_BASE}/simli-token?agentId=${persona.agentId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    }
+                });
+                
+                const data = await response.json();
+                const token = data.token;
+                
+                if (!token) {
+                    throw new Error('No token received');
+                }
+                
+                console.log(`[Main Kiosk] Token for ${personaId}: ${token.substring(0, 10)}...`);
+                
+                // Create widget using WORKING method
+                await createSimliWidget(personaId, token, persona.agentId);
+                
+            } catch (error) {
+                console.error(`[Main Kiosk] Error for ${personaId}:`, error);
+                updateStatus(`Connection failed: ${error.message}`);
+                returnToIdle();
+            }
+        }
+        
+        async function createSimliWidget(personaId, token, agentId) {
+            const persona = CONFIG.personas[personaId];
+            const containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            const container = document.getElementById(containerId);
+            
+            console.log(`[Main Kiosk] Creating widget for ${personaId}`);
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Hide loading, show container
+            loadingState.classList.remove('active');
+            container.classList.add('active');
+            
+            // Hide other containers
+            document.querySelectorAll('.avatar-container').forEach(c => {
+                if (c.id !== containerId) c.classList.remove('active');
+            });
+            
+            // Create simli-widget element - WORKING APPROACH
+            const widget = document.createElement('simli-widget');
+            widget.setAttribute('token', token);
+            widget.setAttribute('agentid', agentId);
+            widget.setAttribute('position', 'relative');
+            
+            // Style widget to fill 420x420 container
+            widget.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: block;
+                border: none;
+            `;
+            
+            // Add event listeners
+            widget.addEventListener('load', () => {
+                console.log(`[Main Kiosk] Widget loaded: ${personaId}`);
+                updateStatus(`${persona.name} Ready - Click to Talk`);
+                endSessionBtn.classList.add('active');
+            });
+            
+            widget.addEventListener('error', (e) => {
+                console.error(`[Main Kiosk] Widget error:`, e);
+                updateStatus(`Widget error: ${e.detail || 'Unknown'}`);
+                returnToIdle();
+            });
+            
+            widget.addEventListener('callstart', () => {
+                console.log(`[Main Kiosk] Call started: ${personaId}`);
+                updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
+            });
+            
+            widget.addEventListener('callend', () => {
+                console.log(`[Main Kiosk] Call ended: ${personaId}`);
+                updateStatus(`${persona.name} Ready - Click to Talk`);
+            });
+            
+            // Add to container
+            container.appendChild(widget);
+            currentWidget = widget;
+            
+            console.log(`[Main Kiosk] Widget created successfully: ${personaId}`);
+            updateStatus(`${persona.name} Connected${persona.enhanced ? ' [ENHANCED]' : ''}`);
+        }
+        
+        async function endCurrentSession() {
+            if (!currentWidget || !currentPersona) return;
+            
+            console.log(`[Main Kiosk] Ending session: ${currentPersona}`);
+            updateStatus('Ending session...');
+            
+            // Remove widget
+            if (currentWidget.parentNode) {
+                currentWidget.parentNode.removeChild(currentWidget);
+            }
+            currentWidget = null;
+            
+            // Hide all containers
+            document.querySelectorAll('.avatar-container').forEach(c => c.classList.remove('active'));
+            
+            setTimeout(returnToIdle, 500);
+        }
+        
+        function returnToIdle() {
+            console.log('[Main Kiosk] Returning to idle');
+            currentPersona = null;
+            currentWidget = null;
+            
+            // Clear states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            loadingState.classList.remove('active');
+            endSessionBtn.classList.remove('active');
+            
+            // Show idle
+            idleState.style.display = 'flex';
+            updateStatus('Ready - Select Oracle');
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            console.log('🚀 Main Kiosk Ready - 3 Personas Available');
+            updateStatus('Ready - Select Oracle');
+            
+            // ESC key support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && currentPersona) {
+                    endCurrentSession();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

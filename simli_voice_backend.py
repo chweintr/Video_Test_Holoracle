@@ -283,6 +283,14 @@ async def bigfoot_test():
     else:
         return {"message": "bigfoot_test.html not found"}
 
+@app.get("/main")
+async def main_kiosk():
+    """Serve the Main Kiosk - 3 Personas working with Simli Agents"""
+    if os.path.exists("main_kiosk.html"):
+        return FileResponse("main_kiosk.html")
+    else:
+        return {"message": "main_kiosk.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.

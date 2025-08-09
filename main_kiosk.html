@@ -18,6 +18,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative; /* Allow for absolute positioned children */
         }
         
         /* Parallax light effect */
@@ -62,10 +63,13 @@
             height: 420px;
             border: none; /* Remove border - using background frame */
             background: transparent; /* Transparent to show background frame */
-            position: relative;
+            position: absolute;
+            /* Exact positioning: horizontal 540-960px, vertical 178-598px */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translate(0, 70px); /* Center then adjust down to glass cube */
             overflow: hidden;
             z-index: 5;
-            margin-bottom: -20px; /* Move up slightly to align with glass cube */
         }
         
         /* Status Display */

@@ -185,6 +185,24 @@
             display: block;
         }
         
+        /* Bigfoot Overlay - appears only when Bigfoot is active */
+        .bigfoot-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/bigfoot-overlay.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none; /* Allow clicks through to widget */
+            z-index: 10;
+            display: none;
+        }
+        
+        .bigfoot-overlay.active {
+            display: block;
+        }
+        
         /* End Session Button */
         .end-session-btn {
             position: absolute;
@@ -239,6 +257,9 @@
         <div class="avatar-container" id="avatarBigfoot"></div>
         <div class="avatar-container" id="avatarIndiana"></div>
         <div class="avatar-container" id="avatarVonnegut"></div>
+        
+        <!-- Bigfoot Overlay - only appears when Bigfoot is active -->
+        <div class="bigfoot-overlay" id="bigfootOverlay"></div>
         
         <!-- End Session Button -->
         <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
@@ -409,6 +430,12 @@
                 console.log(`[Main Kiosk] Widget loaded: ${personaId}`);
                 updateStatus(`${persona.name} Ready - Click to Talk`);
                 endSessionBtn.classList.add('active');
+                
+                // Show Bigfoot overlay if it's Bigfoot persona
+                if (personaId === 'bigfoot') {
+                    document.getElementById('bigfootOverlay').classList.add('active');
+                    console.log('[Main Kiosk] Bigfoot overlay activated');
+                }
             });
             
             widget.addEventListener('error', (e) => {
@@ -462,6 +489,9 @@
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             loadingState.classList.remove('active');
             endSessionBtn.classList.remove('active');
+            
+            // Hide Bigfoot overlay
+            document.getElementById('bigfootOverlay').classList.remove('active');
             
             // Show idle
             idleState.style.display = 'flex';

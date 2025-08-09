@@ -195,7 +195,7 @@
             background-position: center;
             background-repeat: no-repeat;
             pointer-events: none; /* Allow clicks through to widget */
-            z-index: 10;
+            z-index: 100; /* Higher z-index to be on top of widget */
             display: none;
         }
         
@@ -257,9 +257,6 @@
         <div class="avatar-container" id="avatarBigfoot"></div>
         <div class="avatar-container" id="avatarIndiana"></div>
         <div class="avatar-container" id="avatarVonnegut"></div>
-        
-        <!-- Bigfoot Overlay - only appears when Bigfoot is active -->
-        <div class="bigfoot-overlay" id="bigfootOverlay"></div>
         
         <!-- End Session Button -->
         <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
@@ -430,12 +427,6 @@
                 console.log(`[Main Kiosk] Widget loaded: ${personaId}`);
                 updateStatus(`${persona.name} Ready - Click to Talk`);
                 endSessionBtn.classList.add('active');
-                
-                // Show Bigfoot overlay if it's Bigfoot persona
-                if (personaId === 'bigfoot') {
-                    document.getElementById('bigfootOverlay').classList.add('active');
-                    console.log('[Main Kiosk] Bigfoot overlay activated');
-                }
             });
             
             widget.addEventListener('error', (e) => {
@@ -457,6 +448,27 @@
             // Add to container
             container.appendChild(widget);
             currentWidget = widget;
+            
+            // Add Bigfoot overlay AFTER widget if it's Bigfoot
+            if (personaId === 'bigfoot') {
+                const overlay = document.createElement('div');
+                overlay.className = 'bigfoot-overlay-inner';
+                overlay.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-image: url('assets/bigfoot-overlay.png');
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    pointer-events: none;
+                    z-index: 1000;
+                `;
+                container.appendChild(overlay);
+                console.log('[Main Kiosk] Bigfoot overlay added on top of widget');
+            }
             
             console.log(`[Main Kiosk] Widget created successfully: ${personaId}`);
             updateStatus(`${persona.name} Connected${persona.enhanced ? ' [ENHANCED]' : ''}`);
@@ -489,9 +501,6 @@
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             loadingState.classList.remove('active');
             endSessionBtn.classList.remove('active');
-            
-            // Hide Bigfoot overlay
-            document.getElementById('bigfootOverlay').classList.remove('active');
             
             // Show idle
             idleState.style.display = 'flex';

@@ -513,22 +513,33 @@ async function switchPersona(personaId) {
 }
 
 async function loadAvatar(personaId) {
+    console.log(`[DEBUG] loadAvatar(${personaId}) called`);
     const persona = CONFIG.personas[personaId];
     
     try {
         if (CONFIG.useComposeAPI) {
+            console.log(`[DEBUG] Using Compose API for ${personaId}`);
             // Create Compose session (WORKING APPROACH)
-            const response = await fetch(`${API_BASE}/simli-compose/session?persona=${encodeURIComponent(personaId)}`, {
+            const url = `${API_BASE}/simli-compose/session?persona=${encodeURIComponent(personaId)}`;
+            console.log(`[DEBUG] Fetching: ${url}`);
+            
+            const response = await fetch(url, {
                 method: 'POST'
             });
             
+            console.log(`[DEBUG] Response status: ${response.status}`);
             const sessionData = await response.json();
+            console.log(`[DEBUG] Session data:`, sessionData);
             
             // If user switched during fetch, ignore this result
-            if (personaId !== currentPersona) return;
+            if (personaId !== currentPersona) {
+                console.log(`[DEBUG] User switched away from ${personaId}, ignoring result`);
+                return;
+            }
 
             if (sessionData.token) {
                 CONFIG.currentSession = sessionData;
+                console.log(`[DEBUG] Calling showAvatar for ${personaId}`);
                 showAvatar(personaId);
                 if (persona.enhanced) {
                     updateStatus(`${persona.name} Active - Enhanced Corpus`);
@@ -537,15 +548,16 @@ async function loadAvatar(personaId) {
                 }
                 currentState = 'LIVE';
             } else {
-                throw new Error('Failed to create Compose session');
+                throw new Error('Failed to create Compose session - no token');
             }
         } else {
+            console.log(`[DEBUG] Using Widget API for ${personaId}`);
             // Use Widget API (fallback)
             await loadSimliWidget(personaId);
         }
         
     } catch (error) {
-        if (DEBUG) console.error('[Master Oracle] Error loading avatar:', error);
+        console.error(`[DEBUG] Error in loadAvatar(${personaId}):`, error);
         updateStatus(`Connection failed: ${error.message}`);
         returnToIdle();
     }

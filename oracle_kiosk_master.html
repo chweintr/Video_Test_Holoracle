@@ -562,7 +562,12 @@ function showAvatar(personaId) {
     });
     
     // Show selected avatar with proper styling
-    const avatarElement = document.getElementById(`avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`);
+    const avatarElementId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+    const avatarElement = document.getElementById(avatarElementId);
+    
+    console.log(`[DEBUG] showAvatar(${personaId}) -> looking for element: ${avatarElementId}`, avatarElement);
+    console.log(`[DEBUG] CONFIG.currentSession:`, CONFIG.currentSession);
+    
     if (avatarElement) {
         avatarElement.classList.add('active');
         

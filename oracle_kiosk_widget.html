@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echoes of Indiana — Widget Kiosk</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com https://app.simli.com 'unsafe-inline'; connect-src 'self' https://api.simli.ai https://app.simli.com wss:; frame-src 'self' https://app.simli.com;"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --cyan:#4de3ff; --magenta:#ff4df3; --violet:#7e6bff; --mx:50%; --my:50%; --title:'Michroma', ui-sans-serif; --ui:'Rajdhani', ui-sans-serif; }
+    html,body{height:100%}
+    body{ margin:0; overflow:hidden; color:#e7faff; font-family:var(--ui); background:#000 url('/assets/landing-foreground.png') center/cover no-repeat fixed; }
+    h1{ font-family:var(--title); text-shadow:0 0 8px var(--cyan),0 0 20px var(--cyan),0 0 38px var(--violet); letter-spacing:.08em; text-transform:uppercase; }
+    .subtitle{ font-family:var(--title); letter-spacing:.14em; text-transform:uppercase; color:var(--magenta); text-shadow:0 0 8px var(--magenta),0 0 22px var(--magenta); }
+    .layer{ position:absolute; inset:0; pointer-events:none; z-index:1; }
+    .light{ background:radial-gradient(circle at var(--mx) var(--my), rgba(77,227,255,.18), transparent 40%); mix-blend-mode:screen; }
+    .mount{ width:512px; height:512px; border:1px solid rgba(77,227,255,.45); box-shadow:0 0 26px rgba(77,227,255,.25); border-radius:12px; position:relative; z-index:2; overflow:hidden; }
+    .btn{ border:1px solid rgba(109,213,255,.45); border-radius:10px; padding:.9rem 1.2rem; background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(77,227,255,.15)); color:var(--cyan); text-transform:uppercase; transition:all .18s ease; }
+    .btn.active{ border-color:rgba(255,77,243,.7); color:var(--magenta); box-shadow:0 0 24px rgba(255,77,243,.35); }
+  </style>
+</head>
+<body>
+  <div class="layer light" id="parallax"></div>
+  <div class="w-full text-center mt-6 select-none">
+    <h1 class="text-2xl md:text-4xl tracking-wider">ECHOES OF INDIANA</h1>
+    <div class="subtitle text-xs md:text-sm mt-1">LIVE HOLOGRAPHIC CONVERSATIONS — WIDGET</div>
+  </div>
+  <main class="w-full h-[70vh] flex items-center justify-center">
+    <div class="mount" id="mount"></div>
+  </main>
+  <footer class="flex gap-6 justify-center pb-10">
+    <button class="btn" data-persona="bigfoot">Brown County Bigfoot</button>
+    <button class="btn" data-persona="indiana">Hoosier Oracle</button>
+    <button class="btn" data-persona="vonnegut">Kurt Vonnegut</button>
+  </footer>
+
+  <!-- Simli Widget SDK -->
+  <script src="https://app.simli.com/simli-widget/index.js" async onload="console.log('Simli widget loaded')"></script>
+  <script>
+  (function(){
+    // Parallax
+    const l = document.getElementById('parallax');
+    let mx=50,my=50,t=false;function u(){l.style.setProperty('--mx',mx+'%');l.style.setProperty('--my',my+'%');t=false}
+    addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth)*100;my=(e.clientY/innerHeight)*100;if(!t){requestAnimationFrame(u);t=true}}, {passive:true});
+  })();
+
+  (function(){
+    const API_BASE = window.location.origin;
+    const mount = document.getElementById('mount');
+    const buttons = Array.from(document.querySelectorAll('.btn'));
+    let currentEl = null;
+
+    async function fetchToken(persona){
+      const res = await fetch(`${API_BASE}/simli-token?persona=${encodeURIComponent(persona)}`);
+      if(!res.ok) throw new Error('Token request failed');
+      return res.json(); // { token, agentId }
+    }
+
+    function clearMount(){
+      mount.innerHTML = '';
+      currentEl = null;
+    }
+
+    async function loadPersona(persona){
+      buttons.forEach(b=>b.classList.toggle('active', b.dataset.persona===persona));
+      clearMount();
+      try{
+        const data = await fetchToken(persona);
+        const { token, agentId } = data;
+        if(!token || !agentId){ throw new Error('Missing token or agentId'); }
+
+        // Create widget element
+        const el = document.createElement('simli-widget');
+        el.setAttribute('token', token);
+        el.setAttribute('agentid', agentId);
+        el.style.cssText = 'display:block;width:100%;height:100%;border:0;';
+        el.addEventListener('ready', ()=>console.log('Widget ready:', persona));
+        el.addEventListener('error', e=>console.error('Widget error:', e.detail||e));
+        mount.appendChild(el);
+        currentEl = el;
+      }catch(err){
+        console.error('Failed to load persona', persona, err);
+      }
+    }
+
+    buttons.forEach(b=>b.addEventListener('click',()=>loadPersona(b.dataset.persona)));
+    // Auto-load first persona
+    loadPersona('bigfoot');
+  })();
+  </script>
+</body>
+</html>
+
+

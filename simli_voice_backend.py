@@ -243,6 +243,14 @@ async def oracle_kiosk_compose():
     else:
         return {"message": "oracle_kiosk_compose.html not found"}
 
+@app.get("/widget")
+async def oracle_kiosk_widget():
+    """Serve the Simli Widget kiosk (agentId + e2e token)."""
+    if os.path.exists("oracle_kiosk_widget.html"):
+        return FileResponse("oracle_kiosk_widget.html")
+    else:
+        return {"message": "oracle_kiosk_widget.html not found"}
+
 @app.get("/preview")
 async def oracle_kiosk_preview():
     """Serve the visual-only kiosk preview (no Simli)."""

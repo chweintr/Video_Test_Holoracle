@@ -602,32 +602,8 @@ function showAvatar(personaId) {
             avatarElement.innerHTML = '';
             avatarElement.appendChild(video);
             
-            // Show connection info for now (until we implement proper WebRTC)
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                color: var(--cyan);
-                text-align: center;
-                font-size: 12px;
-                font-family: var(--ui-font);
-                background: rgba(0,0,0,0.8);
-                padding: 10px;
-                border-radius: 8px;
-            `;
-            overlay.innerHTML = `
-                <div>${CONFIG.personas[personaId].name}</div>
-                <div style="font-size: 10px; opacity: 0.7; margin-top: 5px;">
-                    Session: ✅<br>
-                    Token: ${CONFIG.currentSession.token.substring(0, 8)}...<br>
-                    Face ID: ${CONFIG.currentSession.faceId.substring(0, 8)}...<br>
-                    <span style="color: #ffff00;">WebRTC: TODO</span>
-                </div>
-            `;
-            
-            avatarElement.appendChild(overlay);
+            // Initialize WebRTC connection to show actual Simli video
+            initializeWebRTC(video, personaId);
             
             if (DEBUG) console.log(`[Master Oracle] Created video placeholder for ${personaId}`);
         } else {
@@ -708,7 +684,103 @@ function returnToIdle() {
     });
 }
 
-// Widget SDK Management - using official Simli SDK instead of custom WebRTC
+// WebRTC Connection to Simli Compose API
+async function initializeWebRTC(videoElement, personaId) {
+    console.log(`[WebRTC] Initializing for ${personaId}`);
+    
+    try {
+        // Create WebSocket connection to Simli
+        const ws = new WebSocket('wss://api.simli.ai/v1/startAudioToVideoWebsocket');
+        
+        ws.onopen = () => {
+            console.log(`[WebRTC] WebSocket connected for ${personaId}`);
+            
+            // Send session token to start video stream
+            const initMessage = {
+                type: 'session_token',
+                session_token: CONFIG.currentSession.token,
+                faceId: CONFIG.currentSession.faceId
+            };
+            
+            ws.send(JSON.stringify(initMessage));
+            console.log(`[WebRTC] Sent session token for ${personaId}`);
+        };
+        
+        ws.onmessage = async (event) => {
+            const message = JSON.parse(event.data);
+            console.log(`[WebRTC] Message received for ${personaId}:`, message);
+            
+            if (message.type === 'video_stream_url') {
+                // Set video source to Simli stream
+                videoElement.src = message.url;
+                updateStatus(`${CONFIG.personas[personaId].name} Connected!`);
+            }
+            
+            if (message.type === 'webrtc_offer') {
+                // Handle WebRTC offer from Simli
+                const pc = new RTCPeerConnection({
+                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                });
+                
+                pc.ontrack = (event) => {
+                    console.log(`[WebRTC] Received video track for ${personaId}`);
+                    videoElement.srcObject = event.streams[0];
+                    updateStatus(`${CONFIG.personas[personaId].name} Live!`);
+                };
+                
+                await pc.setRemoteDescription(message.offer);
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                
+                ws.send(JSON.stringify({
+                    type: 'webrtc_answer',
+                    answer: answer
+                }));
+            }
+        };
+        
+        ws.onerror = (error) => {
+            console.error(`[WebRTC] Error for ${personaId}:`, error);
+            updateStatus(`${CONFIG.personas[personaId].name}: Connection Error`);
+        };
+        
+        ws.onclose = () => {
+            console.log(`[WebRTC] Connection closed for ${personaId}`);
+            updateStatus(`${CONFIG.personas[personaId].name}: Disconnected`);
+        };
+        
+    } catch (error) {
+        console.error(`[WebRTC] Failed to initialize for ${personaId}:`, error);
+        updateStatus(`${CONFIG.personas[personaId].name}: WebRTC Error`);
+        
+        // Show fallback info
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--cyan);
+            text-align: center;
+            font-size: 12px;
+            font-family: var(--ui-font);
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 8px;
+        `;
+        overlay.innerHTML = `
+            <div>${CONFIG.personas[personaId].name}</div>
+            <div style="font-size: 10px; opacity: 0.7; margin-top: 5px;">
+                Session: ✅<br>
+                Token: ${CONFIG.currentSession.token.substring(0, 8)}...<br>
+                Face ID: ${CONFIG.currentSession.faceId.substring(0, 8)}...<br>
+                <span style="color: #ff4444;">WebRTC: ERROR</span>
+            </div>
+        `;
+        
+        videoElement.parentElement.appendChild(overlay);
+    }
+}
 
 // Initialize
 window.addEventListener('load', async () => {

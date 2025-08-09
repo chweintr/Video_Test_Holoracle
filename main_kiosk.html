@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #000 url('assets/landing-foreground2.png') center/cover fixed;
+            background: #000 url('assets/landing-foreground-420.png') center/cover fixed;
             color: #00ffff;
             font-family: 'Courier New', monospace;
             height: 100vh;
@@ -33,6 +33,7 @@
             font-size: 2.5em;
             text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
             margin-bottom: 10px;
+            margin-top: -40px; /* Move up to accommodate new layout */
             text-align: center;
             text-transform: uppercase;
             font-weight: bold;
@@ -45,7 +46,7 @@
             font-size: 1em;
             color: #ff4df3;
             text-shadow: 0 0 10px #ff4df3;
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Reduce margin */
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.15em;
@@ -53,17 +54,16 @@
             position: relative;
         }
         
-        /* FIXED 420x420 Container - Simli Native Size */
+        /* FIXED 420x420 Container - Positioned to match background frame */
         .hologram-window {
             width: 420px;
             height: 420px;
-            border: 2px solid #00ffff;
-            box-shadow: 0 0 30px rgba(0,255,255,0.3), 0 0 60px rgba(126,107,255,0.2);
-            border-radius: 12px;
-            background: rgba(0,0,0,0.9);
+            border: none; /* Remove border - using background frame */
+            background: transparent; /* Transparent to show background frame */
             position: relative;
             overflow: hidden;
             z-index: 5;
+            margin-bottom: 60px; /* Adjust to align with background frame */
         }
         
         /* Status Display */
@@ -109,7 +109,7 @@
         
         /* Persona Buttons */
         .persona-controls {
-            margin-top: 30px;
+            margin-top: 80px; /* More space to avoid background frame */
             display: flex;
             gap: 20px;
             flex-wrap: wrap;

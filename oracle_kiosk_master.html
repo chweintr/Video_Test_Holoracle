@@ -702,10 +702,14 @@ function returnToIdle() {
 // WebRTC Connection to Simli Compose API
 async function initializeWebRTC(videoElement, personaId) {
     console.log(`[WebRTC] Initializing for ${personaId}`);
+    console.log(`[WebRTC] Video element:`, videoElement);
+    console.log(`[WebRTC] Session token:`, CONFIG.currentSession.token.substring(0, 10) + '...');
     
     try {
+        console.log(`[WebRTC] About to create WebSocket connection`);
         // Create WebSocket connection to Simli
         const ws = new WebSocket('wss://api.simli.ai/v1/startAudioToVideoWebsocket');
+        console.log(`[WebRTC] WebSocket created:`, ws);
         
         ws.onopen = () => {
             console.log(`[WebRTC] WebSocket connected for ${personaId}`);

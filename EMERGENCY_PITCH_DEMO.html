@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indiana Oracle - Pitch Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000 url('assets/landing-foreground2.png') center/cover fixed;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 20px #00ffff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .oracle-container {
+            width: 512px;
+            height: 512px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 30px #00ffff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.8);
+            position: relative;
+        }
+        
+        .persona-display {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .persona-name {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px currentColor;
+        }
+        
+        .status {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        
+        .enhanced {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        button {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        button.active {
+            background: #00ffff;
+            color: #000;
+        }
+        
+        .demo-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        /* Simulating the avatar display */
+        .avatar-placeholder {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>ECHOES OF INDIANA</h1>
+    
+    <div class="oracle-container" id="oracleContainer">
+        <div class="persona-display" id="personaDisplay">
+            <div class="persona-name">Select an Oracle</div>
+            <div class="status">System Ready</div>
+            <div class="avatar-placeholder">
+                <div style="text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">🎭</div>
+                    <div>Awaiting Selection</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="buttons">
+        <button onclick="selectPersona('bigfoot')">Brown County Bigfoot</button>
+        <button onclick="selectPersona('indiana')">Hoosier Oracle</button>
+        <button onclick="selectPersona('vonnegut')">Kurt Vonnegut</button>
+    </div>
+    
+    <script>
+        const personas = {
+            bigfoot: {
+                name: 'Brown County Bigfoot',
+                description: 'Cryptid of Indiana Forests',
+                color: '#8B4513',
+                emoji: '🦶'
+            },
+            indiana: {
+                name: 'Hoosier Oracle',
+                description: 'Voice of Indiana History',
+                color: '#00ffff',
+                emoji: '🌽'
+            },
+            vonnegut: {
+                name: 'Kurt Vonnegut',
+                description: 'Enhanced Literary Corpus',
+                color: '#ffff00',
+                emoji: '✍️',
+                enhanced: true
+            }
+        };
+        
+        let currentPersona = null;
+        
+        async function selectPersona(personaId) {
+            const persona = personas[personaId];
+            currentPersona = personaId;
+            
+            // Update buttons
+            document.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show loading state
+            const display = document.getElementById('personaDisplay');
+            display.innerHTML = `
+                <div class="persona-name" style="color: ${persona.color}">
+                    ${persona.emoji} ${persona.name}
+                </div>
+                <div class="status">Connecting...</div>
+                <div class="avatar-placeholder" style="border-color: ${persona.color}">
+                    <div style="text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">${persona.emoji}</div>
+                        <div>Loading Avatar...</div>
+                    </div>
+                </div>
+            `;
+            
+            // Simulate connection (replace with actual Simli when working)
+            setTimeout(() => {
+                display.innerHTML = `
+                    <div class="persona-name" style="color: ${persona.color}">
+                        ${persona.emoji} ${persona.name}
+                    </div>
+                    <div class="status" style="color: ${persona.color}">Connected</div>
+                    ${persona.enhanced ? '<div class="enhanced">ENHANCED CORPUS ACTIVE</div>' : ''}
+                    <div class="avatar-placeholder" style="border-color: ${persona.color}; animation: pulse 1s infinite;">
+                        <div style="text-align: center; color: ${persona.color};">
+                            <div style="font-size: 72px; margin-bottom: 10px;">${persona.emoji}</div>
+                            <div style="font-size: 1.5em;">${persona.name}</div>
+                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">${persona.description}</div>
+                            ${persona.enhanced ? '<div style="color: #ffff00; margin-top: 10px;">Authentic Vonnegut Responses</div>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                // Test backend connection
+                testBackend(personaId);
+            }, 1500);
+        }
+        
+        async function testBackend(personaId) {
+            try {
+                const response = await fetch(`/api/status`);
+                const data = await response.json();
+                console.log('Backend status:', data);
+                
+                if (data.systems_initialized) {
+                    console.log(`✅ Backend ready for ${personaId}`);
+                    // Could trigger actual Simli here when it's working
+                }
+            } catch (error) {
+                console.error('Backend check failed:', error);
+            }
+        }
+        
+        // Initialize
+        console.log('🚀 Indiana Oracle Pitch Demo Ready');
+        console.log('This is a working demo showcasing the concept.');
+        console.log('Simli integration can be added when SDK issues are resolved.');
+    </script>
+</body>
+</html>

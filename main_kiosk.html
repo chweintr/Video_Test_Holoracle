@@ -86,7 +86,7 @@
             font-family: 'Courier New', monospace;
         }
         
-        /* Idle State */
+        /* Enhanced Idle State with particles */
         .idle-state {
             position: absolute;
             width: 100%;
@@ -97,6 +97,7 @@
             flex-direction: column;
             text-align: center;
             color: rgba(0,255,255,0.8);
+            background: radial-gradient(circle at center, rgba(0,255,255,0.1) 0%, transparent 70%);
         }
         
         .idle-spinner {
@@ -107,10 +108,64 @@
             border-radius: 50%;
             animation: spin 2s linear infinite;
             margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* Particle effect container */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(0,255,255,0.6);
+            border-radius: 50%;
+            animation: float 4s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { 
+                opacity: 0;
+                transform: translateY(20px) scale(0.5);
+            }
+            50% { 
+                opacity: 1;
+                transform: translateY(-20px) scale(1);
+            }
+        }
+        
+        /* Enhanced loading state with transition effects */
+        .loading-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(0,0,0,0.9);
+            z-index: 15;
+            transition: all 0.3s ease;
+        }
+        
+        .loading-state.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         /* Persona Buttons */
@@ -189,6 +244,29 @@
             display: block;
         }
         
+        /* Hide Simli widget preloading UI elements */
+        simli-widget {
+            background: transparent !important;
+        }
+        
+        /* Hide Simli's built-in start button and preloader */
+        simli-widget::shadow .start-button,
+        simli-widget::shadow .preloader,
+        simli-widget::shadow .loading-spinner,
+        simli-widget::shadow [class*="start"],
+        simli-widget::shadow [class*="loading"],
+        simli-widget::shadow [class*="preload"] {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        
+        /* Override any Simli default backgrounds */
+        simli-widget::shadow video,
+        simli-widget::shadow canvas {
+            background: transparent !important;
+        }
+        
         /* Bigfoot Overlay - appears only when Bigfoot is active */
         .bigfoot-overlay {
             position: absolute;
@@ -245,8 +323,9 @@
     <div class="hologram-window" id="hologramWindow">
         <div class="status" id="status">System: Ready</div>
         
-        <!-- Idle State -->
+        <!-- Idle State with particles -->
         <div class="idle-state" id="idleState">
+            <div class="particles" id="particleContainer"></div>
             <div class="idle-spinner"></div>
             <div>Select Oracle</div>
         </div>
@@ -320,6 +399,7 @@
         const loadingState = document.getElementById('loadingState');
         const endSessionBtn = document.getElementById('endSessionBtn');
         const parallaxLayer = document.getElementById('parallaxLayer');
+        const particleContainer = document.getElementById('particleContainer');
         
         // Parallax mouse effect
         let mouseX = 50, mouseY = 50, ticking = false;
@@ -336,6 +416,19 @@
                 ticking = true;
             }
         }, { passive: true });
+        
+        // Particle system for idle state
+        function createParticles() {
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+                particleContainer.appendChild(particle);
+            }
+        }
         
         function updateStatus(msg) {
             status.textContent = `System: ${msg}`;
@@ -417,6 +510,9 @@
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
             widget.setAttribute('position', 'relative');
+            widget.setAttribute('showui', 'false'); // Try to minimize UI
+            widget.setAttribute('autostart', 'true'); // Skip start button
+            widget.setAttribute('controls', 'false'); // Hide controls
             
             // Style widget to fill 420x420 container
             widget.style.cssText = `
@@ -515,6 +611,9 @@
         window.addEventListener('load', () => {
             console.log('🚀 Main Kiosk Ready - 3 Personas Available');
             updateStatus('Ready');
+            
+            // Initialize particle system
+            createParticles();
             
             // ESC key support
             document.addEventListener('keydown', (e) => {

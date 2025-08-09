@@ -275,6 +275,14 @@ async def oracle_kiosk_webrtc():
     else:
         return {"message": "oracle_kiosk_webrtc.html not found"}
 
+@app.get("/bigfoot-test")
+async def bigfoot_test():
+    """Serve the Bigfoot test page - Step 1: Get avatar in glass case"""
+    if os.path.exists("bigfoot_test.html"):
+        return FileResponse("bigfoot_test.html")
+    else:
+        return {"message": "bigfoot_test.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.

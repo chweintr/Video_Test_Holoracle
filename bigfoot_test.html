@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bigfoot Test - Echoes of Indiana</title>
+    <style>
+        body {
+            background: #000 url('assets/landing-foreground2.png') center/cover fixed;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 20px #00ffff;
+            margin-bottom: 20px;
+        }
+        
+        /* The Glass Case - 512x512 */
+        .glass-case {
+            width: 512px;
+            height: 512px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Status */
+        .status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.9);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        /* Button */
+        button {
+            margin-top: 20px;
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        /* Center content in glass case */
+        .glass-case {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .waiting {
+            text-align: center;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <h1>ECHOES OF INDIANA</h1>
+    
+    <div class="glass-case" id="glassCase">
+        <div class="status" id="status">Ready</div>
+        <div class="waiting" id="waiting">Click button to summon Bigfoot</div>
+    </div>
+    
+    <button onclick="summonBigfoot()" id="summonBtn">Summon Brown County Bigfoot</button>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    <script>
+        const API_BASE = window.location.origin;
+        const BIGFOOT_AGENT_ID = '4a857f92-feee-4b70-b973-290baec4d545';
+        
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+            console.log('[Bigfoot Test]', msg);
+        }
+        
+        async function summonBigfoot() {
+            const btn = document.getElementById('summonBtn');
+            const glassCase = document.getElementById('glassCase');
+            const waiting = document.getElementById('waiting');
+            
+            updateStatus('Summoning...');
+            btn.disabled = true;
+            
+            try {
+                // Get token
+                const response = await fetch(`${API_BASE}/simli-token?agentId=${BIGFOOT_AGENT_ID}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    }
+                });
+                
+                const data = await response.json();
+                const token = data.token;
+                
+                if (!token) {
+                    throw new Error('No token received');
+                }
+                
+                updateStatus('Token received, creating widget...');
+                console.log('[Bigfoot Test] Token:', token.substring(0, 10) + '...');
+                
+                // Hide waiting message
+                waiting.style.display = 'none';
+                
+                // Create simli-widget element
+                const widget = document.createElement('simli-widget');
+                widget.setAttribute('token', token);
+                widget.setAttribute('agentid', BIGFOOT_AGENT_ID);
+                widget.setAttribute('position', 'relative');
+                
+                // Style widget to fill glass case
+                widget.style.width = '100%';
+                widget.style.height = '100%';
+                widget.style.border = 'none';
+                
+                // Add event listeners
+                widget.addEventListener('load', () => {
+                    console.log('[Bigfoot Test] Widget loaded');
+                    updateStatus('Bigfoot Ready');
+                });
+                
+                widget.addEventListener('error', (e) => {
+                    console.error('[Bigfoot Test] Widget error:', e);
+                    updateStatus('Widget Error: ' + (e.detail || 'Unknown'));
+                });
+                
+                // Add to glass case
+                glassCase.appendChild(widget);
+                
+                updateStatus('Widget created');
+                btn.textContent = 'Bigfoot Summoned!';
+                
+            } catch (error) {
+                console.error('[Bigfoot Test] Error:', error);
+                updateStatus('Error: ' + error.message);
+                btn.disabled = false;
+                waiting.style.display = 'block';
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            console.log('🚀 Bigfoot Test Ready');
+            updateStatus('Ready - Click to test');
+        });
+    </script>
+</body>
+</html>

@@ -609,32 +609,34 @@ function showAvatar(personaId) {
             avatarElement.innerHTML = '';
             avatarElement.appendChild(video);
             
-            // SIMPLEST POSSIBLE APPROACH - Just show we have a working session
-            const simpleDisplay = document.createElement('div');
-            simpleDisplay.style.cssText = `
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(135deg, #1a1a2e, #16213e);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                border-radius: 12px;
-                color: var(--cyan);
-                font-family: var(--ui-font);
-            `;
-            simpleDisplay.innerHTML = `
-                <div style="font-size: 24px; margin-bottom: 20px;">🎭</div>
-                <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">${CONFIG.personas[personaId].name}</div>
-                <div style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">Session Active</div>
-                <div style="font-size: 10px; opacity: 0.6; text-align: center;">
-                    Token: ${CONFIG.currentSession.token.substring(0, 12)}...<br>
-                    Face ID: ${CONFIG.currentSession.faceId}<br>
-                    ${CONFIG.personas[personaId].enhanced ? '<span style="color: #ffff00;">ENHANCED CORPUS</span>' : 'Standard Mode'}
-                </div>
-            `;
-            
-            avatarElement.appendChild(simpleDisplay);
+            // Initialize WebRTC with GPT-5's fixes
+            initializeWebRTC(video, personaId).catch(error => {
+                console.error(`[DEBUG] initializeWebRTC failed for ${personaId}:`, error);
+                // Show fallback on error
+                const errorDisplay = document.createElement('div');
+                errorDisplay.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, #1a1a2e, #16213e);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 12px;
+                    color: var(--cyan);
+                    font-family: var(--ui-font);
+                `;
+                errorDisplay.innerHTML = `
+                    <div style="font-size: 24px; margin-bottom: 20px;">🎭</div>
+                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">${CONFIG.personas[personaId].name}</div>
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">WebRTC Error</div>
+                    <div style="font-size: 10px; opacity: 0.6; text-align: center;">
+                        ${CONFIG.personas[personaId].enhanced ? '<span style="color: #ffff00;">ENHANCED CORPUS</span>' : 'Standard Mode'}<br>
+                        Error: ${error.message}
+                    </div>
+                `;
+                avatarElement.appendChild(errorDisplay);
+            });
             
             if (DEBUG) console.log(`[Master Oracle] Created video placeholder for ${personaId}`);
         } else {
@@ -727,56 +729,48 @@ async function initializeWebRTC(videoElement, personaId) {
     console.log(`[WebRTC] Session token:`, CONFIG.currentSession.token.substring(0, 10) + '...');
     
     try {
-        console.log(`[WebRTC] About to create WebSocket connection`);
-        // Create WebSocket connection to Simli
-        const ws = new WebSocket('wss://api.simli.ai/v1/startAudioToVideoWebsocket');
-        console.log(`[WebRTC] WebSocket created:`, ws);
+        console.log(`[WebRTC] Creating WebRTC peer connection`);
+        // Create WebRTC peer connection first
+        const pc = new RTCPeerConnection({
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+        
+        // GPT-5 Fix: Add transceivers as receive-only BEFORE creating offer
+        pc.addTransceiver('video', { direction: 'recvonly' });
+        pc.addTransceiver('audio', { direction: 'recvonly' });
+        console.log(`[WebRTC] Added receive-only transceivers`);
+        
+        pc.ontrack = (event) => {
+            console.log(`[WebRTC] Received video track for ${personaId}`);
+            videoElement.srcObject = event.streams[0];
+            updateStatus(`${CONFIG.personas[personaId].name} Live!`);
+        };
+        
+        // Create offer and set local description
+        console.log(`[WebRTC] Creating offer`);
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        console.log(`[WebRTC] Set local description`);
+        
+        // GPT-5 Fix: Correct WebSocket URL with session token as query param
+        const wsUrl = `wss://api.simli.ai/startAudioToVideoWebsocket?session_token=${encodeURIComponent(CONFIG.currentSession.token)}`;
+        console.log(`[WebRTC] Opening WebSocket: ${wsUrl.substring(0, 80)}...`);
+        
+        const ws = new WebSocket(wsUrl);
         
         ws.onopen = () => {
             console.log(`[WebRTC] WebSocket connected for ${personaId}`);
-            
-            // Send session token to start video stream
-            const initMessage = {
-                type: 'session_token',
-                session_token: CONFIG.currentSession.token,
-                faceId: CONFIG.currentSession.faceId
-            };
-            
-            ws.send(JSON.stringify(initMessage));
-            console.log(`[WebRTC] Sent session token for ${personaId}`);
+            // GPT-5 Fix: Send SDP offer after WebSocket opens
+            ws.send(JSON.stringify({ 
+                type: 'offer', 
+                sdp: pc.localDescription.sdp 
+            }));
+            console.log(`[WebRTC] Sent SDP offer for ${personaId}`);
         };
         
         ws.onmessage = async (event) => {
             const message = JSON.parse(event.data);
             console.log(`[WebRTC] Message received for ${personaId}:`, message);
-            
-            if (message.type === 'video_stream_url') {
-                // Set video source to Simli stream
-                videoElement.src = message.url;
-                updateStatus(`${CONFIG.personas[personaId].name} Connected!`);
-            }
-            
-            if (message.type === 'webrtc_offer') {
-                // Handle WebRTC offer from Simli
-                const pc = new RTCPeerConnection({
-                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-                });
-                
-                pc.ontrack = (event) => {
-                    console.log(`[WebRTC] Received video track for ${personaId}`);
-                    videoElement.srcObject = event.streams[0];
-                    updateStatus(`${CONFIG.personas[personaId].name} Live!`);
-                };
-                
-                await pc.setRemoteDescription(message.offer);
-                const answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-                
-                ws.send(JSON.stringify({
-                    type: 'webrtc_answer',
-                    answer: answer
-                }));
-            }
         };
         
         ws.onerror = (error) => {

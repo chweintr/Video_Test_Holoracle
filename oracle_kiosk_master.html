@@ -564,27 +564,34 @@ async function loadAvatar(personaId) {
 }
 
 function showAvatar(personaId) {
-    // Hide loading
-    loadingOverlay.style.display = 'none';
-    
-    // Hide all avatars
-    document.querySelectorAll('.avatar-simli').forEach(avatar => {
-        avatar.classList.remove('active');
-        avatar.innerHTML = ''; // Clear previous content
-    });
-    
-    // Show selected avatar with proper styling
-    const avatarElementId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
-    const avatarElement = document.getElementById(avatarElementId);
-    
-    console.log(`[DEBUG] showAvatar(${personaId}) -> looking for element: ${avatarElementId}`, avatarElement);
-    console.log(`[DEBUG] CONFIG.currentSession:`, CONFIG.currentSession);
-    
-    if (avatarElement) {
-        avatarElement.classList.add('active');
+    try {
+        console.log(`[DEBUG] showAvatar START for ${personaId}`);
         
-        // SIMPLE VIDEO ELEMENT APPROACH 
-        if (CONFIG.currentSession && CONFIG.currentSession.token) {
+        // Hide loading
+        loadingOverlay.style.display = 'none';
+        console.log(`[DEBUG] Loading overlay hidden`);
+        
+        // Hide all avatars
+        document.querySelectorAll('.avatar-simli').forEach(avatar => {
+            avatar.classList.remove('active');
+            avatar.innerHTML = ''; // Clear previous content
+        });
+        console.log(`[DEBUG] All avatars cleared`);
+        
+        // Show selected avatar with proper styling
+        const avatarElementId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+        const avatarElement = document.getElementById(avatarElementId);
+        
+        console.log(`[DEBUG] showAvatar(${personaId}) -> looking for element: ${avatarElementId}`, avatarElement);
+        console.log(`[DEBUG] CONFIG.currentSession:`, CONFIG.currentSession);
+        
+        if (avatarElement) {
+            console.log(`[DEBUG] Avatar element found, adding active class`);
+            avatarElement.classList.add('active');
+            
+            // SIMPLE VIDEO ELEMENT APPROACH 
+            if (CONFIG.currentSession && CONFIG.currentSession.token) {
+                console.log(`[DEBUG] Creating video element for ${personaId}`);
             // Create video element for WebRTC stream
             const video = document.createElement('video');
             video.style.cssText = `
@@ -628,9 +635,14 @@ function showAvatar(personaId) {
             placeholder.textContent = `${CONFIG.personas[personaId].name.toUpperCase()} READY`;
             avatarElement.appendChild(placeholder);
         }
+        }
+        
+        if (DEBUG) console.log(`[Master Oracle] Showing ${personaId} avatar with visual styling`);
+        
+    } catch (error) {
+        console.error(`[DEBUG] Error in showAvatar(${personaId}):`, error);
+        updateStatus(`Error displaying ${personaId}: ${error.message}`);
     }
-    
-    if (DEBUG) console.log(`[Master Oracle] Showing ${personaId} avatar with visual styling`);
 }
 
 async function loadSimliWidget(personaId) {

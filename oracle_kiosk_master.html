@@ -353,7 +353,8 @@ h1{
 </div>
 
 <script>
-console.log('🚀 LOADING MASTER ORACLE KIOSK - Beautiful Design');
+const DEBUG = false;
+if (DEBUG) console.log('🚀 LOADING MASTER ORACLE KIOSK - Beautiful Design');
 
 // Mouse parallax effect
 (function(){
@@ -411,7 +412,7 @@ const testInput = document.getElementById('testInput');
 
 function updateStatus(message) {
     statusDisplay.textContent = `System: ${message}`;
-    console.log(`[Master Oracle] ${message}`);
+    if (DEBUG) console.log(`[Master Oracle] ${message}`);
 }
 
 function toggleTestPanel() {
@@ -471,10 +472,12 @@ async function sendTestText() {
     testInput.value = '';
 }
 
+let transitionTimer = null;
+
 async function switchPersona(personaId) {
     if (currentState === 'CONNECTING') return;
     
-    console.log(`[Master Oracle] Switching to: ${personaId}`);
+    if (DEBUG) console.log(`[Master Oracle] Switching to: ${personaId}`);
     
     // Update button states
     document.querySelectorAll('.btn').forEach(btn => {
@@ -487,6 +490,12 @@ async function switchPersona(personaId) {
         await endSession();
     }
     
+    // Cancel any pending transition from previous selection
+    if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+    }
+
     // Start transition sequence
     currentState = 'CONNECTING';
     currentPersona = personaId;
@@ -499,7 +508,9 @@ async function switchPersona(personaId) {
     loadingOverlay.style.display = 'flex';
     
     // Simulate transition
-    setTimeout(async () => {
+    transitionTimer = setTimeout(async () => {
+        // If user switched again during delay, abort this run
+        if (personaId !== currentPersona) return;
         await loadAvatar(personaId);
     }, 2000);
 }
@@ -516,6 +527,9 @@ async function loadAvatar(personaId) {
             
             const sessionData = await response.json();
             
+            // If user switched during fetch, ignore this result
+            if (personaId !== currentPersona) return;
+
             if (sessionData.token) {
                 CONFIG.currentSession = sessionData;
                 showAvatar(personaId);
@@ -534,7 +548,7 @@ async function loadAvatar(personaId) {
         }
         
     } catch (error) {
-        console.error('[Master Oracle] Error loading avatar:', error);
+        if (DEBUG) console.error('[Master Oracle] Error loading avatar:', error);
         updateStatus(`Connection failed: ${error.message}`);
         returnToIdle();
     }
@@ -547,6 +561,7 @@ function showAvatar(personaId) {
     // Hide all avatars
     document.querySelectorAll('.avatar-simli').forEach(avatar => {
         avatar.classList.remove('active');
+        avatar.innerHTML = ''; // Clear previous content
     });
     
     // Show selected avatar with proper styling
@@ -554,8 +569,35 @@ function showAvatar(personaId) {
     if (avatarElement) {
         avatarElement.classList.add('active');
         
-        // Add placeholder content for now (until Simli widget loads)
-        if (!avatarElement.querySelector('.avatar-placeholder')) {
+        // ACTUALLY EMBED SIMLI VIDEO
+        if (CONFIG.currentSession && CONFIG.currentSession.token) {
+            // Create video element for Simli stream
+            const videoContainer = document.createElement('div');
+            videoContainer.style.cssText = `
+                width: 100%;
+                height: 100%;
+                position: relative;
+                border-radius: 12px;
+                overflow: hidden;
+            `;
+            
+            // Create iframe for Simli embed with session token
+            const simliFrame = document.createElement('iframe');
+            simliFrame.src = `https://app.simli.com/embed?token=${CONFIG.currentSession.token}&faceId=${CONFIG.currentSession.faceId}`;
+            simliFrame.style.cssText = `
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 12px;
+            `;
+            simliFrame.allow = "camera; microphone; autoplay";
+            
+            videoContainer.appendChild(simliFrame);
+            avatarElement.appendChild(videoContainer);
+            
+            if (DEBUG) console.log(`[Master Oracle] Embedded Simli with token for ${personaId}`);
+        } else {
+            // Fallback placeholder if no session
             const placeholder = document.createElement('div');
             placeholder.className = 'avatar-placeholder';
             placeholder.style.cssText = `
@@ -575,7 +617,7 @@ function showAvatar(personaId) {
         }
     }
     
-    console.log(`[Master Oracle] Showing ${personaId} avatar with visual styling`);
+    if (DEBUG) console.log(`[Master Oracle] Showing ${personaId} avatar with visual styling`);
 }
 
 async function loadSimliWidget(personaId) {

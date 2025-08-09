@@ -4,12 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Echoes of Indiana — Master Oracle</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com https://app.simli.com https://unpkg.com 'unsafe-inline'; connect-src 'self' https://api.simli.ai https://app.simli.com wss:; frame-src 'self' https://app.simli.com;"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com https://app.simli.com https://unpkg.com 'unsafe-inline'; connect-src 'self' https://api.simli.ai https://app.simli.com wss://api.simli.ai; frame-src 'self' https://app.simli.com; media-src 'self' blob: https://api.simli.ai;"/>
 
-<!-- Simli Widget Script -->
-<script src="https://app.simli.com/simli-widget/index.js" async type="text/javascript" 
-        onload="console.log('✅ Simli script loaded successfully')" 
-        onerror="console.error('❌ Failed to load Simli script from CDN')"></script>
+<!-- Remove non-existent Simli widget script - using WebRTC implementation instead -->
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -569,56 +566,29 @@ function showAvatar(personaId) {
     if (avatarElement) {
         avatarElement.classList.add('active');
         
-        // ACTUALLY EMBED SIMLI WIDGET
+        // ACTUALLY EMBED SIMLI VIDEO
         if (CONFIG.currentSession && CONFIG.currentSession.token) {
-            // Check if Simli widget is available
-            if (!window.customElements || !customElements.get('simli-widget')) {
-                console.error('Simli widget not loaded yet');
-                // Fallback to placeholder
-                const placeholder = document.createElement('div');
-                placeholder.style.cssText = `
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: var(--cyan);
-                    font-size: 14px;
-                `;
-                placeholder.textContent = 'Loading Simli...';
-                avatarElement.innerHTML = '';
-                avatarElement.appendChild(placeholder);
-                return;
-            }
-            
-            // Create Simli widget custom element
-            const simliWidget = document.createElement('simli-widget');
-            
-            // Set the token from our Compose session
-            simliWidget.setAttribute('token', CONFIG.currentSession.token);
-            
-            // Style the widget to fill container
-            simliWidget.style.cssText = `
+            // Create video element for Simli WebRTC stream
+            const videoElement = document.createElement('video');
+            videoElement.style.cssText = `
                 width: 100%;
                 height: 100%;
-                display: block;
+                object-fit: cover;
                 border-radius: 12px;
+                background: #000;
             `;
+            videoElement.autoplay = true;
+            videoElement.playsInline = true;
+            videoElement.muted = false; // We want audio from Simli
             
-            // Add event listeners
-            simliWidget.addEventListener('ready', () => {
-                console.log(`Simli widget ready for ${personaId}`);
-            });
-            
-            simliWidget.addEventListener('error', (event) => {
-                console.error(`Simli widget error for ${personaId}:`, event.detail);
-            });
-            
-            // Clear and add widget
+            // Add video element
             avatarElement.innerHTML = '';
-            avatarElement.appendChild(simliWidget);
+            avatarElement.appendChild(videoElement);
             
-            if (DEBUG) console.log(`[Master Oracle] Created Simli widget with token for ${personaId}`);
+            // Initialize WebRTC connection to Simli
+            initializeSimliWebRTC(videoElement, personaId);
+            
+            if (DEBUG) console.log(`[Master Oracle] Created video element for ${personaId}`);
         } else {
             // Fallback placeholder if no session
             const placeholder = document.createElement('div');
@@ -660,6 +630,16 @@ async function endSession() {
     // Show loading briefly
     loadingOverlay.style.display = 'flex';
     
+    // Clean up WebRTC connections
+    if (activeWebRTCConnection) {
+        activeWebRTCConnection.close();
+        activeWebRTCConnection = null;
+    }
+    if (activePeerConnection) {
+        activePeerConnection.close();
+        activePeerConnection = null;
+    }
+    
     // Clean up session
     if (CONFIG.currentSession) {
         CONFIG.currentSession = null;
@@ -692,6 +672,136 @@ function returnToIdle() {
     document.querySelectorAll('.btn').forEach(btn => {
         btn.classList.remove('active');
     });
+}
+
+// WebRTC Connection Management
+let activeWebRTCConnection = null;
+let activePeerConnection = null;
+
+async function initializeSimliWebRTC(videoElement, personaId) {
+    try {
+        updateStatus(`Connecting to ${CONFIG.personas[personaId].name}...`);
+        
+        // Clean up any existing connection
+        if (activeWebRTCConnection) {
+            activeWebRTCConnection.close();
+            activeWebRTCConnection = null;
+        }
+        if (activePeerConnection) {
+            activePeerConnection.close();
+            activePeerConnection = null;
+        }
+        
+        // Create WebSocket connection to Simli
+        const wsUrl = 'wss://api.simli.ai/';
+        activeWebRTCConnection = new WebSocket(wsUrl);
+        
+        activeWebRTCConnection.onopen = async () => {
+            if (DEBUG) console.log('[WebRTC] WebSocket connected to Simli');
+            
+            // Send session initiation with our Compose token
+            const initMessage = {
+                type: 'start_session',
+                token: CONFIG.currentSession.token,
+                faceId: CONFIG.currentSession.faceId
+            };
+            
+            activeWebRTCConnection.send(JSON.stringify(initMessage));
+        };
+        
+        activeWebRTCConnection.onmessage = async (event) => {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'session_ready') {
+                // Create WebRTC peer connection
+                activePeerConnection = new RTCPeerConnection({
+                    iceServers: message.iceServers || [
+                        { urls: 'stun:stun.l.google.com:19302' }
+                    ]
+                });
+                
+                // Handle incoming video stream
+                activePeerConnection.ontrack = (event) => {
+                    if (DEBUG) console.log('[WebRTC] Received video track');
+                    videoElement.srcObject = event.streams[0];
+                    updateStatus(`${CONFIG.personas[personaId].name} Connected!`);
+                };
+                
+                // Handle ICE candidates
+                activePeerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        activeWebRTCConnection.send(JSON.stringify({
+                            type: 'ice_candidate',
+                            candidate: event.candidate
+                        }));
+                    }
+                };
+                
+                // Create offer
+                const offer = await activePeerConnection.createOffer();
+                await activePeerConnection.setLocalDescription(offer);
+                
+                // Send offer to Simli
+                activeWebRTCConnection.send(JSON.stringify({
+                    type: 'offer',
+                    offer: offer
+                }));
+            }
+            
+            if (message.type === 'answer') {
+                // Set remote description
+                await activePeerConnection.setRemoteDescription(message.answer);
+            }
+            
+            if (message.type === 'ice_candidate') {
+                // Add ICE candidate
+                await activePeerConnection.addIceCandidate(message.candidate);
+            }
+        };
+        
+        activeWebRTCConnection.onerror = (error) => {
+            console.error('[WebRTC] Connection error:', error);
+            updateStatus(`Connection failed: ${error.message}`);
+        };
+        
+        activeWebRTCConnection.onclose = () => {
+            if (DEBUG) console.log('[WebRTC] Connection closed');
+            if (currentState === 'LIVE') {
+                updateStatus('Connection lost - reconnecting...');
+                // Could implement reconnection logic here
+            }
+        };
+        
+    } catch (error) {
+        console.error('[WebRTC] Failed to initialize:', error);
+        updateStatus(`WebRTC Error: ${error.message}`);
+        
+        // Fallback: show placeholder with connection info
+        const placeholder = document.createElement('div');
+        placeholder.style.cssText = `
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--ui-font);
+            font-size: 12px;
+            color: var(--cyan);
+            text-align: center;
+            padding: 20px;
+        `;
+        placeholder.innerHTML = `
+            <div style="font-size: 16px; margin-bottom: 10px;">🎭 ${CONFIG.personas[personaId].name}</div>
+            <div style="opacity: 0.7;">Session Token: ✅</div>
+            <div style="opacity: 0.7;">WebRTC: ❌ ${error.message}</div>
+            <div style="margin-top: 15px; font-size: 10px; opacity: 0.5;">
+                Face ID: ${CONFIG.currentSession.faceId}
+            </div>
+        `;
+        
+        videoElement.parentNode.replaceChild(placeholder, videoElement);
+    }
 }
 
 // Initialize

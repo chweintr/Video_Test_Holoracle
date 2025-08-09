@@ -32,10 +32,10 @@
         
         .title {
             font-family: 'Michroma', 'Courier New', monospace;
-            font-size: 1.8em; /* Much smaller title */
+            font-size: 1.8em;
             text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
             margin-bottom: 5px;
-            margin-top: -40px;
+            margin-top: -60px; /* Move up a bit more for cushion */
             text-align: center;
             text-transform: uppercase;
             font-weight: 700;
@@ -45,10 +45,10 @@
         }
         
         .subtitle {
-            font-size: 0.7em; /* Much smaller subtitle */
+            font-size: 0.7em;
             color: #ff4df3;
             text-shadow: 0 0 10px #ff4df3;
-            margin-bottom: 15px;
+            margin-bottom: 25px; /* More cushion from glass box */
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.15em;
@@ -111,9 +111,9 @@
         
         /* Persona Buttons */
         .persona-controls {
-            margin-top: 180px; /* Reduce since everything is smaller now */
+            margin-top: 220px; /* Move buttons lower */
             display: flex;
-            gap: 15px; /* Smaller gap between buttons */
+            gap: 20px; /* Back to bigger gap */
             flex-wrap: wrap;
             justify-content: center;
             z-index: 10;
@@ -124,13 +124,13 @@
             background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
             border: 2px solid rgba(77,227,255,0.5);
             color: #00ffff;
-            padding: 8px 16px; /* Smaller padding */
-            font-size: 0.8em; /* Smaller font */
+            padding: 12px 24px; /* Bigger padding again */
+            font-size: 1em; /* Bigger font again */
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Courier New', monospace;
             text-transform: uppercase;
-            border-radius: 6px; /* Smaller border radius */
+            border-radius: 8px; /* Bigger border radius */
             letter-spacing: 0.05em;
             position: relative;
         }

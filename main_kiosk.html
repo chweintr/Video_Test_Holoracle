@@ -267,16 +267,29 @@
             background: transparent !important;
         }
         
-        /* Ensure widget starts minimized until call begins */
+        /* Hide Simli widget completely until call starts */
         simli-widget:not(.call-active) {
-            transform: scale(0.8);
-            opacity: 0.3;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: scale(0) !important;
+            transition: all 0.3s ease;
         }
         
         simli-widget.call-active {
-            transform: scale(1);
-            opacity: 1;
+            opacity: 1 !important;
+            pointer-events: all !important;
+            transform: scale(1) !important;
+        }
+        
+        /* Custom talk trigger styling */
+        .custom-talk-trigger {
+            backdrop-filter: blur(5px);
+        }
+        
+        .custom-talk-trigger:hover .talk-button {
+            border-color: rgba(0,255,255,0.8) !important;
+            background: rgba(0,255,255,0.2) !important;
+            transform: scale(1.05);
         }
         }
         
@@ -491,23 +504,115 @@
         }
         
         function showStaticFaceFallback(personaId) {
-            // Add a static image as backup while Simli loads
+            // Add custom "Press to Talk" overlay that triggers Simli widget
             const container = document.querySelector(`#avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`);
             if (container) {
-                const staticFace = document.createElement('div');
-                staticFace.className = 'static-face-fallback';
-                staticFace.style.cssText = `
+                const customTrigger = document.createElement('div');
+                customTrigger.className = 'custom-talk-trigger';
+                customTrigger.innerHTML = `
+                    <div class="talk-button">
+                        <div class="talk-icon">🎤</div>
+                        <div class="talk-text">Press to Talk</div>
+                    </div>
+                `;
+                customTrigger.style.cssText = `
                     position: absolute;
                     width: 100%;
                     height: 100%;
-                    background: rgba(0,100,200,0.1);
-                    border-radius: 50%;
-                    z-index: 1;
-                    opacity: 0.8;
-                    transition: opacity 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 100;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
                 `;
-                container.appendChild(staticFace);
+                
+                // Style the talk button
+                const talkButton = customTrigger.querySelector('.talk-button');
+                talkButton.style.cssText = `
+                    background: rgba(0,255,255,0.1);
+                    border: 2px solid rgba(0,255,255,0.5);
+                    border-radius: 50px;
+                    padding: 20px 30px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                `;
+                
+                // Add click handler to trigger Simli widget
+                customTrigger.addEventListener('click', () => {
+                    console.log(`[Custom Trigger] Starting conversation with ${personaId}`);
+                    triggerSimliWidget(container);
+                    customTrigger.style.display = 'none';
+                });
+                
+                container.appendChild(customTrigger);
             }
+        }
+        
+        function triggerSimliWidget(container) {
+            // Find and click the hidden Simli widget trigger
+            const widget = container.querySelector('simli-widget');
+            if (widget) {
+                // Try to programmatically start the widget
+                const triggerEvent = new Event('click', { bubbles: true });
+                widget.dispatchEvent(triggerEvent);
+                
+                // Or try to find the shadow DOM button and click it
+                setTimeout(() => {
+                    try {
+                        const shadowRoot = widget.shadowRoot;
+                        if (shadowRoot) {
+                            const button = shadowRoot.querySelector('button, [role="button"]');
+                            if (button) {
+                                button.click();
+                            }
+                        }
+                    } catch (e) {
+                        console.log('[Custom Trigger] Could not access shadow DOM, trying alternative methods');
+                    }
+                }, 100);
+            }
+        }
+        
+        function addDisconnectButton(container, personaId) {
+            const disconnectBtn = document.createElement('div');
+            disconnectBtn.className = 'custom-disconnect-btn';
+            disconnectBtn.innerHTML = `
+                <div class="disconnect-button">
+                    <div class="disconnect-icon">✖</div>
+                    <div class="disconnect-text">End Call</div>
+                </div>
+            `;
+            
+            disconnectBtn.style.cssText = `
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                z-index: 200;
+                cursor: pointer;
+            `;
+            
+            // Style the disconnect button
+            const disconnectButton = disconnectBtn.querySelector('.disconnect-button');
+            disconnectButton.style.cssText = `
+                background: rgba(255,100,100,0.8);
+                border: 2px solid rgba(255,50,50,0.8);
+                border-radius: 25px;
+                padding: 10px 20px;
+                color: white;
+                font-size: 14px;
+                text-align: center;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+            `;
+            
+            disconnectBtn.addEventListener('click', () => {
+                console.log(`[Disconnect] Ending call with ${personaId}`);
+                endCurrentSession().then(() => returnToIdle());
+            });
+            
+            container.appendChild(disconnectBtn);
         }
         
         async function switchPersona(personaId) {
@@ -596,13 +701,17 @@
                 if (c.id !== containerId) c.classList.remove('active');
             });
             
-            // Create simli-widget element using PROVEN WORKING pattern
+            // Create simli-widget element with custom trigger and positioning
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
-            widget.setAttribute('position', 'relative');
-            widget.setAttribute('customtext', `Talk to ${persona.name}`);
-            widget.setAttribute('customimage', '');
+            widget.setAttribute('position', 'relative'); // relative = custom positioning
+            widget.setAttribute('customtext', ''); // Hide default button text
+            widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'); // Transparent 1px image
+            
+            // Add custom trigger attributes to bypass default UI
+            widget.setAttribute('hidetrigger', 'true'); // Hide default trigger if supported
+            widget.setAttribute('autostart', 'false'); // Don't auto-start
             
             // Style widget using WORKING CSS pattern
             widget.style.cssText = `
@@ -632,12 +741,14 @@
                 // Mark widget as active for styling
                 widget.classList.add('call-active');
                 
-                // Hide static fallback when real face appears
-                const staticFace = container.querySelector('.static-face-fallback');
-                if (staticFace) {
-                    staticFace.style.opacity = '0';
-                    setTimeout(() => staticFace.remove(), 300);
+                // Hide custom trigger
+                const customTrigger = container.querySelector('.custom-talk-trigger');
+                if (customTrigger) {
+                    customTrigger.style.display = 'none';
                 }
+                
+                // Add custom disconnect button
+                addDisconnectButton(container, personaId);
                 
                 // Add overlay ONLY after call starts (user clicked Start)
                 if (personaId === 'bigfoot' && !container.querySelector('.bigfoot-overlay-inner')) {

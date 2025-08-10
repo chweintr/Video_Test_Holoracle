@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #000 url('assets/landing-foreground-420b.png') center/cover fixed;
+            background: #000 url('assets/landing-foreground-420b.png') center/97% fixed;
             color: #00ffff;
             font-family: 'Courier New', monospace;
             height: 100vh;
@@ -449,6 +449,17 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
+            // If Bigfoot, replace idle video with Bigfoot-specific video
+            if (personaId === 'bigfoot') {
+                const idleVideo = idleState.querySelector('video');
+                if (idleVideo) {
+                    const source = idleVideo.querySelector('source');
+                    source.src = 'assets/social_okdonut_httpss.mj.runpd6svNGACwI_Thick_volumetric_smoke_plume_271803d7-2b78-4c01-872d-f281387f4455_2.mp4';
+                    idleVideo.load();
+                    idleVideo.play();
+                }
+            }
+            
             updateStatus(`Summoning ${persona.name}...`);
             
             // Show loading state
@@ -603,6 +614,15 @@
             console.log('[Main Kiosk] Returning to idle');
             currentPersona = null;
             currentWidget = null;
+            
+            // Restore original idle video
+            const idleVideo = idleState.querySelector('video');
+            if (idleVideo) {
+                const source = idleVideo.querySelector('source');
+                source.src = 'assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4';
+                idleVideo.load();
+                idleVideo.play();
+            }
             
             // Clear states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));

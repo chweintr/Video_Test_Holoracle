@@ -65,7 +65,7 @@
             position: relative;
             overflow: hidden;
             z-index: 5;
-            margin-top: 20px; /* Fine-tuned to align with background frame */
+            margin-top: 60px; /* Increased to lower the mount position */
         }
         
         /* Status Display */
@@ -422,9 +422,10 @@
                 },
                 indiana: {
                     name: 'Hoosier Oracle', 
-                    agentId: '76ed1ae8-720c-45de-918c-cac46984412d',
+                    agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',
+                    faceId: 'afdb6a3e-3939-40aa-92df-01604c23101c',
                     enhanced: false,
-                    description: 'Hoosier KB with system prompt; SIMLI stock voice/head'
+                    description: 'Hoosier Oracle with custom agent and face'
                 },
                 vonnegut: {
                     name: 'Kurt Vonnegut',
@@ -609,20 +610,95 @@
             
             disconnectBtn.addEventListener('click', () => {
                 console.log(`[Disconnect] Ending call with ${personaId}`);
-                endCurrentSession().then(() => returnToIdle());
+                playFaceToParticlesTransition(personaId).then(() => returnToIdle());
             });
             
             container.appendChild(disconnectBtn);
         }
         
+        // Persona-to-persona transition animation
+        async function playPersonaToPersonaTransition(fromPersona, toPersona) {
+            console.log(`[Transition] Playing ${fromPersona} → ${toPersona} transition`);
+            
+            updateStatus(`${CONFIG.personas[fromPersona].name} → ${CONFIG.personas[toPersona].name}...`);
+            
+            // Get current container
+            const fromContainerId = `avatar${fromPersona.charAt(0).toUpperCase() + fromPersona.slice(1)}`;
+            const fromContainer = document.getElementById(fromContainerId);
+            
+            // Fade out current persona face
+            if (fromContainer) {
+                fromContainer.style.transition = 'opacity 0.8s ease';
+                fromContainer.style.opacity = '0';
+            }
+            
+            // Wait for fade out
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // End current session cleanly
+            await endCurrentSession();
+            
+            // Brief pause for clean state
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Start new persona
+            await switchPersona(toPersona);
+        }
+        
+        // Face-to-particles hangup animation
+        async function playFaceToParticlesTransition(personaId) {
+            console.log(`[Transition] Playing face → particles hangup for ${personaId}`);
+            
+            updateStatus('Releasing spirit...');
+            
+            const containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            const container = document.getElementById(containerId);
+            
+            if (container) {
+                // Fade out the face
+                container.style.transition = 'opacity 1.2s ease, transform 1.2s ease';
+                container.style.opacity = '0';
+                container.style.transform = 'scale(0.8)';
+                
+                // Show idle particles during fade
+                setTimeout(() => {
+                    idleState.style.display = 'flex';
+                    idleState.style.opacity = '0';
+                    idleState.style.transition = 'opacity 1s ease';
+                    
+                    // Fade in particles
+                    setTimeout(() => {
+                        idleState.style.opacity = '1';
+                    }, 100);
+                }, 600);
+            }
+            
+            // Wait for complete fade
+            await new Promise(resolve => setTimeout(resolve, 1200));
+            
+            // Clean up
+            await endCurrentSession();
+        }
+        
         async function switchPersona(personaId) {
             console.log(`[Main Kiosk] Switching to: ${personaId}`);
+            
+            // If switching to same persona, do nothing
+            if (currentPersona === personaId && currentWidget) {
+                return;
+            }
             
             // Update button states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
             
-            // End current session if active
+            // Handle persona-to-persona transition
+            if (currentPersona && currentWidget && currentPersona !== personaId) {
+                await playPersonaToPersonaTransition(currentPersona, personaId);
+                return;
+            }
+            
+            // End current session if active (for same persona restart)
             if (currentPersona && currentWidget) {
                 await endCurrentSession();
             }

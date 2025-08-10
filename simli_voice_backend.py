@@ -291,6 +291,14 @@ async def mount_test():
     else:
         return {"message": "mount_test.html not found"}
 
+@app.get("/bigfoot-mp4-test")
+async def bigfoot_mp4_test():
+    """Serve the Bigfoot MP4 widget test page"""
+    if os.path.exists("bigfoot_mp4_test.html"):
+        return FileResponse("bigfoot_mp4_test.html")
+    else:
+        return {"message": "bigfoot_mp4_test.html not found"}
+
 @app.get("/main")
 async def main_kiosk():
     """Serve the Main Kiosk - 3 Personas working with Simli Agents"""

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bigfoot MP4 Widget Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 20px;
+        }
+        
+        .description {
+            margin-bottom: 30px;
+            color: rgba(0, 255, 255, 0.8);
+        }
+        
+        .widget-mount {
+            width: 420px;
+            height: 420px;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 12px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .instructions {
+            max-width: 600px;
+            margin-top: 20px;
+            text-align: left;
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🦶 Bigfoot MP4 Widget Test</h1>
+        
+        <div class="description">
+            Testing enhanced Simli widget with MP4 particle animation for Bigfoot persona
+        </div>
+        
+        <div class="widget-mount">
+            <!-- Enhanced Simli Widget with MP4 support -->
+            <enhanced-simli-widget 
+                token="test-token-12345"
+                agentid="4a857f92-feee-4b70-b973-290baec4d545"
+                position="relative"
+                customimage="https://cdn.midjourney.com/video/271803d7-2b78-4c01-872d-f281387f4455/2.mp4"
+                customtext="Summon Bigfoot"
+                data-persona="bigfoot">
+            </enhanced-simli-widget>
+        </div>
+        
+        <div class="status" id="status">
+            Status: Enhanced widget with MP4 support loaded
+        </div>
+        
+        <div class="instructions">
+            <strong>How this works:</strong><br>
+            • The widget detects the .mp4 extension in customimage<br>
+            • Creates a &lt;video&gt; element instead of &lt;img&gt;<br>  
+            • Plays the Bigfoot particle animation as the placeholder<br>
+            • When you click "Summon Bigfoot", it simulates connecting<br>
+            • The MP4 fades out as the "call" begins<br>
+            • Click "End" to return to the particle animation
+        </div>
+    </div>
+
+    <!-- Load the enhanced widget with MP4 support -->
+    <script src="simli-widget-mp4-support.js"></script>
+    
+    <script>
+        // Add event listeners for the enhanced widget
+        document.addEventListener('DOMContentLoaded', () => {
+            const widget = document.querySelector('enhanced-simli-widget');
+            const status = document.getElementById('status');
+            
+            if (widget) {
+                widget.addEventListener('callstart', (e) => {
+                    console.log('Call started for:', e.detail.persona);
+                    status.textContent = `Status: Bigfoot call started - MP4 should fade out`;
+                });
+                
+                widget.addEventListener('callend', (e) => {
+                    console.log('Call ended for:', e.detail.persona);
+                    status.textContent = `Status: Call ended - MP4 particle animation restored`;
+                });
+                
+                status.textContent = `Status: Enhanced widget loaded with MP4 particles`;
+            }
+        });
+    </script>
+</body>
+</html>

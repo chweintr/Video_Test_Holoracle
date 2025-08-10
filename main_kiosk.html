@@ -436,6 +436,7 @@
         
         async function switchPersona(personaId) {
             console.log(`[Main Kiosk] Switching to: ${personaId}`);
+            alert(`DEBUG: Button clicked for ${personaId}`);
             
             // Update button states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));

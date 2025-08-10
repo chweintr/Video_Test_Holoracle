@@ -65,7 +65,7 @@
             position: relative;
             overflow: hidden;
             z-index: 5;
-            margin-top: 100px; /* Move even further DOWN to align with glass cube */
+            margin-top: 50px; /* Raised up for better alignment */
         }
         
         /* Status Display */
@@ -450,15 +450,17 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
-            // If Bigfoot, replace idle video with Bigfoot-specific video
-            if (personaId === 'bigfoot') {
-                const idleVideo = idleState.querySelector('video');
-                if (idleVideo) {
-                    const source = idleVideo.querySelector('source');
+            // Replace idle video based on persona
+            const idleVideo = idleState.querySelector('video');
+            if (idleVideo && personaId) {
+                const source = idleVideo.querySelector('source');
+                if (personaId === 'bigfoot') {
                     source.src = 'assets/social_okdonut_httpss.mj.runpd6svNGACwI_Thick_volumetric_smoke_plume_271803d7-2b78-4c01-872d-f281387f4455_2.mp4';
-                    idleVideo.load();
-                    idleVideo.play();
+                } else if (personaId === 'vonnegut') {
+                    source.src = 'assets/Blank-to-KVJ.mp4';
                 }
+                idleVideo.load();
+                idleVideo.play();
             }
             
             updateStatus(`Summoning ${persona.name}...`);

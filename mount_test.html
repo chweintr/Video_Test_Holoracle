@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mount Alignment Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000 url('assets/landing-foreground-420b.png') center/cover fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Video mount container - positioned to align with the glowing frame */
+        .video-mount {
+            width: 420px;
+            height: 420px;
+            position: absolute;
+            /* Center it and push up a bit */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin-top: -30px; /* Push up 30px from center */
+            overflow: hidden;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 0, 255, 0.2); /* Temporary purple background to see container */
+            border: 2px solid cyan; /* Temporary border to see edges */
+        }
+        
+        /* Video element */
+        .video-mount video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* Debug overlay to help with positioning */
+        .debug-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #00ffff;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #00ffff;
+            z-index: 100;
+        }
+        
+        /* Alignment guides (toggle with 'g' key) */
+        .guides {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border: 1px dashed rgba(255,0,255,0.5);
+            pointer-events: none;
+            display: none;
+        }
+        
+        .guides.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-overlay">
+        <div>Mount Test</div>
+        <div>Press G for guides</div>
+        <div>Arrow keys to adjust</div>
+        <div id="position">Position: 0, 0</div>
+    </div>
+    
+    <div class="video-mount" id="videoMount">
+        <div class="guides" id="guides"></div>
+        <video id="testVideo" autoplay loop muted playsinline>
+            <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    
+    <script>
+        const mount = document.getElementById('videoMount');
+        const guides = document.getElementById('guides');
+        const posDisplay = document.getElementById('position');
+        
+        let offsetX = 0;
+        let offsetY = -30; // Start 30px up from center
+        
+        function updatePosition() {
+            mount.style.marginLeft = offsetX + 'px';
+            mount.style.marginTop = offsetY + 'px';
+            posDisplay.textContent = `X: ${offsetX}, Y: ${offsetY}`;
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            const step = e.shiftKey ? 10 : 1; // Hold shift for larger steps
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    offsetY -= step; // Move up
+                    updatePosition();
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                    offsetY += step; // Move down
+                    updatePosition();
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                    offsetX -= step;
+                    updatePosition();
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                    offsetX += step;
+                    updatePosition();
+                    e.preventDefault();
+                    break;
+                case 'g':
+                case 'G':
+                    guides.classList.toggle('active');
+                    break;
+                case 'r':
+                case 'R':
+                    // Reset position
+                    offsetX = 0;
+                    offsetY = -30;
+                    updatePosition();
+                    break;
+            }
+        });
+        
+        // Log final position for use in production
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 's' || e.key === 'S') {
+                console.log(`Final mount position: marginLeft: ${offsetX}px, bottom: calc(100vh - ${bottomPos}px)`);
+                alert(`Mount positioned at: X=${offsetX}, Bottom: ${bottomPos}px\nThis has been logged to console.`);
+            }
+        });
+        
+        // Initialize
+        updatePosition();
+        
+        // Debug video loading
+        const video = document.getElementById('testVideo');
+        video.addEventListener('loadeddata', () => {
+            console.log('Video loaded successfully');
+        });
+        video.addEventListener('error', (e) => {
+            console.error('Video error:', e);
+            alert('Video failed to load. Check console for details.');
+        });
+        
+        // Try to play video manually
+        setTimeout(() => {
+            video.play().catch(e => console.error('Play failed:', e));
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -4,103 +4,245 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Echoes of Indiana — Widget Kiosk</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdn.tailwindcss.com https://app.simli.com 'unsafe-inline'; connect-src 'self' https://api.simli.ai https://app.simli.com wss:; frame-src 'self' https://app.simli.com;"/>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{ --cyan:#4de3ff; --magenta:#ff4df3; --violet:#7e6bff; --mx:50%; --my:50%; --title:'Michroma', ui-sans-serif; --ui:'Rajdhani', ui-sans-serif; }
+    :root{ --cyan:#4de3ff; --magenta:#ff4df3; --violet:#7e6bff; --mx:50%; --my:50%; --title-font:'Michroma', ui-sans-serif; --ui-font:'Rajdhani', ui-sans-serif; }
     html,body{height:100%}
-    body{ margin:0; overflow:hidden; color:#e7faff; font-family:var(--ui); background:#000 url('/assets/landing-foreground.png') center/cover no-repeat fixed; }
-    h1{ font-family:var(--title); text-shadow:0 0 8px var(--cyan),0 0 20px var(--cyan),0 0 38px var(--violet); letter-spacing:.08em; text-transform:uppercase; }
-    .subtitle{ font-family:var(--title); letter-spacing:.14em; text-transform:uppercase; color:var(--magenta); text-shadow:0 0 8px var(--magenta),0 0 22px var(--magenta); }
+    body{ margin:0; overflow:hidden; color:#e7faff; font-family:var(--ui-font); background:#000 url('/assets/landing-foreground2.png') center/cover no-repeat fixed; }
+    h1{ font-family:var(--title-font); text-shadow:0 0 8px var(--cyan),0 0 20px var(--cyan),0 0 38px var(--violet); letter-spacing:.08em; text-transform:uppercase; font-weight:700; }
+    .subtitle{ font-family:var(--title-font); letter-spacing:.14em; text-transform:uppercase; color:var(--magenta); text-shadow:0 0 8px var(--magenta),0 0 22px var(--magenta); }
     .layer{ position:absolute; inset:0; pointer-events:none; z-index:1; }
     .light{ background:radial-gradient(circle at var(--mx) var(--my), rgba(77,227,255,.18), transparent 40%); mix-blend-mode:screen; }
-    .mount{ width:420px; height:420px; border:1px solid rgba(77,227,255,.45); box-shadow:0 0 26px rgba(77,227,255,.25); border-radius:12px; position:relative; z-index:2; overflow:hidden; }
-    .btn{ border:1px solid rgba(109,213,255,.45); border-radius:10px; padding:.9rem 1.2rem; background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(77,227,255,.15)); color:var(--cyan); text-transform:uppercase; transition:all .18s ease; }
-    .btn.active{ border-color:rgba(255,77,243,.7); color:var(--magenta); box-shadow:0 0 24px rgba(255,77,243,.35); }
+    .mount{ width:512px; height:512px; border:1px solid rgba(77,227,255,.45); box-shadow:0 0 26px rgba(77,227,255,.25); border-radius:12px; position:relative; z-index:2; overflow:hidden; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; }
+    .btn{ border:1px solid rgba(109,213,255,.45); border-radius:10px; padding:.9rem 1.2rem; background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(77,227,255,.15)); color:var(--cyan); text-transform:uppercase; transition:all .18s ease; cursor:pointer; font-family:var(--ui-font); }
+    .btn:hover{ box-shadow:0 0 24px rgba(77,227,255,0.35); transform:translateY(-1px); }
+    .btn.active{ border-color:rgba(255,77,243,.7); color:var(--magenta); box-shadow:0 0 24px rgba(255,77,243,.35); background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(255,77,243,.15)); }
+    .btn.enhanced{ border-color:rgba(255,255,0,0.6); color:#ffff00; background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(255,255,0,.15)); }
+    .btn.enhanced:hover{ box-shadow:0 0 24px rgba(255,255,0,0.35); }
+    .btn.enhanced.active{ border-color:rgba(255,255,0,0.8); background:linear-gradient(135deg, rgba(0,0,0,.4), rgba(255,255,0,.25)); }
+    .status{ position:absolute; top:20px; left:50%; transform:translateX(-50%); padding:8px 16px; background:rgba(0,0,0,0.8); border:1px solid rgba(77,227,255,0.3); border-radius:8px; font-size:12px; z-index:20; }
+    .idle{ color:rgba(77,227,255,0.8); text-align:center; font-size:14px; }
+    .idle::before{ content:''; display:block; width:40px; height:40px; border:2px solid rgba(77,227,255,0.4); border-top-color:#00ffff; border-radius:50%; margin:0 auto 20px; animation:spin 2s linear infinite; }
+    @keyframes spin{ to{transform:rotate(360deg);} }
   </style>
 </head>
 <body>
   <div class="layer light" id="parallax"></div>
-  <div class="w-full text-center mt-6 select-none">
-    <h1 class="text-2xl md:text-4xl tracking-wider">ECHOES OF INDIANA</h1>
-    <div class="subtitle text-xs md:text-sm mt-1">LIVE HOLOGRAPHIC CONVERSATIONS — WIDGET</div>
+  <div class="status" id="status">System: Initializing Widget Oracle...</div>
+  
+  <div style="width:100%; text-align:center; margin-top:6vh;">
+    <h1 style="font-size:2.5rem; margin-bottom:10px;">ECHOES OF INDIANA</h1>
+    <div class="subtitle" style="font-size:1rem;">HOLOGRAPHIC CONVERSATIONS POWERED BY RESEARCH</div>
   </div>
-  <main class="w-full h-[70vh] flex items-center justify-center">
-    <div class="mount" id="mount"></div>
+  
+  <main style="width:100%; height:70vh; display:flex; align-items:center; justify-content:center;">
+    <div class="mount" id="mount">
+      <div class="idle" id="idleDisplay">SELECT ORACLE</div>
+    </div>
   </main>
-  <footer class="flex gap-6 justify-center pb-10">
-    <button class="btn" data-persona="bigfoot">Brown County Bigfoot</button>
-    <button class="btn" data-persona="indiana">Hoosier Oracle</button>
-    <button class="btn" data-persona="vonnegut">Kurt Vonnegut</button>
+  
+  <footer style="display:flex; gap:20px; justify-content:center; padding-bottom:40px;">
+    <button class="btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">Brown County Bigfoot</button>
+    <button class="btn" data-persona="indiana" onclick="switchPersona('indiana')">Hoosier Oracle</button>
+    <button class="btn enhanced" data-persona="vonnegut" onclick="switchPersona('vonnegut')">Kurt Vonnegut [ENHANCED]</button>
   </footer>
 
   <!-- Simli Widget SDK -->
-  <script src="https://app.simli.com/simli-widget/index.js" async onload="console.log('Simli widget loaded')"></script>
+  <script src="https://app.simli.com/simli-widget/index.js" async></script>
   <script>
-  (function(){
-    // Parallax
-    const l = document.getElementById('parallax');
-    let mx=50,my=50,t=false;function u(){l.style.setProperty('--mx',mx+'%');l.style.setProperty('--my',my+'%');t=false}
-    addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth)*100;my=(e.clientY/innerHeight)*100;if(!t){requestAnimationFrame(u);t=true}}, {passive:true});
-  })();
-
-  (function(){
-    const API_BASE = window.location.origin;
-    // Agent IDs (Bigfoot provided; others fallback to backend persona mapping/env)
-    const AGENTS = {
-      bigfoot: '4a857f92-feee-4b70-b973-290baec4d545',
-      indiana: null,
-      vonnegut: null,
+    console.log('🚀 Loading Widget Oracle Interface');
+    
+    // Configuration - Agent IDs for Widget SDK (from sample code and user feedback)
+    const CONFIG = {
+        personas: {
+            bigfoot: {
+                name: 'Brown County Bigfoot',
+                agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                enhanced: false
+            },
+            indiana: {
+                name: 'Hoosier Oracle', 
+                agentId: '76ed1ae8-720c-45de-918c-cac46984412d',
+                enhanced: false
+            },
+            vonnegut: {
+                name: 'Kurt Vonnegut',
+                agentId: '7bcb45a5-839c-4f1a-b6f9-4ebcdf457264',
+                enhanced: true
+            }
+        }
     };
+    
+    const API_BASE = window.location.origin;
+    let currentPersona = null;
+    let currentWidget = null;
+    
+    // DOM elements
+    const status = document.getElementById('status');
     const mount = document.getElementById('mount');
-    const buttons = Array.from(document.querySelectorAll('.btn'));
-    let currentEl = null;
-
-    async function fetchToken(persona){
-      const agentId = AGENTS[persona];
-      const url = agentId
-        ? `${API_BASE}/simli-token?agentId=${encodeURIComponent(agentId)}`
-        : `${API_BASE}/simli-token?persona=${encodeURIComponent(persona)}`;
-      const res = await fetch(url);
-      if(!res.ok) throw new Error('Token request failed');
-      return res.json(); // { token, agentId }
+    const idleDisplay = document.getElementById('idleDisplay');
+    const parallax = document.getElementById('parallax');
+    
+    // Parallax effect
+    (function(){
+        let mx=50,my=50,t=false;
+        function u(){parallax.style.setProperty('--mx',mx+'%');parallax.style.setProperty('--my',my+'%');t=false}
+        addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth)*100;my=(e.clientY/innerHeight)*100;if(!t){requestAnimationFrame(u);t=true}}, {passive:true});
+    })();
+    
+    function updateStatus(message) {
+        status.textContent = `System: ${message}`;
+        console.log(`[Widget Oracle] ${message}`);
     }
-
-    function clearMount(){
-      mount.innerHTML = '';
-      currentEl = null;
+    
+    async function switchPersona(personaId) {
+        console.log(`[Widget Oracle] Switching to: ${personaId}`);
+        
+        // Update button states
+        document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
+        
+        // End current session if active
+        if (currentPersona && currentWidget) {
+            await endCurrentSession();
+        }
+        
+        // Start new session
+        currentPersona = personaId;
+        const persona = CONFIG.personas[personaId];
+        
+        updateStatus(`Summoning ${persona.name}...`);
+        
+        // Hide idle display
+        idleDisplay.style.display = 'none';
+        
+        try {
+            // Get session token using EXACT sample code pattern
+            const response = await fetch(`${API_BASE}/simli-token?agentId=${persona.agentId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Token request failed: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const sessionToken = data.token;
+            const agentId = data.agentId;
+            
+            if (!sessionToken) {
+                throw new Error('No session token received');
+            }
+            
+            console.log(`[Widget Oracle] Got token for ${personaId}: ${sessionToken.substring(0, 10)}...`);
+            
+            // Create widget using EXACT sample pattern
+            await createSimliWidget(personaId, sessionToken, agentId);
+            
+        } catch (error) {
+            console.error(`[Widget Oracle] Error creating session for ${personaId}:`, error);
+            updateStatus(`Connection failed: ${error.message}`);
+            returnToIdle();
+        }
     }
-
-    async function loadPersona(persona){
-      buttons.forEach(b=>b.classList.toggle('active', b.dataset.persona===persona));
-      clearMount();
-      try{
-        const data = await fetchToken(persona);
-        const { token, agentId } = data;
-        if(!token || !agentId){ throw new Error('Missing token or agentId'); }
-
-        // Create widget element
-        const el = document.createElement('simli-widget');
-        el.setAttribute('token', token);
-        el.setAttribute('agentid', agentId);
-        el.style.cssText = 'display:block;width:100%;height:100%;border:0;';
-        // Optional positioning attributes are ignored in embedded mount scenario
-        el.addEventListener('ready', ()=>console.log('Widget ready:', persona));
-        el.addEventListener('error', e=>console.error('Widget error:', e.detail||e));
-        mount.appendChild(el);
-        currentEl = el;
-      }catch(err){
-        console.error('Failed to load persona', persona, err);
-      }
+    
+    async function createSimliWidget(personaId, sessionToken, agentId) {
+        const persona = CONFIG.personas[personaId];
+        
+        console.log(`[Widget Oracle] Creating widget for ${personaId}`);
+        
+        // Clear mount
+        mount.innerHTML = '';
+        
+        // Create simli-widget element using EXACT sample code pattern
+        const widgetElement = document.createElement('simli-widget');
+        widgetElement.setAttribute('token', sessionToken);
+        widgetElement.setAttribute('agentid', agentId);
+        widgetElement.setAttribute('position', 'center');
+        
+        // Style the widget to fill container (512x512)
+        widgetElement.style.cssText = `
+            width: 100%;
+            height: 100%;
+            display: block;
+            border: 0;
+        `;
+        
+        // Add event listeners
+        widgetElement.addEventListener('load', () => {
+            console.log(`[Widget Oracle] Widget loaded for ${personaId}`);
+            updateStatus(`${persona.name} Ready - Click to Talk`);
+        });
+        
+        widgetElement.addEventListener('error', (event) => {
+            console.error(`[Widget Oracle] Widget error for ${personaId}:`, event);
+            updateStatus(`Widget error: ${event.detail || 'Unknown error'}`);
+            returnToIdle();
+        });
+        
+        widgetElement.addEventListener('callstart', () => {
+            console.log(`[Widget Oracle] Call started with ${personaId}`);
+            updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
+        });
+        
+        widgetElement.addEventListener('callend', () => {
+            console.log(`[Widget Oracle] Call ended with ${personaId}`);
+            returnToIdle();
+        });
+        
+        // Add to mount
+        mount.appendChild(widgetElement);
+        currentWidget = widgetElement;
+        
+        console.log(`[Widget Oracle] Widget created successfully for ${personaId}`);
+        updateStatus(`${persona.name} Connected${persona.enhanced ? ' [ENHANCED CORPUS]' : ''}`);
     }
-
-    buttons.forEach(b=>b.addEventListener('click',()=>loadPersona(b.dataset.persona)));
-    // Auto-load first persona
-    loadPersona('bigfoot');
-  })();
+    
+    async function endCurrentSession() {
+        if (!currentWidget) return;
+        
+        console.log(`[Widget Oracle] Ending session for ${currentPersona}`);
+        updateStatus('Ending session...');
+        
+        // Remove widget
+        if (currentWidget.parentNode) {
+            currentWidget.parentNode.removeChild(currentWidget);
+        }
+        currentWidget = null;
+    }
+    
+    function returnToIdle() {
+        console.log('[Widget Oracle] Returning to idle');
+        currentPersona = null;
+        currentWidget = null;
+        
+        // Clear button states
+        document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+        
+        // Clear mount and show idle
+        mount.innerHTML = '';
+        idleDisplay.style.display = 'block';
+        mount.appendChild(idleDisplay);
+        
+        updateStatus('Ready - Select Oracle');
+    }
+    
+    // Initialize
+    window.addEventListener('load', () => {
+        console.log('🚀 Widget Oracle Interface Ready');
+        updateStatus('Ready - Select Oracle');
+        
+        // ESC key to return to idle
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && currentPersona) {
+                endCurrentSession().then(returnToIdle);
+            }
+        });
+    });
   </script>
 </body>
 </html>
-
-

@@ -60,3 +60,4 @@
 - It reads as “hologram” because black disappears on the fans and your overlay sells depth.
 - No 3D engine risk. You still get the summon → talk → dissolve grammar the pitch needs.
 - You can swap Simli later without touching the video pack.
+

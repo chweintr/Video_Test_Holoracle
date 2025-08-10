@@ -56,7 +56,7 @@
             position: relative;
         }
         
-        /* FIXED 420x420 Container - Positioned to match background frame exactly */
+        /* FIXED 420x420 Container - Positioned to match lower glass cube */
         .hologram-window {
             width: 420px;
             height: 420px;
@@ -65,7 +65,7 @@
             position: relative;
             overflow: hidden;
             z-index: 5;
-            margin-top: 60px; /* Increased to lower the mount position */
+            margin-top: 50px; /* Raised up for better alignment */
         }
         
         /* Status Display */
@@ -228,69 +228,21 @@
             display: flex;
         }
         
-        /* Avatar Container with seamless transitions */
+        /* Avatar Container */
         .avatar-container {
             position: absolute;
             width: 100%;
             height: 100%;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            pointer-events: none;
+            display: none;
         }
         
         .avatar-container.active {
-            opacity: 1;
-            pointer-events: all;
+            display: block;
         }
         
-        /* Transition states */
-        .persona-transition {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .persona-transition.playing {
-            opacity: 1;
-        }
-        
-        /* Hide Simli widget loading/dial-up UI elements */
+        /* Hide Simli widget preloading UI elements */
         simli-widget {
             background: transparent !important;
-        }
-        
-        /* Hide Simli loading screens and dial-up imagery */
-        simli-widget iframe {
-            background: transparent !important;
-        }
-        
-        /* Hide Simli widget completely until call starts */
-        simli-widget:not(.call-active) {
-            opacity: 0 !important;
-            pointer-events: none !important;
-            transform: scale(0) !important;
-            transition: all 0.3s ease;
-        }
-        
-        simli-widget.call-active {
-            opacity: 1 !important;
-            pointer-events: all !important;
-            transform: scale(1) !important;
-        }
-        
-        /* Custom talk trigger styling */
-        .custom-talk-trigger {
-            backdrop-filter: blur(5px);
-        }
-        
-        .custom-talk-trigger:hover .talk-button {
-            border-color: rgba(0,255,255,0.8) !important;
-            background: rgba(0,255,255,0.2) !important;
-            transform: scale(1.05);
-        }
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -423,9 +375,8 @@
                 indiana: {
                     name: 'Hoosier Oracle', 
                     agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',
-                    faceId: 'afdb6a3e-3939-40aa-92df-01604c23101c',
                     enhanced: false,
-                    description: 'Hoosier Oracle with custom agent and face'
+                    description: 'Hoosier KB with system prompt; SIMLI stock voice/head'
                 },
                 vonnegut: {
                     name: 'Kurt Vonnegut',
@@ -485,220 +436,14 @@
             console.log('[Main Kiosk]', msg);
         }
         
-        async function playPersonaTransition(personaId) {
-            console.log(`[Transition] Playing transition for ${personaId}`);
-            
-            // Wait for particles to reach natural loop point (assume 3-4 seconds)
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Hide idle state smoothly
-            idleState.style.transition = 'opacity 0.5s ease';
-            idleState.style.opacity = '0';
-            
-            // Wait for fade
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Show static face as fallback (for latency/glitch protection)
-            showStaticFaceFallback(personaId);
-            
-            console.log(`[Transition] Transition complete for ${personaId}`);
-        }
-        
-        function showStaticFaceFallback(personaId) {
-            // Add custom "Press to Talk" overlay that triggers Simli widget
-            const container = document.querySelector(`#avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`);
-            if (container) {
-                const customTrigger = document.createElement('div');
-                customTrigger.className = 'custom-talk-trigger';
-                customTrigger.innerHTML = `
-                    <div class="talk-button">
-                        <div class="talk-icon">🎤</div>
-                        <div class="talk-text">Press to Talk</div>
-                    </div>
-                `;
-                customTrigger.style.cssText = `
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 100;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                `;
-                
-                // Style the talk button
-                const talkButton = customTrigger.querySelector('.talk-button');
-                talkButton.style.cssText = `
-                    background: rgba(0,255,255,0.1);
-                    border: 2px solid rgba(0,255,255,0.5);
-                    border-radius: 50px;
-                    padding: 20px 30px;
-                    text-align: center;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                `;
-                
-                // Add click handler to trigger Simli widget
-                customTrigger.addEventListener('click', () => {
-                    console.log(`[Custom Trigger] Starting conversation with ${personaId}`);
-                    triggerSimliWidget(container);
-                    customTrigger.style.display = 'none';
-                });
-                
-                container.appendChild(customTrigger);
-            }
-        }
-        
-        function triggerSimliWidget(container) {
-            // Find and click the hidden Simli widget trigger
-            const widget = container.querySelector('simli-widget');
-            if (widget) {
-                // Try to programmatically start the widget
-                const triggerEvent = new Event('click', { bubbles: true });
-                widget.dispatchEvent(triggerEvent);
-                
-                // Or try to find the shadow DOM button and click it
-                setTimeout(() => {
-                    try {
-                        const shadowRoot = widget.shadowRoot;
-                        if (shadowRoot) {
-                            const button = shadowRoot.querySelector('button, [role="button"]');
-                            if (button) {
-                                button.click();
-                            }
-                        }
-                    } catch (e) {
-                        console.log('[Custom Trigger] Could not access shadow DOM, trying alternative methods');
-                    }
-                }, 100);
-            }
-        }
-        
-        function addDisconnectButton(container, personaId) {
-            const disconnectBtn = document.createElement('div');
-            disconnectBtn.className = 'custom-disconnect-btn';
-            disconnectBtn.innerHTML = `
-                <div class="disconnect-button">
-                    <div class="disconnect-icon">✖</div>
-                    <div class="disconnect-text">End Call</div>
-                </div>
-            `;
-            
-            disconnectBtn.style.cssText = `
-                position: absolute;
-                bottom: 20px;
-                right: 20px;
-                z-index: 200;
-                cursor: pointer;
-            `;
-            
-            // Style the disconnect button
-            const disconnectButton = disconnectBtn.querySelector('.disconnect-button');
-            disconnectButton.style.cssText = `
-                background: rgba(255,100,100,0.8);
-                border: 2px solid rgba(255,50,50,0.8);
-                border-radius: 25px;
-                padding: 10px 20px;
-                color: white;
-                font-size: 14px;
-                text-align: center;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-            `;
-            
-            disconnectBtn.addEventListener('click', () => {
-                console.log(`[Disconnect] Ending call with ${personaId}`);
-                playFaceToParticlesTransition(personaId).then(() => returnToIdle());
-            });
-            
-            container.appendChild(disconnectBtn);
-        }
-        
-        // Persona-to-persona transition animation
-        async function playPersonaToPersonaTransition(fromPersona, toPersona) {
-            console.log(`[Transition] Playing ${fromPersona} → ${toPersona} transition`);
-            
-            updateStatus(`${CONFIG.personas[fromPersona].name} → ${CONFIG.personas[toPersona].name}...`);
-            
-            // Get current container
-            const fromContainerId = `avatar${fromPersona.charAt(0).toUpperCase() + fromPersona.slice(1)}`;
-            const fromContainer = document.getElementById(fromContainerId);
-            
-            // Fade out current persona face
-            if (fromContainer) {
-                fromContainer.style.transition = 'opacity 0.8s ease';
-                fromContainer.style.opacity = '0';
-            }
-            
-            // Wait for fade out
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            // End current session cleanly
-            await endCurrentSession();
-            
-            // Brief pause for clean state
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
-            // Start new persona
-            await switchPersona(toPersona);
-        }
-        
-        // Face-to-particles hangup animation
-        async function playFaceToParticlesTransition(personaId) {
-            console.log(`[Transition] Playing face → particles hangup for ${personaId}`);
-            
-            updateStatus('Releasing spirit...');
-            
-            const containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
-            const container = document.getElementById(containerId);
-            
-            if (container) {
-                // Fade out the face
-                container.style.transition = 'opacity 1.2s ease, transform 1.2s ease';
-                container.style.opacity = '0';
-                container.style.transform = 'scale(0.8)';
-                
-                // Show idle particles during fade
-                setTimeout(() => {
-                    idleState.style.display = 'flex';
-                    idleState.style.opacity = '0';
-                    idleState.style.transition = 'opacity 1s ease';
-                    
-                    // Fade in particles
-                    setTimeout(() => {
-                        idleState.style.opacity = '1';
-                    }, 100);
-                }, 600);
-            }
-            
-            // Wait for complete fade
-            await new Promise(resolve => setTimeout(resolve, 1200));
-            
-            // Clean up
-            await endCurrentSession();
-        }
-        
         async function switchPersona(personaId) {
             console.log(`[Main Kiosk] Switching to: ${personaId}`);
-            
-            // If switching to same persona, do nothing
-            if (currentPersona === personaId && currentWidget) {
-                return;
-            }
             
             // Update button states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
             
-            // Handle persona-to-persona transition
-            if (currentPersona && currentWidget && currentPersona !== personaId) {
-                await playPersonaToPersonaTransition(currentPersona, personaId);
-                return;
-            }
-            
-            // End current session if active (for same persona restart)
+            // End current session if active
             if (currentPersona && currentWidget) {
                 await endCurrentSession();
             }
@@ -707,10 +452,7 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
-            // Enhanced transition system: particles → face animation → static fallback
-            await playPersonaTransition(personaId);
-            
-            // Replace idle video for looping transition
+            // Replace idle video based on persona
             const idleVideo = idleState.querySelector('video');
             if (idleVideo && personaId) {
                 const source = idleVideo.querySelector('source');
@@ -777,17 +519,13 @@
                 if (c.id !== containerId) c.classList.remove('active');
             });
             
-            // Create simli-widget element with custom trigger and positioning
+            // Create simli-widget element using PROVEN WORKING pattern
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
-            widget.setAttribute('position', 'relative'); // relative = custom positioning
-            widget.setAttribute('customtext', ''); // Hide default button text
-            widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'); // Transparent 1px image
-            
-            // Add custom trigger attributes to bypass default UI
-            widget.setAttribute('hidetrigger', 'true'); // Hide default trigger if supported
-            widget.setAttribute('autostart', 'false'); // Don't auto-start
+            widget.setAttribute('position', 'relative');
+            widget.setAttribute('customtext', `Talk to ${persona.name}`);
+            widget.setAttribute('customimage', '');
             
             // Style widget using WORKING CSS pattern
             widget.style.cssText = `
@@ -813,18 +551,6 @@
             widget.addEventListener('callstart', () => {
                 console.log(`[Main Kiosk] Call started: ${personaId}`);
                 updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
-                
-                // Mark widget as active for styling
-                widget.classList.add('call-active');
-                
-                // Hide custom trigger
-                const customTrigger = container.querySelector('.custom-talk-trigger');
-                if (customTrigger) {
-                    customTrigger.style.display = 'none';
-                }
-                
-                // Add custom disconnect button
-                addDisconnectButton(container, personaId);
                 
                 // Add overlay ONLY after call starts (user clicked Start)
                 if (personaId === 'bigfoot' && !container.querySelector('.bigfoot-overlay-inner')) {

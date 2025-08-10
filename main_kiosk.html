@@ -448,7 +448,8 @@
                     name: 'Brown County Bigfoot',
                     agentId: '4a857f92-feee-4b70-b973-290baec4d545',
                     enhanced: false,
-                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head'
+                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head',
+                    customImage: 'assets/particles-to-bigfoot.mp4'  // Local MP4 trigger video
                 },
                 indiana: {
                     name: 'Hoosier Oracle', 
@@ -603,7 +604,16 @@
             widget.setAttribute('agentid', agentId);
             widget.setAttribute('position', 'relative');
             widget.setAttribute('customtext', `Talk to ${persona.name}`);
-            widget.setAttribute('customimage', '');
+            
+            // Use custom image if specified (for particle videos)
+            if (persona.customImage) {
+                // For local files, need full URL
+                const fullUrl = `${window.location.origin}/${persona.customImage}`;
+                widget.setAttribute('customimage', fullUrl);
+                console.log(`[Main Kiosk] Using custom image for ${personaId}: ${fullUrl}`);
+            } else {
+                widget.setAttribute('customimage', '');
+            }
             
             // Style widget using WORKING CSS pattern
             widget.style.cssText = `

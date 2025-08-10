@@ -393,7 +393,6 @@
         let currentWidget = null;
         
         // DOM elements
-        const status = document.getElementById('status');
         const idleState = document.getElementById('idleState');
         const loadingState = document.getElementById('loadingState');
         const endSessionBtn = document.getElementById('endSessionBtn');
@@ -430,13 +429,15 @@
         }
         
         function updateStatus(msg) {
-            status.textContent = `System: ${msg}`;
+            const statusElement = document.getElementById('status');
+            if (statusElement) {
+                statusElement.textContent = `System: ${msg}`;
+            }
             console.log('[Main Kiosk]', msg);
         }
         
         async function switchPersona(personaId) {
             console.log(`[Main Kiosk] Switching to: ${personaId}`);
-            alert(`DEBUG: Button clicked for ${personaId}`);
             
             // Update button states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
@@ -518,21 +519,20 @@
                 if (c.id !== containerId) c.classList.remove('active');
             });
             
-            // Create simli-widget element - WORKING APPROACH
+            // Create simli-widget element using PROVEN WORKING pattern
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
             widget.setAttribute('position', 'relative');
-            widget.setAttribute('showui', 'false'); // Try to minimize UI
-            widget.setAttribute('autostart', 'true'); // Skip start button
-            widget.setAttribute('controls', 'false'); // Hide controls
+            widget.setAttribute('customtext', `Talk to ${persona.name}`);
+            widget.setAttribute('customimage', '');
             
-            // Style widget to fill 420x420 container
+            // Style widget using WORKING CSS pattern
             widget.style.cssText = `
-                width: 100%;
-                height: 100%;
-                display: block;
-                border: none;
+                width: 100% !important;
+                height: 100% !important;
+                border: none !important;
+                border-radius: 12px !important;
             `;
             
             // Add event listeners

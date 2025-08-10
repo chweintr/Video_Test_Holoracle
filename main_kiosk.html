@@ -56,7 +56,7 @@
             position: relative;
         }
         
-        /* FIXED 420x420 Container - Positioned to match lower glass cube */
+        /* FIXED 420x420 Container - Positioned to match background frame exactly */
         .hologram-window {
             width: 420px;
             height: 420px;
@@ -65,7 +65,7 @@
             position: relative;
             overflow: hidden;
             z-index: 5;
-            margin-top: 50px; /* Raised up for better alignment */
+            margin-top: 20px; /* Fine-tuned to align with background frame */
         }
         
         /* Status Display */
@@ -228,21 +228,56 @@
             display: flex;
         }
         
-        /* Avatar Container */
+        /* Avatar Container with seamless transitions */
         .avatar-container {
             position: absolute;
             width: 100%;
             height: 100%;
-            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
         }
         
         .avatar-container.active {
-            display: block;
+            opacity: 1;
+            pointer-events: all;
         }
         
-        /* Hide Simli widget preloading UI elements */
+        /* Transition states */
+        .persona-transition {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .persona-transition.playing {
+            opacity: 1;
+        }
+        
+        /* Hide Simli widget loading/dial-up UI elements */
         simli-widget {
             background: transparent !important;
+        }
+        
+        /* Hide Simli loading screens and dial-up imagery */
+        simli-widget iframe {
+            background: transparent !important;
+        }
+        
+        /* Ensure widget starts minimized until call begins */
+        simli-widget:not(.call-active) {
+            transform: scale(0.8);
+            opacity: 0.3;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        simli-widget.call-active {
+            transform: scale(1);
+            opacity: 1;
+        }
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -436,6 +471,45 @@
             console.log('[Main Kiosk]', msg);
         }
         
+        async function playPersonaTransition(personaId) {
+            console.log(`[Transition] Playing transition for ${personaId}`);
+            
+            // Wait for particles to reach natural loop point (assume 3-4 seconds)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Hide idle state smoothly
+            idleState.style.transition = 'opacity 0.5s ease';
+            idleState.style.opacity = '0';
+            
+            // Wait for fade
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Show static face as fallback (for latency/glitch protection)
+            showStaticFaceFallback(personaId);
+            
+            console.log(`[Transition] Transition complete for ${personaId}`);
+        }
+        
+        function showStaticFaceFallback(personaId) {
+            // Add a static image as backup while Simli loads
+            const container = document.querySelector(`#avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`);
+            if (container) {
+                const staticFace = document.createElement('div');
+                staticFace.className = 'static-face-fallback';
+                staticFace.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,100,200,0.1);
+                    border-radius: 50%;
+                    z-index: 1;
+                    opacity: 0.8;
+                    transition: opacity 0.3s ease;
+                `;
+                container.appendChild(staticFace);
+            }
+        }
+        
         async function switchPersona(personaId) {
             console.log(`[Main Kiosk] Switching to: ${personaId}`);
             
@@ -452,7 +526,10 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
-            // Replace idle video based on persona
+            // Enhanced transition system: particles → face animation → static fallback
+            await playPersonaTransition(personaId);
+            
+            // Replace idle video for looping transition
             const idleVideo = idleState.querySelector('video');
             if (idleVideo && personaId) {
                 const source = idleVideo.querySelector('source');
@@ -551,6 +628,16 @@
             widget.addEventListener('callstart', () => {
                 console.log(`[Main Kiosk] Call started: ${personaId}`);
                 updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
+                
+                // Mark widget as active for styling
+                widget.classList.add('call-active');
+                
+                // Hide static fallback when real face appears
+                const staticFace = container.querySelector('.static-face-fallback');
+                if (staticFace) {
+                    staticFace.style.opacity = '0';
+                    setTimeout(() => staticFace.remove(), 300);
+                }
                 
                 // Add overlay ONLY after call starts (user clicked Start)
                 if (personaId === 'bigfoot' && !container.querySelector('.bigfoot-overlay-inner')) {

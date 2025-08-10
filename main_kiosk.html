@@ -32,40 +32,42 @@
         
         .title {
             font-family: 'Michroma', 'Courier New', monospace;
-            font-size: 2.2em;
+            font-size: clamp(1.5em, 4vw, 2.2em); /* Responsive font size */
             text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
             margin-bottom: 8px;
-            margin-top: -30px; /* Move DOWN - less negative margin */
+            margin-top: 20px; /* Fixed position from top */
             text-align: center;
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 0.08em;
             z-index: 10;
             position: relative;
+            padding: 0 20px; /* Side padding for mobile */
         }
         
         .subtitle {
-            font-size: 0.9em; /* Bigger subtitle */
+            font-size: clamp(0.7em, 2vw, 0.9em); /* Responsive subtitle */
             color: #ff4df3;
             text-shadow: 0 0 10px #ff4df3;
-            margin-bottom: 20px; /* Adjust spacing */
+            margin-bottom: 20px;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.15em;
             z-index: 10;
             position: relative;
+            padding: 0 20px; /* Side padding for mobile */
         }
         
-        /* FIXED 420x420 Container - Positioned to match lower glass cube */
+        /* Responsive 380x380 Container - Optimized for screen fit */
         .hologram-window {
-            width: 420px;
-            height: 420px;
+            width: min(380px, 80vw); /* Responsive width */
+            height: min(380px, 80vw); /* Responsive height, maintains aspect ratio */
             border: none; /* Remove border - using background frame */
             background: transparent; /* Transparent to show background frame */
             position: relative;
             overflow: hidden;
             z-index: 5;
-            margin-top: 50px; /* Raised up for better alignment */
+            margin: 20px auto; /* Center horizontally, fixed vertical margin */
         }
         
         /* Status Display */
@@ -164,30 +166,34 @@
             to { opacity: 1; }
         }
         
-        /* Persona Buttons */
+        /* Responsive Persona Buttons */
         .persona-controls {
-            margin-top: 200px; /* Move buttons UP - smaller positive margin */
+            margin-top: 20px; /* Reduced margin for better screen fit */
+            margin-bottom: 20px; /* Bottom margin for safe area */
             display: flex;
-            gap: 20px;
+            gap: clamp(10px, 2vw, 20px); /* Responsive gap */
             flex-wrap: wrap;
             justify-content: center;
             z-index: 10;
             position: relative;
+            padding: 0 20px; /* Side padding for mobile */
         }
         
         .persona-btn {
             background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
             border: 2px solid rgba(77,227,255,0.5);
             color: #00ffff;
-            padding: 12px 24px; /* Bigger padding again */
-            font-size: 1em; /* Bigger font again */
+            padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px); /* Responsive padding */
+            font-size: clamp(0.8em, 2vw, 1em); /* Responsive font size */
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Courier New', monospace;
             text-transform: uppercase;
-            border-radius: 8px; /* Bigger border radius */
+            border-radius: 8px;
             letter-spacing: 0.05em;
             position: relative;
+            white-space: nowrap; /* Prevent text wrapping */
+            min-width: 0; /* Allow flex shrinking */
         }
         
         .persona-btn:hover {
@@ -305,6 +311,78 @@
         .end-session-btn:hover {
             background: rgba(255,0,0,0.4);
             border-color: #ff0000;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 1366px) {
+            .title {
+                font-size: clamp(1.2em, 4vw, 1.8em);
+                margin-top: 15px;
+            }
+            .subtitle {
+                font-size: clamp(0.6em, 2vw, 0.8em);
+                margin-bottom: 15px;
+            }
+            .hologram-window {
+                width: min(350px, 85vw);
+                height: min(350px, 85vw);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .hologram-window {
+                width: min(320px, 90vw);
+                height: min(320px, 90vw);
+                margin: 15px auto;
+            }
+            .persona-controls {
+                gap: clamp(8px, 2vw, 15px);
+                margin-top: 15px;
+            }
+            .persona-btn {
+                font-size: clamp(0.7em, 2.5vw, 0.9em);
+                padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: clamp(1em, 5vw, 1.5em);
+                margin-top: 10px;
+            }
+            .subtitle {
+                font-size: clamp(0.5em, 3vw, 0.7em);
+                margin-bottom: 10px;
+            }
+            .hologram-window {
+                width: min(280px, 95vw);
+                height: min(280px, 95vw);
+                margin: 10px auto;
+            }
+            .persona-controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .persona-btn {
+                width: min(200px, 80vw);
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: clamp(0.9em, 6vw, 1.2em);
+            }
+            .hologram-window {
+                width: min(250px, 95vw);
+                height: min(250px, 95vw);
+            }
+            .persona-btn {
+                width: min(180px, 85vw);
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>

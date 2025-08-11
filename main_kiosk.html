@@ -826,14 +826,28 @@
             console.log(`[Main Kiosk] Ending session: ${currentPersona}`);
             updateStatus('Ending session...');
             
-            // Remove widget
-            if (currentWidget.parentNode) {
-                currentWidget.parentNode.removeChild(currentWidget);
+            // Remove widget with thorough cleanup
+            if (currentWidget) {
+                // Try to call Simli cleanup if available
+                if (typeof currentWidget.destroy === 'function') {
+                    currentWidget.destroy();
+                }
+                if (typeof currentWidget.disconnect === 'function') {
+                    currentWidget.disconnect();
+                }
+                
+                // Remove from DOM
+                if (currentWidget.parentNode) {
+                    currentWidget.parentNode.removeChild(currentWidget);
+                }
+                currentWidget = null;
             }
-            currentWidget = null;
             
-            // Hide all containers
-            document.querySelectorAll('.avatar-container').forEach(c => c.classList.remove('active'));
+            // Clear all containers completely
+            document.querySelectorAll('.avatar-container').forEach(c => {
+                c.classList.remove('active');
+                c.innerHTML = ''; // Clear any remaining content
+            });
             
             setTimeout(returnToIdle, 500);
         }

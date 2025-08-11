@@ -366,7 +366,7 @@
             .hologram-window {
                 width: min(320px, 90vw);
                 height: min(320px, 90vw);
-                margin: 15px auto;
+                /* Removed margin that was pushing mount down */
             }
             .persona-controls {
                 gap: clamp(8px, 2vw, 15px);
@@ -390,7 +390,7 @@
             .hologram-window {
                 width: min(280px, 95vw);
                 height: min(280px, 95vw);
-                margin: 10px auto;
+                /* Removed margin that was pushing mount down */
             }
             .persona-controls {
                 flex-direction: column;
@@ -525,12 +525,12 @@
         font-family: monospace;
         font-size: 12px;
         z-index: 9999;
-        display: none;
+        display: block; /* Visible for debugging - press C to toggle */
         width: 200px;
     ">
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🎯 Live Adjuster</div>
-        Title: <input type="number" id="titleAdjust" value="20" style="width: 50px; padding: 2px;"><br>
-        Subtitle: <input type="number" id="subtitleAdjust" value="80" style="width: 50px; padding: 2px;"><br>
+        Title: <input type="number" id="titleAdjust" value="45" style="width: 50px; padding: 2px;"><br>
+        Subtitle: <input type="number" id="subtitleAdjust" value="105" style="width: 50px; padding: 2px;"><br>
         Mount: <input type="number" id="mountAdjust" value="195" style="width: 50px; padding: 2px;"><br>
         Buttons: <input type="number" id="buttonsAdjust" value="720" style="width: 50px; padding: 2px;"><br><br>
         <button onclick="applyQuickFix()" style="background: #00ffff; color: black; padding: 5px 10px; border: none; font-size: 11px; font-weight: bold;">APPLY ALL</button>

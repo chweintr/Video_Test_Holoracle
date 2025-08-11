@@ -1,0 +1,180 @@
+# Echoes of Indiana - Final Layout Specifications
+
+## Project Overview
+**Echoes of Indiana** is a holographic oracle kiosk featuring 3 AI personas with interactive avatars powered by Simli SDK and deep RAG systems. This document captures the final working configuration after extensive testing and positioning adjustments.
+
+## Final Perfect Layout Values ✅
+
+### CSS Positioning (Absolute positioning for independent control)
+```css
+.title { top: 45px; }
+.subtitle { top: 105px; }
+.hologram-window { top: 195px; width: 380px; height: 380px; }
+.persona-controls { top: 720px; }
+#selectOracleText { top: 770px; }
+```
+
+### Element Specifications
+- **Title**: "Echoes of Indiana" at 45px from top
+- **Subtitle**: "Holographic Conversations Powered by Research" at 105px
+- **Tagline**: "Brought to you by Past Presence" at 130px
+- **Mount**: Fixed 380x380px hologram display at 195px
+- **Buttons**: 3 persona controls at 720px
+- **Select Text**: "Select Oracle" prompt at 770px
+
+## Persona Configuration
+
+### Agent IDs and Face IDs (Working Configuration)
+```javascript
+const CONFIG = {
+    personas: {
+        bigfoot: {
+            name: 'Brown County Bigfoot',
+            agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+            enhanced: false,
+            description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head'
+        },
+        indiana: {
+            name: 'Hoosier Oracle', 
+            agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',
+            faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',
+            enhanced: false,
+            description: 'Hoosier KB with system prompt; SIMLI stock voice/head'
+        },
+        vonnegut: {
+            name: 'Kurt Vonnegut',
+            agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+            faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
+            enhanced: true,
+            description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice'
+        }
+    }
+};
+```
+
+## CSS Adjuster Tool Pattern 🛠️
+
+### Problem Solved
+During development, we encountered a critical issue where the local cached version showed perfect layout while the deployed version showed broken positioning. This led to time-consuming trial-and-error deployment cycles.
+
+### Solution: Live CSS Adjustment Tool
+Created a toggleable CSS adjuster that allows real-time positioning changes without deployments:
+
+```html
+<!-- LIGHTWEIGHT CSS ADJUSTER - Press 'C' to toggle -->
+<div id="cssAdjuster" style="
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.95);
+    color: #00ffff;
+    padding: 15px;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 12px;
+    z-index: 9999;
+    display: none;
+    width: 200px;
+">
+    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🎯 Live Adjuster</div>
+    Title: <input type="number" id="titleAdjust" value="45" style="width: 50px; padding: 2px;"><br>
+    Subtitle: <input type="number" id="subtitleAdjust" value="105" style="width: 50px; padding: 2px;"><br>
+    Mount: <input type="number" id="mountAdjust" value="195" style="width: 50px; padding: 2px;"><br>
+    Buttons: <input type="number" id="buttonsAdjust" value="720" style="width: 50px; padding: 2px;"><br><br>
+    <button onclick="applyQuickFix()" style="background: #00ffff; color: black; padding: 5px 10px; border: none; font-size: 11px; font-weight: bold;">APPLY ALL</button>
+    <div style="margin-top: 8px; font-size: 9px; color: #888;">Press 'C' to hide</div>
+</div>
+```
+
+### JavaScript Implementation
+```javascript
+// Enhanced CSS adjuster function
+function applyQuickFix() {
+    const titleTop = document.getElementById('titleAdjust').value;
+    const subtitleTop = document.getElementById('subtitleAdjust').value;
+    const mountTop = document.getElementById('mountAdjust').value;
+    const buttonsTop = document.getElementById('buttonsAdjust').value;
+    
+    document.querySelector('.title').style.top = titleTop + 'px';
+    document.querySelector('.subtitle').style.top = subtitleTop + 'px';
+    document.querySelector('.hologram-window').style.top = mountTop + 'px';
+    document.querySelector('.persona-controls').style.top = buttonsTop + 'px';
+    document.getElementById('selectOracleText').style.top = (parseInt(buttonsTop) + 50) + 'px';
+    
+    console.log(`🎯 Applied: Title=${titleTop}, Subtitle=${subtitleTop}, Mount=${mountTop}, Buttons=${buttonsTop}`);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Press 'C' to toggle CSS adjuster
+    if (e.key.toLowerCase() === 'c') {
+        const adjuster = document.getElementById('cssAdjuster');
+        adjuster.style.display = adjuster.style.display === 'none' ? 'block' : 'none';
+    }
+});
+```
+
+### Benefits of This Pattern
+1. **No Deployment Cycles**: Test positioning changes instantly
+2. **Multiple Device Testing**: Adjust layout while viewing on different devices
+3. **Rapid Iteration**: Find perfect values through real-time adjustment
+4. **Cache-Independent**: Works regardless of browser caching issues
+5. **Lightweight**: Minimal code footprint, toggleable visibility
+
+## Technical Architecture
+
+### Key Design Decisions
+- **Absolute Positioning**: Enables independent control of each element
+- **Fixed Mount Size**: 380x380px prevents scaling issues
+- **Simli Widget Integration**: Let Simli handle its own positioning within the mount
+- **Background**: `assets/new-back.png` - holographic cube with neon glow
+- **Cache Busting**: Meta tags prevent browser caching during development
+
+### Deployment Notes
+- **Platform**: Railway (https://videotestholoracle-production.up.railway.app/)
+- **Branch**: main
+- **Cache Issues**: Local vs deployed versions may differ due to browser caching
+- **Testing**: Always verify on multiple devices/browsers after deployment
+
+## Scaling Vision: Past Presence Business Model
+
+### Future Implementations
+- **Echoes of Uppsala**: Swedish historical figures and locations
+- **Echoes of Appalachia**: Regional folklore and cultural figures  
+- **Institutional Applications**: Universities, museums, cultural centers
+
+### Technology Stack
+- **Physical Holograms**: Holographic display hardware
+- **Interactive Avatars**: Simli SDK for realistic AI personas
+- **Deep RAG Systems**: Location-specific knowledge bases
+- **Responsive Design**: Multi-device compatibility
+
+## File Structure
+```
+Video_Test_Holoracle/
+├── main_kiosk.html                 # Primary interface
+├── assets/
+│   ├── new-back.png               # Holographic background
+│   ├── bigfoot-overlay.png        # Bigfoot persona overlay
+│   └── [video assets]             # Particle transition videos
+├── measure_layout.html            # Layout measurement tool
+└── FINAL_LAYOUT_SPECS.md         # This documentation
+```
+
+## Troubleshooting
+
+### Common Issues
+1. **Widget appears tiny on side**: Remove forced Simli positioning, let widget self-position
+2. **Layout broken after changes**: Use CSS adjuster to find correct values
+3. **Cache showing old version**: Clear browser cache or test incognito
+4. **Mount positioning off**: Use absolute positioning with fixed pixel values
+
+### Debug Tools
+- CSS Adjuster (Press 'C' to toggle)
+- Console logging for persona switching
+- Layout measurement tool (`measure_layout.html`)
+
+---
+
+*This document represents the final working configuration after extensive testing and user feedback. The CSS adjuster pattern proved invaluable for rapid iteration and should be considered for similar projects requiring precise positioning.*

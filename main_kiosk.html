@@ -34,48 +34,45 @@
             font-family: 'Michroma', 'Courier New', monospace;
             font-size: clamp(1.5em, 4vw, 2.2em); /* Responsive font size */
             text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
-            margin-top: -75px; /* Your specified position */
             text-align: center;
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 0.08em;
             z-index: 10;
             position: absolute;
-            top: 50%;
+            top: 20px; /* Simple top positioning */
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
-            padding: 0 20px; /* Side padding for mobile */
+            padding: 0 20px;
         }
         
         .subtitle {
             font-size: clamp(0.7em, 2vw, 0.9em); /* Responsive subtitle */
             color: #ff4df3;
             text-shadow: 0 0 10px #ff4df3;
-            margin-top: 30px; /* Below title */
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.15em;
             z-index: 10;
             position: absolute;
-            top: 50%;
+            top: 70px; /* Simple top positioning */
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
-            padding: 0 20px; /* Side padding for mobile */
+            padding: 0 20px;
         }
         
-        /* 380x380 Mount - Absolutely positioned per your specs */
+        /* 380x380 Mount - Simple positioning */
         .hologram-window {
-            width: min(380px, 80vw); /* Responsive width */
-            height: min(380px, 80vw); /* Responsive height, maintains aspect ratio */
-            border: none; /* Remove border - using background frame */
-            background: transparent; /* Transparent to show background frame */
+            width: min(380px, 80vw);
+            height: min(380px, 80vw);
+            border: none;
+            background: transparent;
             position: absolute;
-            top: 50%;
+            top: 200px; /* Simple top positioning */
             left: 50%;
-            transform: translate(-50%, -50%);
-            margin-top: 105px; /* Your specified position */
+            transform: translateX(-50%);
             overflow: hidden;
             z-index: 5;
         }
@@ -176,19 +173,18 @@
             to { opacity: 1; }
         }
         
-        /* Persona Buttons - Absolutely positioned per your specs */
+        /* Persona Buttons - Simple positioning */
         .persona-controls {
             position: absolute;
-            top: 50%;
+            top: 600px; /* Simple top positioning */
             left: 50%;
             transform: translateX(-50%);
-            margin-top: 310px; /* Your specified position (estimated) */
             display: flex;
-            gap: clamp(10px, 2vw, 20px); /* Responsive gap */
+            gap: clamp(10px, 2vw, 20px);
             flex-wrap: wrap;
             justify-content: center;
             z-index: 10;
-            padding: 0 20px; /* Side padding for mobile */
+            padding: 0 20px;
         }
         
         .persona-btn {
@@ -451,21 +447,44 @@
         </button>
     </div>
     
-    <!-- Select Oracle Text - Absolutely positioned per your specs -->
+    <!-- Select Oracle Text - Simple positioning -->
     <div id="selectOracleText" style="
         text-align: center;
         font-size: 18px;
         color: rgba(0,255,255,0.8);
         text-shadow: 0 0 10px rgba(0,255,255,0.8);
         position: absolute;
-        top: 50%;
+        top: 700px;
         left: 50%;
         transform: translateX(-50%);
-        margin-top: 375px;
         z-index: 10;
         display: block;
         width: 100%;
     ">Select Oracle</div>
+    
+    <!-- LIVE CSS EDITOR -->
+    <div id="cssEditor" style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.9);
+        color: #00ffff;
+        padding: 15px;
+        border: 1px solid #00ffff;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 12px;
+        z-index: 1000;
+        width: 250px;
+    ">
+        <div style="margin-bottom: 10px; font-weight: bold;">🎮 LIVE CSS EDITOR</div>
+        <label>Title Top: <input type="number" id="titleTop" value="20" style="width: 60px; margin-left: 5px;"></label><br><br>
+        <label>Mount Top: <input type="number" id="mountTop" value="200" style="width: 60px; margin-left: 5px;"></label><br><br>
+        <label>Buttons Top: <input type="number" id="buttonsTop" value="600" style="width: 60px; margin-left: 5px;"></label><br><br>
+        <label>Select Top: <input type="number" id="selectTop" value="700" style="width: 60px; margin-left: 5px;"></label><br><br>
+        <button onclick="applyCSSValues()" style="background: #00ffff; color: black; padding: 5px 10px; border: none; border-radius: 4px;">Apply</button>
+        <button onclick="printCSS()" style="background: #ff4df3; color: white; padding: 5px 10px; border: none; border-radius: 4px; margin-left: 5px;">Print CSS</button>
+    </div>
     
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
@@ -776,6 +795,36 @@
             const newValue = current + change;
             element.style[property] = newValue + 'px';
             console.log(`${element.className} ${property}: ${newValue}px`);
+        }
+        
+        // LIVE CSS EDITOR FUNCTIONS
+        function applyCSSValues() {
+            const titleTop = document.getElementById('titleTop').value;
+            const mountTop = document.getElementById('mountTop').value;
+            const buttonsTop = document.getElementById('buttonsTop').value;
+            const selectTop = document.getElementById('selectTop').value;
+            
+            // Apply values
+            document.querySelector('.title').style.top = titleTop + 'px';
+            document.querySelector('.hologram-window').style.top = mountTop + 'px';  
+            document.querySelector('.persona-controls').style.top = buttonsTop + 'px';
+            document.getElementById('selectOracleText').style.top = selectTop + 'px';
+            
+            console.log('✅ Applied CSS Values:', {titleTop, mountTop, buttonsTop, selectTop});
+        }
+        
+        function printCSS() {
+            const title = document.querySelector('.title');
+            const mount = document.querySelector('.hologram-window');
+            const buttons = document.querySelector('.persona-controls');
+            const select = document.getElementById('selectOracleText');
+            
+            console.log('=== CURRENT CSS VALUES ===');
+            console.log(`.title { top: ${title.style.top || getComputedStyle(title).top}; }`);
+            console.log(`.hologram-window { top: ${mount.style.top || getComputedStyle(mount).top}; }`);
+            console.log(`.persona-controls { top: ${buttons.style.top || getComputedStyle(buttons).top}; }`);
+            console.log(`#selectOracleText { top: ${select.style.top || getComputedStyle(select).top}; }`);
+            console.log('========================');
         }
         
         // Initialize

@@ -58,7 +58,7 @@
             padding: 0 20px; /* Side padding for mobile */
         }
         
-        /* Responsive 380x380 Container - Optimized for screen fit */
+        /* Responsive 380x380 Container - Moved down toward buttons */
         .hologram-window {
             width: min(380px, 80vw); /* Responsive width */
             height: min(380px, 80vw); /* Responsive height, maintains aspect ratio */
@@ -67,7 +67,7 @@
             position: relative;
             overflow: hidden;
             z-index: 5;
-            margin: 20px auto; /* Center horizontally, fixed vertical margin */
+            margin: 80px auto 40px auto; /* Moved down: 80px top, 40px bottom */
         }
         
         /* Status Display */
@@ -168,8 +168,8 @@
         
         /* Responsive Persona Buttons */
         .persona-controls {
-            margin-top: 120px; /* Moved down 50px more (was 70px) */
-            margin-bottom: 20px; /* Bottom margin for safe area */
+            margin-top: 60px; /* Reduced since mount moved down */
+            margin-bottom: 60px; /* More space for "Select Oracle" text below */
             display: flex;
             gap: clamp(10px, 2vw, 20px); /* Responsive gap */
             flex-wrap: wrap;
@@ -246,17 +246,12 @@
             display: block;
         }
         
-        /* Force Simli widget to fill mount container */
+        /* Let Simli widget position itself naturally - don't force mount positioning */
         simli-widget {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
-            z-index: 10 !important;
+            /* Removed forced positioning to let Simli handle its own layout */
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -271,16 +266,11 @@
             visibility: hidden !important;
         }
         
-        /* Force Simli video/canvas to fill container */
+        /* Let Simli video/canvas use natural sizing */
         simli-widget::shadow video,
         simli-widget::shadow canvas {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
             background: transparent !important;
+            /* Removed forced sizing to let Simli handle its own video layout */
         }
         
         /* Bigfoot Overlay - appears only when Bigfoot is active */
@@ -417,7 +407,6 @@
                 <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
             </video>
             <div class="particles" id="particleContainer" style="z-index: 2;"></div>
-            <div style="position: relative; z-index: 3; margin-top: 150px; font-size: 18px; text-shadow: 0 0 10px rgba(0,255,255,0.8);">Select Oracle</div>
         </div>
         
         <!-- Loading State -->
@@ -449,6 +438,18 @@
             Kurt Vonnegut
         </button>
     </div>
+    
+    <!-- Select Oracle Text - Below buttons, shows only when idle -->
+    <div id="selectOracleText" style="
+        text-align: center;
+        font-size: 18px;
+        color: rgba(0,255,255,0.8);
+        text-shadow: 0 0 10px rgba(0,255,255,0.8);
+        margin-top: 20px;
+        z-index: 10;
+        position: relative;
+        display: block;
+    ">Select Oracle</div>
     
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
@@ -532,6 +533,9 @@
         
         async function switchPersona(personaId) {
             console.log(`[Main Kiosk] Switching to: ${personaId}`);
+            
+            // Hide "Select Oracle" text when persona is selected
+            document.getElementById('selectOracleText').style.display = 'none';
             
             // Update button states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
@@ -730,8 +734,9 @@
             loadingState.classList.remove('active');
             endSessionBtn.classList.remove('active');
             
-            // Show idle
+            // Show idle and "Select Oracle" text
             idleState.style.display = 'flex';
+            document.getElementById('selectOracleText').style.display = 'block';
             updateStatus('Ready');
         }
         

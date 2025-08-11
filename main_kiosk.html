@@ -40,7 +40,7 @@
             letter-spacing: 0.08em;
             z-index: 10;
             position: absolute;
-            top: 20px; /* Simple top positioning */
+            top: 20px; /* Your measurement */
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
@@ -56,21 +56,21 @@
             letter-spacing: 0.15em;
             z-index: 10;
             position: absolute;
-            top: 70px; /* Simple top positioning */
+            top: 80px; /* Your measurement */
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
             padding: 0 20px;
         }
         
-        /* 380x380 Mount - Simple positioning */
+        /* 380x380 Mount - Your measurement */
         .hologram-window {
             width: min(380px, 80vw);
             height: min(380px, 80vw);
             border: none;
             background: transparent;
             position: absolute;
-            top: 200px; /* Simple top positioning */
+            top: 120px; /* Your measurement */
             left: 50%;
             transform: translateX(-50%);
             overflow: hidden;
@@ -173,15 +173,15 @@
             to { opacity: 1; }
         }
         
-        /* Persona Buttons - Simple positioning */
+        /* Persona Buttons - Your measurement + smaller size */
         .persona-controls {
             position: absolute;
-            top: 600px; /* Simple top positioning */
+            top: 570px; /* Your measurement */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: clamp(10px, 2vw, 20px);
-            flex-wrap: wrap;
+            gap: clamp(8px, 1.5vw, 15px); /* Smaller gaps */
+            flex-wrap: nowrap; /* Force single row */
             justify-content: center;
             z-index: 10;
             padding: 0 20px;
@@ -191,17 +191,18 @@
             background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
             border: 2px solid rgba(77,227,255,0.5);
             color: #00ffff;
-            padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px); /* Responsive padding */
-            font-size: clamp(0.8em, 2vw, 1em); /* Responsive font size */
+            padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px); /* Smaller padding */
+            font-size: clamp(0.7em, 1.8vw, 0.9em); /* Smaller font */
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Courier New', monospace;
             text-transform: uppercase;
-            border-radius: 8px;
-            letter-spacing: 0.05em;
+            border-radius: 6px; /* Smaller radius */
+            letter-spacing: 0.03em; /* Tighter spacing */
             position: relative;
             white-space: nowrap; /* Prevent text wrapping */
             min-width: 0; /* Allow flex shrinking */
+            flex-shrink: 1; /* Allow shrinking to fit */
         }
         
         .persona-btn:hover {
@@ -447,14 +448,14 @@
         </button>
     </div>
     
-    <!-- Select Oracle Text - Simple positioning -->
+    <!-- Select Oracle Text - Your measurement -->
     <div id="selectOracleText" style="
         text-align: center;
         font-size: 18px;
         color: rgba(0,255,255,0.8);
         text-shadow: 0 0 10px rgba(0,255,255,0.8);
         position: absolute;
-        top: 700px;
+        top: 625px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 10;
@@ -502,7 +503,26 @@
         </div>
         <button onclick="applyCSSValues()" style="background: #00ffff; color: black; padding: 8px 15px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; margin-right: 10px;">APPLY CHANGES</button>
         <button onclick="printCSS()" style="background: #ff4df3; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-size: 14px; margin-right: 10px;">PRINT CSS</button>
-        <button onclick="document.getElementById('cssEditor').style.display='none'" style="background: #ff0000; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-size: 14px;">HIDE</button>
+        <button onclick="document.getElementById('cssEditor').style.display='none'; document.getElementById('cssToggle').style.display='block';" style="background: #ff0000; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-size: 14px;">HIDE</button>
+    </div>
+    
+    <!-- CSS Editor Toggle Button - Small button to show editor again -->
+    <div id="cssToggle" style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,255,255,0.8);
+        color: black;
+        padding: 5px 10px;
+        border: 2px solid #00ffff;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        cursor: pointer;
+        z-index: 8888;
+        display: none;
+    " onclick="document.getElementById('cssEditor').style.display='block'; document.getElementById('cssToggle').style.display='none';">
+        🎮 CSS
     </div>
     
     <!-- Simli Widget Script -->

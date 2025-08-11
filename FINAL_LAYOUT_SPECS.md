@@ -36,7 +36,7 @@ const CONFIG = {
         },
         indiana: {
             name: 'Hoosier Oracle', 
-            agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',
+            agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',  // Updated Dec 2024
             faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',
             enhanced: false,
             description: 'Hoosier KB with system prompt; SIMLI stock voice/head'
@@ -47,6 +47,13 @@ const CONFIG = {
             faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
             enhanced: true,
             description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice'
+        },
+        larrybird: {
+            name: 'Larry Bird',
+            agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+            faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+            enhanced: true,
+            description: 'Larry Bird persona with basketball wisdom and Indiana pride'
         }
     }
 };
@@ -161,6 +168,28 @@ Video_Test_Holoracle/
 ├── measure_layout.html            # Layout measurement tool
 └── FINAL_LAYOUT_SPECS.md         # This documentation
 ```
+
+## Critical: ElevenLabs API Key for Custom Voices
+
+### The Problem
+Custom voices (Hoosier Oracle, Larry Bird) won't work without including the ElevenLabs API key in Simli session tokens.
+
+### The Solution
+The backend must send BOTH keys when creating tokens:
+```json
+{
+    "simliAPIKey": "your-simli-key",
+    "ttsAPIKey": "your-elevenlabs-key"  // REQUIRED for custom voices
+}
+```
+
+### Environment Setup
+1. **Railway**: Set `ELEVENLABS_API_KEY` environment variable
+2. **Use Same Key**: Use the exact same ElevenLabs API key you use in Simli
+3. **Backend Fix**: `simli_voice_backend.py` now includes ttsAPIKey in token creation
+
+### Why This Matters
+Per Simli support: "The elevenlabs api key and the LLM api key are not stored with the agent config, they're stored in the session token."
 
 ## Troubleshooting
 

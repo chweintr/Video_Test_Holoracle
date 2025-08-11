@@ -734,7 +734,7 @@
             }
             
             widget.setAttribute('position', 'relative');
-            widget.setAttribute('overlay', 'false');  // Disable Simli's overlay
+            // Remove overlay='false' as it blocks audio
             widget.setAttribute('customtext', `Talk to ${persona.name}`);
             
             // Use custom image if specified (for particle videos)

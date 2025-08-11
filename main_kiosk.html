@@ -718,10 +718,10 @@
             }
             
             widget.setAttribute('position', 'relative');
-            widget.setAttribute('customtext', '');  // Empty text
+            widget.setAttribute('customtext', ' ');  // Single space instead of empty
             widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-            widget.setAttribute('hidetrigger', 'true');  // HIDES THE UGLY WIDGET BUTTON!
-            widget.setAttribute('autostart', 'false');
+            widget.setAttribute('hidetrigger', 'true');  // Should hide trigger
+            widget.setAttribute('autostart', 'true');  // Try autostarting to skip button
             
             // Use custom image if specified (for particle videos)
             if (persona.customImage) {

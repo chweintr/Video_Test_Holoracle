@@ -185,7 +185,7 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: clamp(8px, 1.5vw, 15px); /* Smaller gaps */
+            gap: clamp(6px, 1vw, 12px); /* Even smaller gaps for 4 buttons */
             flex-wrap: nowrap; /* Force single row */
             justify-content: center;
             z-index: 10;
@@ -196,8 +196,8 @@
             background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
             border: 2px solid rgba(77,227,255,0.5);
             color: #00ffff;
-            padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px); /* Smaller padding */
-            font-size: clamp(0.7em, 1.8vw, 0.9em); /* Smaller font */
+            padding: clamp(5px, 1.2vw, 8px) clamp(10px, 2.5vw, 15px); /* Smaller padding for 4 buttons */
+            font-size: clamp(0.6em, 1.6vw, 0.8em); /* Smaller font for 4 buttons */
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Courier New', monospace;
@@ -444,6 +444,7 @@
         <div class="avatar-container" id="avatarBigfoot"></div>
         <div class="avatar-container" id="avatarIndiana"></div>
         <div class="avatar-container" id="avatarVonnegut"></div>
+        <div class="avatar-container" id="avatarLarrybird"></div>
         
         <!-- End Session Button -->
         <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
@@ -459,8 +460,11 @@
         <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
             Hoosier Oracle
         </button>
-        <button class="persona-btn enhanced" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
+        <button class="persona-btn" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
             Kurt Vonnegut
+        </button>
+        <button class="persona-btn" data-persona="larrybird" onclick="switchPersona('larrybird')">
+            Larry Bird
         </button>
     </div>
     
@@ -507,7 +511,7 @@
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     <script>
-        console.log('🚀 Loading Main Kiosk - 3 Personas');
+        console.log('🚀 Loading Main Kiosk - 4 Personas with Larry Bird');
         
         // WHAT WORKED: Simple widget embed with correct agent IDs
         const CONFIG = {
@@ -532,6 +536,13 @@
                     faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
                     enhanced: true,
                     description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice'
+                },
+                larrybird: {
+                    name: 'Larry Bird',
+                    agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+                    faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+                    enhanced: true,
+                    description: 'Larry Bird persona with basketball wisdom and Indiana pride'
                 }
             }
         };

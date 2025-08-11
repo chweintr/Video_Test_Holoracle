@@ -727,12 +727,11 @@
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
             
-            // TEMPORARILY DISABLED: Skip face IDs to match working Bigfoot pattern
-            // if (persona.faceId) {
-            //     widget.setAttribute('faceid', persona.faceId);
-            //     console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
-            // }
-            console.log(`[Main Kiosk] Using stock face for ${personaId} (testing)`);
+            // CRITICAL: Add face ID if specified - REQUIRED for custom faces
+            if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
+                console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
+            }
             
             widget.setAttribute('position', 'relative');
             // Remove overlay='false' as it blocks audio

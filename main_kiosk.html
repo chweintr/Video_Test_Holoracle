@@ -718,8 +718,10 @@
             }
             
             widget.setAttribute('position', 'relative');
-            // Remove overlay='false' as it blocks audio
-            widget.setAttribute('customtext', `Talk to ${persona.name}`);
+            widget.setAttribute('customtext', '');  // Empty text
+            widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+            widget.setAttribute('hidetrigger', 'true');  // HIDES THE UGLY WIDGET BUTTON!
+            widget.setAttribute('autostart', 'false');
             
             // Use custom image if specified (for particle videos)
             if (persona.customImage) {

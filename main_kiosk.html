@@ -468,6 +468,30 @@
         width: 100%;
     ">Select Oracle</div>
     
+    <!-- LIGHTWEIGHT CSS ADJUSTER - Press 'C' to toggle -->
+    <div id="cssAdjuster" style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.95);
+        color: #00ffff;
+        padding: 15px;
+        border: 2px solid #00ffff;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 12px;
+        z-index: 9999;
+        display: none;
+        width: 200px;
+    ">
+        <div style="font-weight: bold; margin-bottom: 10px;">Quick CSS Fix</div>
+        Mount Top: <input type="number" id="mountAdjust" value="350" style="width: 60px; padding: 2px;">
+        <button onclick="applyQuickFix()" style="background: #00ffff; color: black; padding: 3px 8px; border: none; margin-left: 5px;">Apply</button>
+        <br><br>
+        Buttons Top: <input type="number" id="buttonsAdjust" value="780" style="width: 60px; padding: 2px;">
+        <button onclick="applyQuickFix()" style="background: #00ffff; color: black; padding: 3px 8px; border: none; margin-left: 5px;">Apply</button>
+        <div style="margin-top: 10px; font-size: 10px;">Press 'C' to hide</div>
+    </div>
     
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
@@ -769,13 +793,30 @@
             // Initialize particle system
             createParticles();
             
-            // ESC key support
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && currentPersona) {
                     endCurrentSession();
                 }
+                // Press 'C' to toggle CSS adjuster
+                if (e.key.toLowerCase() === 'c') {
+                    const adjuster = document.getElementById('cssAdjuster');
+                    adjuster.style.display = adjuster.style.display === 'none' ? 'block' : 'none';
+                }
             });
         });
+        
+        // Quick CSS adjuster function
+        function applyQuickFix() {
+            const mountTop = document.getElementById('mountAdjust').value;
+            const buttonsTop = document.getElementById('buttonsAdjust').value;
+            
+            document.querySelector('.hologram-window').style.top = mountTop + 'px';
+            document.querySelector('.persona-controls').style.top = buttonsTop + 'px';
+            document.getElementById('selectOracleText').style.top = (parseInt(buttonsTop) + 50) + 'px';
+            
+            console.log(`Applied: Mount=${mountTop}px, Buttons=${buttonsTop}px`);
+        }
     </script>
 </body>
 </html>

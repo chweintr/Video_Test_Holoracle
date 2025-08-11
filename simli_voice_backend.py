@@ -539,15 +539,14 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
     url = "https://api.simli.ai/createE2ESessionToken"
     try:
         async with aiohttp.ClientSession() as session:
-            # Add ttsAPIKey as required by Simli support
+            # Temporarily disable ttsAPIKey - it may be breaking all widgets
             json_payload = {"simliAPIKey": api_key}
             
-            # Add ElevenLabs key if available - required for custom voices to speak
-            if elevenlabs_key:
-                json_payload["ttsAPIKey"] = elevenlabs_key
-                logger.info(f"Adding ttsAPIKey to session token")
-            else:
-                logger.warning("No ELEVENLABS_API_KEY found - custom voices may not work")
+            # Only add ttsAPIKey if it exists AND we're using a custom voice persona
+            # Comment out for now as it seems to break everything
+            # if elevenlabs_key and persona in ['indiana', 'larrybird']:
+            #     json_payload["ttsAPIKey"] = elevenlabs_key
+            #     logger.info(f"Adding ttsAPIKey for custom voice persona: {persona}")
             
             async with session.post(
                 url,

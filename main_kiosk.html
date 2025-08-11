@@ -740,16 +740,72 @@
             updateStatus('Ready');
         }
         
+        // LIVE POSITIONING TOOL - Use arrow keys to adjust layout
+        let adjustMode = 'title'; // title, mount, buttons
+        
+        function printCurrentPositions() {
+            const title = document.querySelector('.title');
+            const mount = document.querySelector('.hologram-window');
+            const buttons = document.querySelector('.persona-controls');
+            
+            console.log('=== CURRENT POSITIONS ===');
+            console.log(`Title margin-top: ${getComputedStyle(title).marginTop}`);
+            console.log(`Mount margin-top: ${mount.style.marginTop || getComputedStyle(mount).marginTop}`);
+            console.log(`Buttons margin-top: ${buttons.style.marginTop || getComputedStyle(buttons).marginTop}`);
+            console.log('========================');
+        }
+        
+        function adjustElement(element, property, change) {
+            const current = parseInt(element.style[property] || getComputedStyle(element)[property]);
+            const newValue = current + change;
+            element.style[property] = newValue + 'px';
+            console.log(`${element.className} ${property}: ${newValue}px`);
+        }
+        
         // Initialize
         window.addEventListener('load', () => {
             console.log('🚀 Main Kiosk Ready - 3 Personas Available');
+            console.log('🎮 POSITIONING CONTROLS:');
+            console.log('- Press 1, 2, 3 to select: Title, Mount, Buttons');
+            console.log('- Use Arrow Keys to move selected element');
+            console.log('- Press P to print current positions');
             updateStatus('Ready');
             
             // Initialize particle system
             createParticles();
             
-            // ESC key support
+            // Print initial positions
+            printCurrentPositions();
+            
+            // POSITIONING CONTROLS
             document.addEventListener('keydown', (e) => {
+                const title = document.querySelector('.title');
+                const mount = document.querySelector('.hologram-window');
+                const buttons = document.querySelector('.persona-controls');
+                
+                // Element selection
+                if (e.key === '1') { adjustMode = 'title'; console.log('🎯 Selected: TITLE'); }
+                if (e.key === '2') { adjustMode = 'mount'; console.log('🎯 Selected: MOUNT'); }
+                if (e.key === '3') { adjustMode = 'buttons'; console.log('🎯 Selected: BUTTONS'); }
+                
+                // Print positions
+                if (e.key === 'p' || e.key === 'P') { printCurrentPositions(); }
+                
+                // Movement (Arrow Keys)
+                let targetElement = null;
+                if (adjustMode === 'title') targetElement = title;
+                if (adjustMode === 'mount') targetElement = mount;
+                if (adjustMode === 'buttons') targetElement = buttons;
+                
+                if (targetElement && (e.key.includes('Arrow'))) {
+                    e.preventDefault();
+                    if (e.key === 'ArrowUp') adjustElement(targetElement, 'marginTop', -5);
+                    if (e.key === 'ArrowDown') adjustElement(targetElement, 'marginTop', 5);
+                    if (e.key === 'ArrowLeft') adjustElement(targetElement, 'marginLeft', -5);
+                    if (e.key === 'ArrowRight') adjustElement(targetElement, 'marginLeft', 5);
+                }
+                
+                // ESC key support
                 if (e.key === 'Escape' && currentPersona) {
                     endCurrentSession();
                 }

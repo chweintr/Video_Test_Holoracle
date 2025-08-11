@@ -472,11 +472,13 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
     4) default hoosier fallback id
     """
     api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
     # Remove any accidental leading equals signs and stray whitespace
     while api_key.startswith("="):
         api_key = api_key[1:].lstrip()
     logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")
     logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")
+    logger.info(f"DEBUG: ELEVENLABS_API_KEY present = {bool(elevenlabs_key)}")
 
     # Try to read persona/agentId from JSON body as well (POST)
     try:
@@ -542,7 +544,10 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
                 headers={
                     "Content-Type": "application/json",
                 },
-                json={"simliAPIKey": api_key},  # Confirmed working format
+                json={
+                    "simliAPIKey": api_key,
+                    "ttsAPIKey": elevenlabs_key  # Add ElevenLabs key for custom voices
+                },
                 timeout=15,
             ) as resp:
                 data = await resp.json()

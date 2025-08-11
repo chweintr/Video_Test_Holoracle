@@ -451,7 +451,7 @@
             background-image: url('assets/Overlay-Scene.png');
             background-size: cover;
             background-position: center;
-            display: block; /* Overlay enabled */
+            display: none; /* Overlay disabled - was blocking interactions */
         " id="mountFrameOverlay"></div>
         <!-- Status removed - no longer needed -->
         
@@ -727,11 +727,12 @@
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
             
-            // CRITICAL: Add face ID if specified
-            if (persona.faceId) {
-                widget.setAttribute('faceid', persona.faceId);
-                console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
-            }
+            // TEMPORARILY DISABLED: Skip face IDs to match working Bigfoot pattern
+            // if (persona.faceId) {
+            //     widget.setAttribute('faceid', persona.faceId);
+            //     console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
+            // }
+            console.log(`[Main Kiosk] Using stock face for ${personaId} (testing)`);
             
             widget.setAttribute('position', 'relative');
             // Remove overlay='false' as it blocks audio

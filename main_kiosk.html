@@ -265,7 +265,10 @@
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
-            /* Removed forced positioning to let Simli handle its own layout */
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+            /* Ensure widget fills the 380x380 mount */
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -284,7 +287,10 @@
         simli-widget::shadow video,
         simli-widget::shadow canvas {
             background: transparent !important;
-            /* Removed forced sizing to let Simli handle its own video layout */
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            /* Ensure video fills the mount properly */
         }
         
         /* Bigfoot Overlay - appears only when Bigfoot is active */
@@ -444,7 +450,7 @@
         <div class="avatar-container" id="avatarBigfoot"></div>
         <div class="avatar-container" id="avatarIndiana"></div>
         <div class="avatar-container" id="avatarVonnegut"></div>
-        <div class="avatar-container" id="avatarLarrybird"></div>
+        <div class="avatar-container" id="avatarLarryBird"></div>
         
         <!-- End Session Button -->
         <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
@@ -614,7 +620,9 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
-            // Replace idle video based on persona
+            // Replace idle video based on persona - COMMENTED OUT FOR NOW
+            // This was interfering with widget loading
+            /*
             const idleVideo = idleState.querySelector('video');
             if (idleVideo && personaId) {
                 const source = idleVideo.querySelector('source');
@@ -622,10 +630,14 @@
                     source.src = 'assets/social_okdonut_httpss.mj.runpd6svNGACwI_Thick_volumetric_smoke_plume_271803d7-2b78-4c01-872d-f281387f4455_2.mp4';
                 } else if (personaId === 'vonnegut') {
                     source.src = 'assets/Blank-to-KVJ.mp4';
+                } else if (personaId === 'larrybird') {
+                    // TODO: Add Larry Bird transition video
+                    source.src = 'assets/particles-to-larry.mp4';
                 }
                 idleVideo.load();
                 idleVideo.play();
             }
+            */
             
             updateStatus(`Summoning ${persona.name}...`);
             
@@ -664,7 +676,13 @@
         
         async function createSimliWidget(personaId, token, agentId) {
             const persona = CONFIG.personas[personaId];
-            const containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            // Fix for Larry Bird - needs special case for camelCase
+            let containerId;
+            if (personaId === 'larrybird') {
+                containerId = 'avatarLarryBird';  // Capital B for Bird
+            } else {
+                containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            }
             const container = document.getElementById(containerId);
             
             console.log(`[Main Kiosk] Creating widget for ${personaId}`);
@@ -685,6 +703,13 @@
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
             widget.setAttribute('agentid', agentId);
+            
+            // CRITICAL: Add face ID if specified
+            if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
+                console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
+            }
+            
             widget.setAttribute('position', 'relative');
             widget.setAttribute('customtext', `Talk to ${persona.name}`);
             

@@ -599,6 +599,13 @@ async def mock_page():
         return FileResponse("mock_avatar.html")
     return {"message": "mock_avatar.html not found"}
 
+@app.get("/debug")
+async def debug_personas_page():
+    """Serve the debug personas testing page."""
+    if os.path.exists("debug_personas.html"):
+        return FileResponse("debug_personas.html")
+    return {"message": "debug_personas.html not found"}
+
 @app.get("/debug-env")
 async def debug_environment():
     """Debug endpoint to see what environment variables are available"""

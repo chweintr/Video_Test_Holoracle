@@ -549,8 +549,8 @@
                     name: 'Brown County Bigfoot',
                     agentId: '4a857f92-feee-4b70-b973-290baec4d545',
                     enhanced: false,
-                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head',
-                    customImage: 'assets/particles-to-bigfoot.gif'  // Particle animation trigger
+                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head'
+                    // customImage removed - focus on basic functionality
                 },
                 indiana: {
                     name: 'Hoosier Oracle', 
@@ -643,24 +643,8 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
-            // Replace idle video based on persona - COMMENTED OUT FOR NOW
-            // This was interfering with widget loading
-            /*
-            const idleVideo = idleState.querySelector('video');
-            if (idleVideo && personaId) {
-                const source = idleVideo.querySelector('source');
-                if (personaId === 'bigfoot') {
-                    source.src = 'assets/social_okdonut_httpss.mj.runpd6svNGACwI_Thick_volumetric_smoke_plume_271803d7-2b78-4c01-872d-f281387f4455_2.mp4';
-                } else if (personaId === 'vonnegut') {
-                    source.src = 'assets/Blank-to-KVJ.mp4';
-                } else if (personaId === 'larrybird') {
-                    // TODO: Add Larry Bird transition video
-                    source.src = 'assets/particles-to-larry.mp4';
-                }
-                idleVideo.load();
-                idleVideo.play();
-            }
-            */
+            // TRANSITIONS DISABLED - Focus on working Simli widgets first
+            // Will implement proper transition logic after 4 personas work
             
             updateStatus(`Summoning ${persona.name}...`);
             

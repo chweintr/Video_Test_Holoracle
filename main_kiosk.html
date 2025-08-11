@@ -6,8 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Echoes of Indiana — Main Kiosk v2.1</title>
+    <title>Echoes of Indiana — Main Kiosk v2.2 - Cache Bust</title>
     <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Cache busting timestamp -->
+    <meta name="cache-bust" content="2025081120250811">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -759,7 +761,9 @@
         
         // Initialize
         window.addEventListener('load', () => {
-            console.log('🚀 Main Kiosk Ready - 3 Personas Available');
+            console.log('🚀 MAIN KIOSK v2.2 - CACHE BUST VERSION - 3 Personas Available');
+            console.log('📍 Layout: Title(20px), Subtitle(80px), Mount(120px), Buttons(570px), Select(625px)');
+            console.log('🎯 Mount: Fixed 380x380px, Background: new-back.png');
             updateStatus('Ready');
             
             // Initialize particle system

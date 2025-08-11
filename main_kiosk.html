@@ -251,24 +251,31 @@
         /* Avatar Container */
         .avatar-container {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 380px;
+            height: 380px;
+            top: 0;
+            left: 0;
             display: none;
+            overflow: hidden;
         }
         
         .avatar-container.active {
             display: block;
         }
         
-        /* Let Simli widget position itself naturally - don't force mount positioning */
+        /* Force Simli widget to exact mount size */
         simli-widget {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 380px !important;
+            height: 380px !important;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
             display: block !important;
-            /* Ensure widget fills the 380x380 mount */
+            overflow: hidden !important;
+            /* Force exact 380x380 sizing */
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -283,14 +290,16 @@
             visibility: hidden !important;
         }
         
-        /* Let Simli video/canvas use natural sizing */
+        /* Force video to fill mount exactly */
         simli-widget::shadow video,
         simli-widget::shadow canvas {
-            background: transparent !important;
-            width: 100% !important;
-            height: 100% !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 380px !important;
+            height: 380px !important;
             object-fit: cover !important;
-            /* Ensure video fills the mount properly */
+            background: transparent !important;
         }
         
         /* Bigfoot Overlay - appears only when Bigfoot is active */
@@ -428,8 +437,22 @@
         font-family: 'Courier New', monospace;
     ">Brought to you by Past Presence</div>
     
-    <!-- Fixed 420x420 Hologram Window -->
+    <!-- Fixed 380x380 Hologram Window -->
     <div class="hologram-window" id="hologramWindow">
+        <!-- Alpha overlay frame - always on top -->
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            pointer-events: none;
+            background-image: url('assets/mount-frame-overlay.png');
+            background-size: cover;
+            background-position: center;
+            display: none; /* Enable when you provide the overlay file */
+        " id="mountFrameOverlay"></div>
         <!-- Status removed - no longer needed -->
         
         <!-- Idle State with particles -->
@@ -711,6 +734,7 @@
             }
             
             widget.setAttribute('position', 'relative');
+            widget.setAttribute('overlay', 'false');  // Disable Simli's overlay
             widget.setAttribute('customtext', `Talk to ${persona.name}`);
             
             // Use custom image if specified (for particle videos)
@@ -779,6 +803,16 @@
             // Add to container
             container.appendChild(widget);
             currentWidget = widget;
+            
+            // Force widget size after adding to DOM
+            setTimeout(() => {
+                widget.style.width = '380px';
+                widget.style.height = '380px';
+                widget.style.position = 'absolute';
+                widget.style.top = '0';
+                widget.style.left = '0';
+                console.log(`[Main Kiosk] Forced widget sizing for ${personaId}`);
+            }, 100);
             
             // Overlay will be added when call starts (after user clicks Start)
             

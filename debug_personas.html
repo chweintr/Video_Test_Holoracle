@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Personas - Test Each Individually</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #000; color: #00ffff; }
+        .persona-test { margin: 20px 0; padding: 15px; border: 1px solid #00ffff; }
+        .mount { width: 380px; height: 380px; border: 2px solid #ff00ff; margin: 10px 0; position: relative; }
+        button { background: #00ffff; color: black; padding: 10px; margin: 5px; }
+        .log { background: rgba(0,255,255,0.1); padding: 10px; margin: 5px 0; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Individual Personas</h1>
+    
+    <div class="persona-test">
+        <h2>1. Bigfoot (Stock - Should Work)</h2>
+        <button onclick="testPersona('bigfoot')">Test Bigfoot</button>
+        <div class="mount" id="mount-bigfoot"></div>
+        <div class="log" id="log-bigfoot">Not tested</div>
+    </div>
+    
+    <div class="persona-test">
+        <h2>2. Hoosier Oracle (Custom Face)</h2>
+        <button onclick="testPersona('hoosier')">Test Hoosier</button>
+        <div class="mount" id="mount-hoosier"></div>
+        <div class="log" id="log-hoosier">Not tested</div>
+    </div>
+    
+    <div class="persona-test">
+        <h2>3. Kurt Vonnegut (Custom Face)</h2>
+        <button onclick="testPersona('vonnegut')">Test Vonnegut</button>
+        <div class="mount" id="mount-vonnegut"></div>
+        <div class="log" id="log-vonnegut">Not tested</div>
+    </div>
+    
+    <div class="persona-test">
+        <h2>4. Larry Bird (Working)</h2>
+        <button onclick="testPersona('larry')">Test Larry</button>
+        <div class="mount" id="mount-larry"></div>
+        <div class="log" id="log-larry">Not tested</div>
+    </div>
+    
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    <script>
+        // Test configuration - using exact same IDs from main_kiosk.html
+        const TEST_CONFIG = {
+            bigfoot: {
+                agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                faceId: null // Stock
+            },
+            hoosier: {
+                agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',
+                faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487'
+            },
+            vonnegut: {
+                agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+                faceId: 'fde520ba-106d-4529-91b2-fecb04da5257'
+            },
+            larry: {
+                agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+                faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339'
+            }
+        };
+        
+        async function testPersona(persona) {
+            const config = TEST_CONFIG[persona];
+            const mount = document.getElementById(`mount-${persona}`);
+            const log = document.getElementById(`log-${persona}`);
+            
+            log.innerHTML = `🔄 Testing ${persona}... Getting token...`;
+            
+            try {
+                // Get token from backend
+                const response = await fetch(`/simli-token?agentId=${config.agentId}`);
+                const data = await response.json();
+                
+                if (!data.token) {
+                    log.innerHTML = `❌ Token failed: ${JSON.stringify(data)}`;
+                    return;
+                }
+                
+                log.innerHTML += `<br>✅ Token received: ${data.token.substring(0, 20)}...`;
+                log.innerHTML += `<br>🔄 Creating widget...`;
+                
+                // Clear mount
+                mount.innerHTML = '';
+                
+                // Create widget
+                const widget = document.createElement('simli-widget');
+                widget.setAttribute('token', data.token);
+                widget.setAttribute('agentid', config.agentId);
+                
+                if (config.faceId) {
+                    widget.setAttribute('faceid', config.faceId);
+                    log.innerHTML += `<br>🎭 Face ID: ${config.faceId}`;
+                }
+                
+                widget.setAttribute('position', 'relative');
+                widget.setAttribute('customtext', `Talk to ${persona}`);
+                
+                // Style widget
+                widget.style.width = '380px';
+                widget.style.height = '380px';
+                widget.style.display = 'block';
+                
+                // Event listeners
+                widget.addEventListener('load', () => {
+                    log.innerHTML += `<br>✅ Widget loaded successfully!`;
+                });
+                
+                widget.addEventListener('error', (e) => {
+                    log.innerHTML += `<br>❌ Widget error: ${e.detail || 'Unknown'}`;
+                });
+                
+                mount.appendChild(widget);
+                log.innerHTML += `<br>📍 Widget added to mount`;
+                
+            } catch (error) {
+                log.innerHTML += `<br>❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

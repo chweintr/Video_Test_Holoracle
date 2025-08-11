@@ -5,7 +5,8 @@
       "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(identify:*)"
+      "Bash(identify:*)",
+      "Bash(git revert:*)"
     ],
     "deny": []
   }

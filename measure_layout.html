@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Layout Measurement Tool</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #000; 
+            color: #00ffff; 
+        }
+        .measurement { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: rgba(0,255,255,0.1); 
+            border: 1px solid #00ffff;
+        }
+        button {
+            background: #00ffff;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            margin: 10px 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Layout Measurement Tool</h1>
+    <p>This will measure the positions on your GOOD local version</p>
+    
+    <button onclick="measureLayout()">📐 MEASURE LAYOUT</button>
+    <button onclick="copyMeasurements()">📋 COPY MEASUREMENTS</button>
+    
+    <div id="measurements"></div>
+    
+    <script>
+        let currentMeasurements = {};
+        
+        function measureLayout() {
+            // Open the main kiosk in a new window
+            const kioskWindow = window.open('/main', 'kiosk', 'width=1200,height=800');
+            
+            // Wait for it to load, then measure
+            setTimeout(() => {
+                try {
+                    const doc = kioskWindow.document;
+                    
+                    // Get all the elements
+                    const title = doc.querySelector('.title');
+                    const subtitle = doc.querySelector('.subtitle');
+                    const mount = doc.querySelector('.hologram-window');
+                    const buttons = doc.querySelector('.persona-controls');
+                    const select = doc.getElementById('selectOracleText');
+                    
+                    // Get their positions
+                    const measurements = {
+                        title: {
+                            top: getComputedStyle(title).top,
+                            offsetTop: title.offsetTop,
+                            boundingTop: title.getBoundingClientRect().top
+                        },
+                        subtitle: {
+                            top: getComputedStyle(subtitle).top, 
+                            offsetTop: subtitle.offsetTop,
+                            boundingTop: subtitle.getBoundingClientRect().top
+                        },
+                        mount: {
+                            top: getComputedStyle(mount).top,
+                            offsetTop: mount.offsetTop,
+                            boundingTop: mount.getBoundingClientRect().top,
+                            width: getComputedStyle(mount).width,
+                            height: getComputedStyle(mount).height
+                        },
+                        buttons: {
+                            top: getComputedStyle(buttons).top,
+                            offsetTop: buttons.offsetTop,
+                            boundingTop: buttons.getBoundingClientRect().top
+                        },
+                        select: {
+                            top: getComputedStyle(select).top,
+                            offsetTop: select.offsetTop,
+                            boundingTop: select.getBoundingClientRect().top
+                        }
+                    };
+                    
+                    currentMeasurements = measurements;
+                    displayMeasurements(measurements);
+                    
+                    kioskWindow.close();
+                    
+                } catch (error) {
+                    document.getElementById('measurements').innerHTML = 
+                        '<div style="color: red;">Error measuring: ' + error.message + 
+                        '<br>Make sure the kiosk page loaded completely.</div>';
+                }
+            }, 3000); // Wait 3 seconds for page to load
+        }
+        
+        function displayMeasurements(measurements) {
+            const html = `
+                <h2>📏 Current Layout Measurements</h2>
+                ${Object.entries(measurements).map(([element, data]) => 
+                    `<div class="measurement">
+                        <strong>${element.toUpperCase()}:</strong><br>
+                        CSS top: ${data.top}<br>
+                        Offset top: ${data.offsetTop}px<br>
+                        Bounding top: ${Math.round(data.boundingTop)}px<br>
+                        ${data.width ? `Size: ${data.width} x ${data.height}` : ''}
+                    </div>`
+                ).join('')}
+                
+                <div class="measurement">
+                    <strong>🎯 RECOMMENDED CSS VALUES:</strong><br>
+                    .title { top: ${measurements.title.offsetTop}px; }<br>
+                    .subtitle { top: ${measurements.subtitle.offsetTop}px; }<br>
+                    .hologram-window { top: ${measurements.mount.offsetTop}px; }<br>
+                    .persona-controls { top: ${measurements.buttons.offsetTop}px; }<br>
+                    #selectOracleText { top: ${measurements.select.offsetTop}px; }
+                </div>
+            `;
+            
+            document.getElementById('measurements').innerHTML = html;
+        }
+        
+        function copyMeasurements() {
+            if (!currentMeasurements.title) {
+                alert('Please measure first!');
+                return;
+            }
+            
+            const cssValues = `
+.title { top: ${currentMeasurements.title.offsetTop}px; }
+.subtitle { top: ${currentMeasurements.subtitle.offsetTop}px; }
+.hologram-window { top: ${currentMeasurements.mount.offsetTop}px; }
+.persona-controls { top: ${currentMeasurements.buttons.offsetTop}px; }
+#selectOracleText { top: ${currentMeasurements.select.offsetTop}px; }`;
+            
+            navigator.clipboard.writeText(cssValues).then(() => {
+                alert('CSS values copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

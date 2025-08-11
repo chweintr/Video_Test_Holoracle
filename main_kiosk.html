@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #000 url('assets/back1.png') center/cover fixed;
+            background: #000 url('assets/new-back.png') center/cover fixed;
             color: #00ffff;
             font-family: 'Courier New', monospace;
             height: 100vh;
@@ -485,6 +485,10 @@
             <input type="number" id="titleTop" value="20" style="width: 80px; padding: 5px; font-size: 14px;">px
         </div>
         <div style="margin-bottom: 10px;">
+            <label style="display: inline-block; width: 100px;">Subtitle Top:</label>
+            <input type="number" id="subtitleTop" value="70" style="width: 80px; padding: 5px; font-size: 14px;">px
+        </div>
+        <div style="margin-bottom: 10px;">
             <label style="display: inline-block; width: 100px;">Mount Top:</label>
             <input type="number" id="mountTop" value="200" style="width: 80px; padding: 5px; font-size: 14px;">px
         </div>
@@ -815,27 +819,31 @@
         // LIVE CSS EDITOR FUNCTIONS
         function applyCSSValues() {
             const titleTop = document.getElementById('titleTop').value;
+            const subtitleTop = document.getElementById('subtitleTop').value;
             const mountTop = document.getElementById('mountTop').value;
             const buttonsTop = document.getElementById('buttonsTop').value;
             const selectTop = document.getElementById('selectTop').value;
             
             // Apply values
             document.querySelector('.title').style.top = titleTop + 'px';
+            document.querySelector('.subtitle').style.top = subtitleTop + 'px';
             document.querySelector('.hologram-window').style.top = mountTop + 'px';  
             document.querySelector('.persona-controls').style.top = buttonsTop + 'px';
             document.getElementById('selectOracleText').style.top = selectTop + 'px';
             
-            console.log('✅ Applied CSS Values:', {titleTop, mountTop, buttonsTop, selectTop});
+            console.log('✅ Applied CSS Values:', {titleTop, subtitleTop, mountTop, buttonsTop, selectTop});
         }
         
         function printCSS() {
             const title = document.querySelector('.title');
+            const subtitle = document.querySelector('.subtitle');
             const mount = document.querySelector('.hologram-window');
             const buttons = document.querySelector('.persona-controls');
             const select = document.getElementById('selectOracleText');
             
             console.log('=== CURRENT CSS VALUES ===');
             console.log(`.title { top: ${title.style.top || getComputedStyle(title).top}; }`);
+            console.log(`.subtitle { top: ${subtitle.style.top || getComputedStyle(subtitle).top}; }`);
             console.log(`.hologram-window { top: ${mount.style.top || getComputedStyle(mount).top}; }`);
             console.log(`.persona-controls { top: ${buttons.style.top || getComputedStyle(buttons).top}; }`);
             console.log(`#selectOracleText { top: ${select.style.top || getComputedStyle(select).top}; }`);

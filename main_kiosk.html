@@ -188,7 +188,7 @@
             gap: clamp(6px, 1vw, 12px); /* Even smaller gaps for 4 buttons */
             flex-wrap: nowrap; /* Force single row */
             justify-content: center;
-            z-index: 10;
+            z-index: 20; /* Above overlay (8) for clickability */
             padding: 0 20px;
         }
         
@@ -334,7 +334,7 @@
             border-radius: 4px;
             font-family: 'Courier New', monospace;
             display: none;
-            z-index: 25;
+            z-index: 25; /* Above buttons and overlay */
         }
         
         .end-session-btn.active {
@@ -446,12 +446,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1000;
+            z-index: 8; /* Behind buttons (20) but in front of widget (5) */
             pointer-events: none;
-            background-image: url('assets/mount-frame-overlay.png');
+            background-image: url('assets/Overlay-Scene.png');
             background-size: cover;
             background-position: center;
-            display: none; /* Enable when you provide the overlay file */
+            display: block; /* Overlay enabled */
         " id="mountFrameOverlay"></div>
         <!-- Status removed - no longer needed -->
         
@@ -524,8 +524,8 @@
         border-radius: 8px;
         font-family: monospace;
         font-size: 12px;
-        z-index: 9999;
-        display: block; /* Visible for debugging - press C to toggle */
+        z-index: 30; /* Lowered from 9999 to not block interaction */
+        display: none; /* Hidden by default - press C to toggle */
         width: 200px;
     ">
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🎯 Live Adjuster</div>

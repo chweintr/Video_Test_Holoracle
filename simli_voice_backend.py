@@ -307,6 +307,14 @@ async def main_kiosk():
     else:
         return {"message": "main_kiosk.html not found"}
 
+@app.get("/transitions")
+async def main_kiosk_transitions():
+    """Serve the 3-Layer Holographic Transition System - EXPERIMENTAL"""
+    if os.path.exists("transitions_test.html"):
+        return FileResponse("transitions_test.html")
+    else:
+        return {"message": "Transition system file not found"}
+
 @app.get("/main_kiosk_stage")
 async def main_kiosk_stage():
     """Serve the Stage-Based Kiosk - Fixed 16:9 with baked background"""

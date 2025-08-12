@@ -68,17 +68,17 @@
             padding: 0 20px;
         }
         
-        /* MOUNT - Scales to match the glowing square in background image */
+        /* MOUNT - Fixed absolute positioning for demo machine (1920x1080 optimal) */
         .hologram-window {
-            width: 25vw;   /* Scale with viewport - matches glowing square */
-            height: 25vw;  /* Always square - matches glowing square */
+            width: 400px;   /* Fixed cube size for perfect demo alignment */
+            height: 400px;  /* Perfect square matching cube in new-back.png */
             position: absolute;
-            top: 35vh;     /* Position to match glowing square location */
+            top: 280px;     /* Absolute position for cube center */
             left: 50%;
-            transform: translateX(-50%); /* Center horizontally only */
+            transform: translateX(-50%); /* Center horizontally */
             overflow: hidden;
             z-index: 5;
-            /* NO size caps - must scale with background glowing square */
+            /* Fixed sizing for single-machine demo precision */
         }
         
         /* Status Display */
@@ -369,60 +369,8 @@
             border-color: #ff0000;
         }
 
-        /* Responsive scaling - mount always matches glowing square */
-        @media (max-width: 1366px) {
-            .hologram-window {
-                width: 28vw;  /* Slightly larger on medium screens */
-                height: 28vw;
-                top: 32vh;    /* Adjust position for medium screens */
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .hologram-window {
-                width: 35vw;  /* Larger on tablets */
-                height: 35vw;
-                top: 30vh;    /* Adjust position for tablets */
-            }
-            .persona-controls {
-                gap: clamp(8px, 2vw, 15px);
-                margin-top: 15px;
-            }
-            .persona-btn {
-                font-size: clamp(0.7em, 2.5vw, 0.9em);
-                padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hologram-window {
-                width: 45vw;  /* Much larger on phones */
-                height: 45vw;
-                top: 25vh;    /* Higher position on phones */
-            }
-            .persona-controls {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-                margin-top: 10px;
-            }
-            .persona-btn {
-                width: min(200px, 80vw);
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hologram-window {
-                width: 60vw;  /* Even larger on small phones */
-                height: 60vw;
-                top: 20vh;    /* Higher position on small phones */
-            }
-            .persona-btn {
-                width: min(180px, 85vw);
-                font-size: 0.8em;
-            }
-        }
+        /* Demo machine fixed positioning - no responsive scaling needed */
+        /* All positioning optimized for single presentation screen */
     </style>
 </head>
 <body>

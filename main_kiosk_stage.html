@@ -30,8 +30,8 @@
             aspect-ratio: 16 / 9;
             margin: 0 auto;
             overflow: hidden;
-            /* Fallback background if image doesn't load */
-            background: linear-gradient(135deg, #0a0e27 0%, #151b3d 100%);
+            /* Use CSS background like the working /main version */
+            background: url('assets/site-back-with-text-standard.png') center/cover no-repeat;
             border: 2px solid rgba(0, 255, 255, 0.3);
         }
         
@@ -198,8 +198,7 @@
 <body>
     <!-- Stage: fixed 16:9 canvas that scales uniformly -->
     <div class="stage">
-        <!-- Baked background with title/subtitle/text already in the image -->
-        <img class="bg" src="/assets/site-back-with-text-standard.png" alt="" onerror="console.error('Background image failed to load:', this.src)">
+        <!-- Background now applied via CSS like working /main version -->
         
         <!-- Dynamic square mount (SIMLI / canvas / video goes in here) -->
         <div id="mount">

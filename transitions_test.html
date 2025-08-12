@@ -13,16 +13,46 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        /* GPT-5's SQUARE MOUNT SOLUTION - Perfect scaling */
+        :root {
+            --target-left: 37.66%;  /* Mount X position */
+            --target-top: 24.86%;   /* Mount Y position */
+            --target-size: 24.53%;  /* Mount size as % of frame */
+            --design-w: 16;         /* Background aspect ratio */
+            --design-h: 9;
+        }
+        
+        html, body { 
+            height: 100%; 
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+        }
+        
         body {
-            background: #000 url('assets/new-back.png') center/100% no-repeat fixed;
             color: #00ffff;
             font-family: 'Courier New', monospace;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+        }
+        
+        /* 16:9 FRAME - Scales perfectly with viewport */
+        .stage-frame {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h))));
+            aspect-ratio: var(--design-w) / var(--design-h);
+        }
+        
+        /* Background image - fills frame exactly */
+        .stage-frame .background {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            pointer-events: none;
         }
         
         /* Parallax light effect */
@@ -68,17 +98,16 @@
             padding: 0 20px;
         }
         
-        /* MOUNT - Full-screen tested perfect positioning via live adjuster */
+        /* MOUNT - Uses GPT-5's percentage-based solution */
         .hologram-window {
-            width: 363px;   /* Full-screen tested optimal size */
-            height: 363px;  /* Full-screen tested optimal size */
             position: absolute;
-            top: 206px;     /* Full-screen tested optimal position */
-            left: 50%;
-            transform: translateX(-50%); /* Center horizontally */
+            left: var(--target-left);
+            top: var(--target-top);
+            width: var(--target-size);
+            aspect-ratio: 1 / 1;  /* Perfect square */
             overflow: hidden;
             z-index: 5;
-            /* Perfect fit inside glowing cube - tested in full-screen mode */
+            /* Stays perfectly locked to cube at all screen sizes */
         }
         
         /* Status Display */
@@ -408,11 +437,19 @@
     </style>
 </head>
 <body>
-    <!-- Parallax Background Effect -->
-    <div class="parallax-layer" id="parallaxLayer"></div>
-    
-    <div class="title">Echoes of Indiana</div>
-    <div class="subtitle">Holographic Conversations Powered by Research</div>
+    <!-- 16:9 STAGE FRAME - Everything scales within this -->
+    <div class="stage-frame">
+        <!-- Background image -->
+        <img class="background" src="assets/new-back.png" alt="Background" />
+        
+        <!-- Overlay container for all elements -->
+        <div class="stage-overlay" style="position: absolute; inset: 0;">
+            
+            <!-- Parallax Background Effect -->
+            <div class="parallax-layer" id="parallaxLayer"></div>
+            
+            <div class="title">Echoes of Indiana</div>
+            <div class="subtitle">Holographic Conversations Powered by Research</div>
     <div style="
         position: absolute;
         top: 130px;
@@ -510,6 +547,9 @@
         display: block;
         width: 100%;
     ">Select Oracle</div>
+    
+        </div> <!-- End stage-overlay -->
+    </div> <!-- End stage-frame -->
     
     <!-- LIGHTWEIGHT CSS ADJUSTER - Press 'C' to toggle -->
     <div id="cssAdjuster" style="

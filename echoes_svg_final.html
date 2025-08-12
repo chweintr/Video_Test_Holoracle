@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Echoes — SVG Stage (final)</title>
+<style>
+  html,body{margin:0;height:100%;background:#000}
+  .frame{position:relative;width:100vw;height:100vh;overflow:hidden}
+  .stage{position:absolute;inset:0;margin:auto;width:min(100vw,calc(100vh*16/9));height:auto;display:block}
+  .debug{pointer-events:none}
+</style>
+
+<div class="frame" id="frame" data-debug="1">
+  <svg class="stage" viewBox="0 0 2560 1440" preserveAspectRatio="xMidYMid meet">
+    <!-- BG image gets injected by JS so we can validate the path/dimensions -->
+    <image id="bg" x="0" y="0" width="2560" height="1440"/>
+    <!-- Mount: from your calibrator (left 37.66%, top 24.86%, width 24.53%) -->
+    <foreignObject x="964" y="358" width="627" height="627">
+      <div id="mount" style="width:100%;height:100%;display:block;overflow:hidden;"></div>
+    </foreignObject>
+    <!-- Debug outline; remove when aligned -->
+    <rect class="debug" x="964" y="358" width="627" height="627"
+          fill="none" stroke="red" stroke-width="4" opacity="0.7"/>
+  </svg>
+</div>
+
+<script>
+  // >>> SET THIS <<<
+
+  // If the image is served by your app (RECOMMENDED):
+  const IMG_PATH = "/assets/site-back-with-text-standard.png";
+
+  // If you are opening this HTML directly from disk and the PNG is on E:\, use file:/// and forward slashes:
+  // const IMG_PATH = "file:///E:/Interactive/interactive_project/indiana-oracle-grpc-face/Video_Test_Holoracle/assets/site-back-with-text-standard.png";
+
+  const bg = document.getElementById('bg');
+  bg.setAttributeNS('http://www.w3.org/1999/xlink','href', IMG_PATH);
+
+  // Sanity: prove we loaded the file and it's the right size
+  const probe = new Image();
+  probe.onload = () => {
+    console.log("bg path:", IMG_PATH);
+    console.log("bg natural:", probe.naturalWidth, "x", probe.naturalHeight);
+    if (probe.naturalWidth !== 2560 || probe.naturalHeight !== 1440) {
+      alert("The background is not 2560×1440 OR the path is wrong.\nLoaded: "
+            + probe.naturalWidth + "×" + probe.naturalHeight + "\nPath: " + IMG_PATH);
+    }
+  };
+  probe.onerror = () => {
+    alert("Background failed to load.\nCheck the path:\n" + IMG_PATH);
+  };
+  probe.src = IMG_PATH;
+
+  // Claude: inject your SIMLI/canvas/iframe into #mount so it fills the square.
+  // const mount = document.getElementById('mount'); mount.appendChild(yourCanvasOrIframe);
+</script>

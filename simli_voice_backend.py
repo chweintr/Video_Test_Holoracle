@@ -323,6 +323,14 @@ async def main_kiosk_svg():
     else:
         return {"message": "main_kiosk_svg.html not found"}
 
+@app.get("/echoes_svg")
+async def echoes_svg_final():
+    """Serve the Clean SVG Test - Minimal working version"""
+    if os.path.exists("echoes_svg_final.html"):
+        return FileResponse("echoes_svg_final.html")
+    else:
+        return {"message": "echoes_svg_final.html not found"}
+
 @app.get("/direct")
 async def direct_kiosk():
     """Serve the Direct API Kiosk - No widgets, pure agent integration"""

@@ -13,51 +13,16 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* GPT-5's PERFECT MOUNT POSITIONING SYSTEM */
-        :root {
-            --target-left: 42.08%;  /* Exact measurements from 4K image */
-            --target-top: 33.56%;   /* Perfect cube alignment */
-            --target-size: 15.86%;  /* All elements constrain to this */
-            --design-w: 16; --design-h: 9;
-        }
-        
-        html, body { 
-            height: 100%; 
-            margin: 0;
-            background: #000;
-            overflow: hidden;
-        }
-        
         body {
+            background: #000 url('assets/new-back.png') center/100% no-repeat fixed;
             color: #00ffff;
             font-family: 'Courier New', monospace;
-        }
-        
-        /* 16:9 STAGE FRAME - Everything scales within this */
-        .stage-frame {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h))));
-            aspect-ratio: var(--design-w) / var(--design-h);
-        }
-        
-        /* 4K Background image - fills frame exactly */
-        .stage-frame .background {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            pointer-events: none;
-        }
-        
-        /* Stage overlay for all UI elements */
-        .stage-overlay {
-            position: absolute;
-            inset: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
         
         /* Parallax light effect */
@@ -103,16 +68,17 @@
             padding: 0 20px;
         }
         
-        /* MOUNT - GPT-5's mathematically perfect positioning */
+        /* MOUNT - Full-screen tested perfect positioning via live adjuster */
         .hologram-window {
+            width: 363px;   /* Full-screen tested optimal size */
+            height: 363px;  /* Full-screen tested optimal size */
             position: absolute;
-            left: var(--target-left);
-            top: var(--target-top);
-            width: var(--target-size);
-            aspect-ratio: 1 / 1;  /* Perfect square */
+            top: 206px;     /* Full-screen tested optimal position */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
             overflow: hidden;
             z-index: 5;
-            /* Pixel-perfect alignment - all elements constrain to this box */
+            /* Perfect fit inside glowing cube - tested in full-screen mode */
         }
         
         /* Status Display */
@@ -347,19 +313,19 @@
             visibility: hidden !important;
         }
         
-        /* Simli content fills mount perfectly - responsive sizing */
+        /* LOCK Simli content to exact 363x363 - NO flexibility for pitch demo */
         simli-widget::shadow video,
         simli-widget::shadow canvas {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100% !important; /* Fill mount size */
-            height: 100% !important; /* Fill mount size */
-            max-width: 100% !important;
-            max-height: 100% !important;
-            min-width: 100% !important;
-            min-height: 100% !important;
-            object-fit: cover !important; /* Maintain aspect ratio, fill mount */
+            width: 363px !important; /* LOCKED - do not change */
+            height: 363px !important; /* LOCKED - do not change */
+            max-width: 363px !important;
+            max-height: 363px !important;
+            min-width: 363px !important;
+            min-height: 363px !important;
+            object-fit: fill !important; /* Fill exactly, stretch if needed */
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
@@ -419,39 +385,32 @@
     <!-- Parallax Background Effect -->
     <div class="parallax-layer" id="parallaxLayer"></div>
     
-    <!-- GPT-5's STAGE FRAME - Everything scales within this 16:9 container -->
-    <div class="stage-frame">
-        <!-- 4K Background image - fills frame exactly -->
-        <img class="background" src="assets/new-back-4k.png.png" alt="Background">
-        
-        <!-- Stage overlay for all UI elements -->
-        <div class="stage-overlay">
-            <div class="title">Echoes of Indiana</div>
-            <div class="subtitle">Holographic Conversations Powered by Research</div>
-            <div style="
-                position: absolute;
-                top: 130px;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 11px;
-                color: rgba(255,255,255,0.6);
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                font-family: 'Courier New', monospace;
-            ">Compelled by Curiosity</div>
-            <div style="
-                position: absolute;
-                top: 150px;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 11px;
-                color: rgba(255,255,255,0.6);
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                font-family: 'Courier New', monospace;
-            ">Brought to you by Past Presence</div>
-            
-            <!-- MOUNT - GPT-5's mathematically perfect positioning -->
+    <div class="title">Echoes of Indiana</div>
+    <div class="subtitle">Holographic Conversations Powered by Research</div>
+    <div style="
+        position: absolute;
+        top: 130px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-family: 'Courier New', monospace;
+    ">Compelled by Curiosity</div>
+    <div style="
+        position: absolute;
+        top: 150px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-family: 'Courier New', monospace;
+    ">Brought to you by Past Presence</div>
+    
+    <!-- FIXED MOUNT CONTAINER - All elements layer inside this exact square -->
     <div class="hologram-window" id="hologramWindow">
         
         <!-- LAYER 1: BASE VIDEO - Always present, never changes size -->
@@ -485,45 +444,42 @@
         <!-- LAYER 6: OVERLAYS (e.g., Bigfoot overlay, future effects) -->
         <!-- Will be added dynamically as needed -->
         
-            <!-- LAYER 7: CONTROLS -->
-            <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
-                END SESSION
-            </div>
+        <!-- LAYER 7: CONTROLS -->
+        <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
+            END SESSION
         </div>
-        
-        <!-- Persona Controls -->
-        <div class="persona-controls">
-            <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
-                Brown County Bigfoot
-            </button>
-            <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
-                Hoosier Oracle
-            </button>
-            <button class="persona-btn" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
-                Kurt Vonnegut
-            </button>
-            <button class="persona-btn" data-persona="larrybird" onclick="switchPersona('larrybird')">
-                Larry Bird
-            </button>
-        </div>
-        
-        <!-- Select Oracle Text - Your measurement -->
-        <div id="selectOracleText" style="
-            text-align: center;
-            font-size: 18px;
-            color: rgba(0,255,255,0.8);
-            text-shadow: 0 0 10px rgba(0,255,255,0.8);
-            position: absolute;
-            top: 770px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: block;
-            width: 100%;
-        ">Select Oracle</div>
-        
-        </div> <!-- End stage-overlay -->
-    </div> <!-- End stage-frame -->
+    </div>
+    
+    <!-- Persona Controls -->
+    <div class="persona-controls">
+        <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
+            Brown County Bigfoot
+        </button>
+        <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
+            Hoosier Oracle
+        </button>
+        <button class="persona-btn" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
+            Kurt Vonnegut
+        </button>
+        <button class="persona-btn" data-persona="larrybird" onclick="switchPersona('larrybird')">
+            Larry Bird
+        </button>
+    </div>
+    
+    <!-- Select Oracle Text - Your measurement -->
+    <div id="selectOracleText" style="
+        text-align: center;
+        font-size: 18px;
+        color: rgba(0,255,255,0.8);
+        text-shadow: 0 0 10px rgba(0,255,255,0.8);
+        position: absolute;
+        top: 770px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        display: block;
+        width: 100%;
+    ">Select Oracle</div>
     
     <!-- LIGHTWEIGHT CSS ADJUSTER - Press 'C' to toggle -->
     <div id="cssAdjuster" style="
@@ -568,7 +524,7 @@
                 },
                 indiana: {
                     name: 'Hoosier Oracle', 
-                    agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',  // ✅ CORRECT HOOSIER ORACLE from docs
+                    agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',  // ✅ CORRECT from docs
                     faceId: 'afdb6a3e-3939-40aa-92df-01604c23101c',
                     enhanced: false,
                     description: 'Hoosier Oracle with custom agent and face'

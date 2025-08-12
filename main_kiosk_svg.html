@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana — SVG Stage</title>
+    <style>
+        /* Frame fills viewport; stage centers and scales, mount stays pinned */
+        html, body { margin:0; height:100%; background:#000; }
+        .echoes-frame {
+            position: relative;
+            width: 100vw; height: 100vh; overflow: hidden;
+            --bg: url("assets/site-back-with-text-standard.png");
+            --solid: #0b1320;
+        }
+
+        /* Center the SVG stage; letterbox via MEET above (no cropping) */
+        .stage {
+            position: absolute; inset: 0;
+            width: min(100vw, calc(100vh * 16 / 9));
+            height: auto; margin: auto; display: block;
+        }
+
+        /* Edge fill behind the stage */
+        .edge-fill {
+            position: absolute; inset: 0; z-index: -1;
+            background: var(--solid);
+        }
+
+        /* Mode: blurred extension (default, better than mirror seams) */
+        .echoes-frame[data-fill="blur"] .edge-fill {
+            background-image: var(--bg);
+            background-size: cover;
+            background-position: center;
+            filter: blur(24px) brightness(0.7);
+            transform: scale(1.08);
+        }
+
+        /* Mode: solid color sides (set data-fill="solid" on .echoes-frame) */
+        .echoes-frame[data-fill="solid"] .edge-fill {
+            background: var(--solid);
+            filter: none; transform: none;
+        }
+
+        /* Mount content styling */
+        #mount {
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Force all content to fill mount exactly */
+        #mount video,
+        #mount canvas,
+        #mount img,
+        simli-widget {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: fill !important;
+            display: block !important;
+        }
+
+        /* Hide Simli's built-in UI */
+        simli-widget::shadow .start-button,
+        simli-widget::shadow .preloader,
+        simli-widget::shadow .loading-spinner,
+        simli-widget::shadow [class*="start"],
+        simli-widget::shadow [class*="loading"],
+        simli-widget::shadow [class*="preload"] {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* Force Simli content sizing */
+        simli-widget::shadow video,
+        simli-widget::shadow canvas {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: fill !important;
+            background: transparent !important;
+        }
+
+        /* Persona controls positioned in SVG coordinates */
+        .persona-controls {
+            position: absolute;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .persona-btn {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+            border: 2px solid rgba(77,227,255,0.5);
+            color: #00ffff;
+            padding: 12px 24px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            border-radius: 8px;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(10px);
+        }
+
+        .persona-btn:hover {
+            border-color: #00ffff;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25));
+            box-shadow: 0 0 20px rgba(0,255,255,0.4);
+            transform: translateY(-2px);
+        }
+
+        .persona-btn.active {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,77,243,0.25));
+            border-color: #ff4df3;
+            color: #ff4df3;
+            box-shadow: 0 0 25px rgba(255,77,243,0.5);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0,255,255,0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* End session button */
+        .end-session-btn {
+            position: absolute;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.5);
+            color: #ff6666;
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            display: none;
+        }
+
+        .end-session-btn.active {
+            display: block;
+        }
+
+        .end-session-btn:hover {
+            background: rgba(255,0,0,0.4);
+            border-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- === Echoes Stage (drop-in) ========================================== -->
+    <div class="echoes-frame" data-fill="blur">
+        <!-- Soft-fill behind the stage (blurred copy) -->
+        <div class="edge-fill"></div>
+
+        <!-- SVG stage locked to 2560×1440 coordinates -->
+        <svg class="stage" viewBox="0 0 2560 1440" preserveAspectRatio="xMidYMid meet">
+            <!-- Background raster -->
+            <image href="assets/site-back-with-text-standard.png" x="0" y="0" width="2560" height="1440"/>
+
+            <!-- Mount (calibrator numbers → px in this coord system) -->
+            <!-- left 37.66%, top 24.86%, width 24.53% → x=964, y=358, w=h=628 -->
+            <foreignObject x="964" y="358" width="628" height="628">
+                <div id="mount">
+                    <!-- Base particle video -->
+                    <video autoplay loop muted playsinline>
+                        <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
+                    </video>
+                    
+                    <!-- Loading overlay -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </foreignObject>
+
+            <!-- Persona Controls positioned in SVG coordinates -->
+            <foreignObject x="560" y="1200" width="1440" height="100">
+                <div class="persona-controls">
+                    <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
+                        Brown County Bigfoot
+                    </button>
+                    <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
+                        Hoosier Oracle
+                    </button>
+                    <button class="persona-btn" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
+                        Kurt Vonnegut
+                    </button>
+                    <button class="persona-btn" data-persona="larrybird" onclick="switchPersona('larrybird')">
+                        Larry Bird
+                    </button>
+                </div>
+            </foreignObject>
+
+            <!-- End Session Button -->
+            <foreignObject x="2200" y="1320" width="300" height="80">
+                <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
+                    END SESSION
+                </div>
+            </foreignObject>
+
+            <!-- Debug box (remove when done) -->
+            <!-- <rect x="964" y="358" width="628" height="628" fill="none" stroke="red" stroke-width="4" opacity="0.6"/> -->
+        </svg>
+    </div>
+
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    <script>
+        console.log('🚀 SVG-Based Layout - Perfect scaling across all devices');
+
+        // Optional sanity log
+        (function(){
+            const img = new Image();
+            img.src = "assets/site-back-with-text-standard.png";
+            img.onload = () => console.log("bg natural:", img.naturalWidth, "x", img.naturalHeight);
+            img.onerror = () => console.error("bg failed to load");
+        })();
+
+        const CONFIG = {
+            personas: {
+                bigfoot: {
+                    name: 'Brown County Bigfoot',
+                    agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                    enhanced: false
+                },
+                indiana: {
+                    name: 'Hoosier Oracle', 
+                    agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',
+                    faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',
+                    enhanced: false
+                },
+                vonnegut: {
+                    name: 'Kurt Vonnegut',
+                    agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+                    faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
+                    enhanced: true
+                },
+                larrybird: {
+                    name: 'Larry Bird',
+                    agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+                    faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+                    enhanced: true
+                }
+            }
+        };
+
+        const API_BASE = window.location.origin;
+        let currentPersona = null;
+        let currentWidget = null;
+
+        const mount = document.getElementById('mount');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const endSessionBtn = document.getElementById('endSessionBtn');
+
+        async function switchPersona(personaId) {
+            console.log(`[SVG Layout] Switching to: ${personaId}`);
+
+            // Update button states
+            document.querySelectorAll('.persona-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.persona === personaId);
+            });
+
+            // End current session if active
+            if (currentPersona && currentWidget) {
+                await endCurrentSession();
+            }
+
+            // Start new session
+            currentPersona = personaId;
+            const persona = CONFIG.personas[personaId];
+
+            console.log(`[SVG Layout] Loading ${persona.name}...`);
+
+            // Show loading
+            loadingOverlay.classList.add('active');
+
+            try {
+                // Get token
+                const response = await fetch(`${API_BASE}/simli-token?agentId=${persona.agentId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    }
+                });
+
+                const data = await response.json();
+                const token = data.token;
+
+                if (!token) {
+                    throw new Error('No token received');
+                }
+
+                console.log(`[SVG Layout] Token received for ${personaId}`);
+
+                // Create widget
+                await createSimliWidget(personaId, token, persona.agentId, persona.faceId);
+
+            } catch (error) {
+                console.error(`[SVG Layout] Error for ${personaId}:`, error);
+                loadingOverlay.classList.remove('active');
+                returnToIdle();
+            }
+        }
+
+        async function createSimliWidget(personaId, token, agentId, faceId) {
+            const persona = CONFIG.personas[personaId];
+
+            console.log(`[SVG Layout] Creating widget for ${personaId}`);
+
+            // Remove any existing widget
+            const existingWidget = mount.querySelector('simli-widget');
+            if (existingWidget) {
+                existingWidget.remove();
+            }
+
+            // Hide loading
+            loadingOverlay.classList.remove('active');
+
+            // Create simli-widget element
+            const widget = document.createElement('simli-widget');
+            widget.setAttribute('token', token);
+            widget.setAttribute('agentid', agentId);
+
+            if (faceId) {
+                widget.setAttribute('faceid', faceId);
+                console.log(`[SVG Layout] Face ID set: ${faceId}`);
+            }
+
+            widget.setAttribute('position', 'relative');
+            widget.setAttribute('customtext', ' ');
+            widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+            widget.setAttribute('hidetrigger', 'true');
+            widget.setAttribute('autostart', 'true');
+
+            // Add event listeners
+            widget.addEventListener('load', () => {
+                console.log(`[SVG Layout] Widget loaded: ${personaId}`);
+                endSessionBtn.classList.add('active');
+            });
+
+            widget.addEventListener('error', (e) => {
+                console.error(`[SVG Layout] Widget error:`, e);
+                returnToIdle();
+            });
+
+            // Add to mount
+            mount.appendChild(widget);
+            currentWidget = widget;
+
+            console.log(`[SVG Layout] Widget created: ${personaId}`);
+        }
+
+        async function endCurrentSession() {
+            if (!currentWidget || !currentPersona) return;
+
+            console.log(`[SVG Layout] Ending session: ${currentPersona}`);
+
+            // Remove widget
+            if (currentWidget) {
+                if (typeof currentWidget.destroy === 'function') {
+                    currentWidget.destroy();
+                }
+                if (typeof currentWidget.disconnect === 'function') {
+                    currentWidget.disconnect();
+                }
+
+                if (currentWidget.parentNode) {
+                    currentWidget.parentNode.removeChild(currentWidget);
+                }
+                currentWidget = null;
+            }
+
+            setTimeout(returnToIdle, 500);
+        }
+
+        function returnToIdle() {
+            console.log('[SVG Layout] Returning to idle');
+            currentPersona = null;
+            currentWidget = null;
+
+            // Clear states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            loadingOverlay.classList.remove('active');
+            endSessionBtn.classList.remove('active');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            console.log('🚀 SVG LAYOUT READY');
+            console.log('📐 Perfect scaling across all devices and resolutions');
+            console.log('🎯 Mount positioned at exact SVG coordinates');
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && currentPersona) {
+                    endCurrentSession();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

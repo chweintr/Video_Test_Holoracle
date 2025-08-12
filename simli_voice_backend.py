@@ -315,6 +315,14 @@ async def main_kiosk_stage():
     else:
         return {"message": "main_kiosk_stage.html not found"}
 
+@app.get("/svg")
+async def main_kiosk_svg():
+    """Serve the SVG-Based Kiosk - Perfect scaling with SVG coordinates"""
+    if os.path.exists("main_kiosk_svg.html"):
+        return FileResponse("main_kiosk_svg.html")
+    else:
+        return {"message": "main_kiosk_svg.html not found"}
+
 @app.get("/direct")
 async def direct_kiosk():
     """Serve the Direct API Kiosk - No widgets, pure agent integration"""

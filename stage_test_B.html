@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Stage B</title>
+<style>
+  html,body{margin:0;height:100%;background:#111}
+  .stage{
+    position:relative;
+    width:min(100vw, calc(100vh*16/9));
+    aspect-ratio:16/9;
+    margin:0 auto;
+    outline:2px solid #666;
+    overflow:hidden;
+    background:#000;
+  }
+  .bg{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:fill;object-position:0% 0%;
+    display:block;
+  }
+  .guide{
+    position:absolute;
+    left:43.28125%;   /* X = 1108 / 2560 */
+    top:28.95833%;    /* Y = 417  / 1440 */
+    width:28.55469%;  /* W = 731  / 2560 */
+    aspect-ratio:1/1;
+    border:2px solid #ff3b3b;
+    pointer-events:none;
+  }
+</style>
+
+<div class="stage">
+  <img class="bg" src="assets/site-back-with-text-standard.png" alt="">
+  <div class="guide"></div>
+  <div id="mount"></div>
+</div>

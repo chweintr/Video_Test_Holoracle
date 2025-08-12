@@ -728,7 +728,13 @@
         }
         
         async function switchPersona(personaId) {
-            console.log(`[Main Kiosk] 🎬 HOLOGRAPHIC TRANSITION to: ${personaId}`);
+            console.log(`[Main Kiosk] 🎬 SIMPLE BIGFOOT TEST: ${personaId}`);
+            
+            // Only work for Bigfoot for now
+            if (personaId !== 'bigfoot') {
+                console.log(`[Main Kiosk] Only Bigfoot supported in this test`);
+                return;
+            }
             
             // Hide "Select Oracle" text when persona is selected
             document.getElementById('selectOracleText').style.display = 'none';
@@ -737,10 +743,8 @@
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
             
-            // End current session if active (with transition out)
+            // End current session if active
             if (currentPersona && currentWidget) {
-                console.log(`[Main Kiosk] Transitioning out from ${currentPersona}`);
-                await transitionFromPersona(currentPersona);
                 await endCurrentSession();
             }
             
@@ -750,13 +754,25 @@
             
             updateStatus(`Summoning ${persona.name}...`);
             
-            // Hide idle state (Layer 2) - base video (Layer 1) stays
+            // Hide idle state - base video continues
             idleState.style.display = 'none';
             
             try {
-                // STEP 1: Start loading Simli agent SILENTLY (hidden)
-                console.log(`[Main Kiosk] 🔄 Loading ${persona.name} silently behind transition...`);
+                console.log(`[Main Kiosk] 🎬 STEP 1: Playing particles-to-bigfoot video`);
                 
+                // STEP 1: Start particles-to-bigfoot video (covers everything)
+                transitionVideo.innerHTML = '';
+                const source = document.createElement('source');
+                source.src = 'assets/particles-to-bigfoot.gif';
+                source.type = 'image/gif';
+                transitionVideo.appendChild(source);
+                transitionLayer.classList.add('active');
+                transitionVideo.load();
+                transitionVideo.play();
+                
+                console.log(`[Main Kiosk] 🎬 STEP 2: Loading Simli agent behind video`);
+                
+                // STEP 2: While video plays, load Simli agent (hidden)
                 const response = await fetch(`${API_BASE}/simli-token?agentId=${persona.agentId}`, {
                     method: "GET",
                     headers: {
@@ -772,18 +788,34 @@
                     throw new Error('No token received');
                 }
                 
-                console.log(`[Main Kiosk] 🎫 Token received for ${personaId}`);
+                console.log(`[Main Kiosk] 🎫 Token received, creating hidden widget`);
                 
-                // STEP 2: Create widget HIDDEN (will be revealed after transition)
-                await createSimliWidgetHidden(personaId, token, persona.agentId);
+                // Create Simli widget (hidden behind video)
+                const container = document.getElementById('avatarBigfoot');
+                container.innerHTML = '';
                 
-                // STEP 3: Play transition-in video (particles-to-X)
-                console.log(`[Main Kiosk] 🎭 Playing transition-in for ${personaId}`);
-                await transitionToPersona(personaId);
+                const widget = document.createElement('simli-widget');
+                widget.setAttribute('token', token);
+                widget.setAttribute('agentid', persona.agentId);
+                widget.setAttribute('position', 'relative');
+                widget.setAttribute('customtext', ' ');
+                widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+                widget.setAttribute('hidetrigger', 'true');
+                widget.setAttribute('autostart', 'true');
                 
-                // STEP 4: Reveal Simli agent in EXACT same spot
-                console.log(`[Main Kiosk] ✨ Revealing ${persona.name} after transition`);
-                revealSimliAgent(personaId);
+                container.appendChild(widget);
+                container.classList.add('active'); // Show container (but video covers it)
+                currentWidget = widget;
+                
+                console.log(`[Main Kiosk] 🎬 STEP 3: Waiting for video to end`);
+                
+                // STEP 3: When video ends, hide transition and reveal agent
+                transitionVideo.onended = () => {
+                    console.log(`[Main Kiosk] ✨ Video ended, revealing Simli agent`);
+                    transitionLayer.classList.remove('active');
+                    updateStatus(`${persona.name} Connected - Click to Talk`);
+                    endSessionBtn.classList.add('active');
+                };
                 
             } catch (error) {
                 console.error(`[Main Kiosk] Error for ${personaId}:`, error);

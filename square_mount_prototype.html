@@ -9,27 +9,11 @@
       html, body { height: 100%; }
       body { margin: 0; background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
       :root { 
-        /* Original design dimensions and coordinates */
-        --W0: 2560;
-        --H0: 1440; 
-        --x0: 0.3766;   /* 37.66% as decimal */
-        --y0: 0.2486;   /* 24.86% as decimal */
-        --s0: 0.2453;   /* 24.53% as decimal */
-
-        /* New outpainted image dimensions */
-        --W1: 3000;
-        --H1: 2000;
-
-        /* EXACT measurements from your outpaint */
-        --padLeft: 540;  /* pixels from left edge to original content */
-        --padTop: 497;   /* pixels from top edge to original content */
-
-        /* Direct percentages for 3000×2000 image - you'll need to measure these */
-        --target-left: 50%;   /* Adjust based on where cube actually is in 3000×2000 image */
-        --target-top: 42%;    /* Adjust based on where cube actually is in 3000×2000 image */ 
-        --target-size: 21%;   /* Adjust based on cube size in 3000×2000 image */
-        
-        --design-w: 3; --design-h: 2;  /* Match outpainted image 3000×2000 = 3:2 */ 
+        /* Back to original working percentages for 16:9 4K image */
+        --target-left: 37.66%;
+        --target-top: 24.86%;
+        --target-size: 24.53%;
+        --design-w: 16; --design-h: 9;  /* 16:9 aspect ratio */ 
       }
       .frame { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h)))); aspect-ratio: var(--design-w) / var(--design-h); }
       .frame img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; user-select: none; -webkit-user-drag: none; pointer-events: none; }
@@ -40,7 +24,7 @@
   </head>
   <body>
     <div class="frame" aria-label="Unified 16:9 stage">
-      <img class="bg" src="assets/new-back-big-2.png" alt="Background" />
+      <img class="bg" src="assets/new-back-4k.png.png" alt="Background" />
       <div class="overlay">
         <div class="mount" aria-label="Square mount">
           <div class="placeholder">Square Mount</div>

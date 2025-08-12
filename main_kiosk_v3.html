@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Echoes of Indiana — Main Kiosk v3.0 - Perfect Mount</title>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body { 
+            margin: 0; 
+            background: #000; 
+            color: #00ffff; 
+            font-family: 'Courier New', monospace; 
+            overflow: hidden; 
+        }
+        
+        /* GPT-5's PERFECT MOUNT POSITIONING - Working foundation */
+        :root { 
+            --target-left: 42.08%;  /* 1616px / 3840px × 100% */
+            --target-top: 33.56%;   /* 725px / 2160px × 100% */
+            --target-size: 15.86%;  /* 609px / 3840px × 100% */
+            --design-w: 16; --design-h: 9;  /* 16:9 aspect ratio */ 
+        }
+        
+        /* Main stage frame - everything scales together */
+        .frame { 
+            position: fixed; 
+            left: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%); 
+            width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h)))); 
+            aspect-ratio: var(--design-w) / var(--design-h); 
+        }
+        
+        /* Background image - perfect scaling */
+        .frame img.bg { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center; 
+            user-select: none; 
+            -webkit-user-drag: none; 
+            pointer-events: none; 
+        }
+        
+        /* Overlay for all UI elements */
+        .overlay { 
+            position: absolute; 
+            inset: 0; 
+        }
+        
+        /* Perfect mount positioning */
+        .mount { 
+            position: absolute; 
+            left: var(--target-left); 
+            top: var(--target-top); 
+            width: var(--target-size); 
+            aspect-ratio: 1 / 1; 
+            overflow: hidden;
+            /* Remove debug outline for production */
+        }
+        
+        /* Parallax light effect */
+        .parallax-layer {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(77,227,255,0.15), transparent 40%);
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* UI Typography */
+        .title {
+            font-family: 'Michroma', 'Courier New', monospace;
+            font-size: clamp(1.5em, 4vw, 2.2em);
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            z-index: 10;
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .subtitle {
+            font-size: clamp(0.7em, 2vw, 0.9em);
+            color: #ff4df3;
+            text-shadow: 0 0 10px #ff4df3;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            z-index: 10;
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .tagline {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .credit {
+            position: absolute;
+            top: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Mount layers system */
+        .mount-base-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .mount-base-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .idle-state {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            color: rgba(0,255,255,0.8);
+            background: rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+        
+        .loading-state {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(0,0,0,0.8);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .loading-state.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .idle-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0,255,255,0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Particle system */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(0,255,255,0.6);
+            border-radius: 50%;
+            animation: float 4s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { 
+                opacity: 0;
+                transform: translateY(20px) scale(0.5);
+            }
+            50% { 
+                opacity: 1;
+                transform: translateY(-20px) scale(1);
+            }
+        }
+        
+        /* Simli agent containers */
+        .avatar-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+        
+        .avatar-container.active {
+            display: block;
+        }
+        
+        /* Simli widget perfect mount fitting */
+        simli-widget {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            display: block !important;
+            overflow: hidden !important;
+        }
+        
+        simli-widget::shadow .start-button,
+        simli-widget::shadow .preloader,
+        simli-widget::shadow .loading-spinner,
+        simli-widget::shadow [class*="start"],
+        simli-widget::shadow [class*="loading"],
+        simli-widget::shadow [class*="preload"] {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        
+        simli-widget::shadow video,
+        simli-widget::shadow canvas {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            object-fit: cover !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* Controls positioned relative to frame */
+        .persona-controls {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: clamp(6px, 1vw, 12px);
+            flex-wrap: nowrap;
+            justify-content: center;
+            z-index: 20;
+            padding: 0 20px;
+        }
+        
+        .persona-btn {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+            border: 2px solid rgba(77,227,255,0.5);
+            color: #00ffff;
+            padding: clamp(5px, 1.2vw, 8px) clamp(10px, 2.5vw, 15px);
+            font-size: clamp(0.6em, 1.6vw, 0.8em);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            border-radius: 6px;
+            letter-spacing: 0.03em;
+            position: relative;
+            white-space: nowrap;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+        
+        .persona-btn:hover {
+            border-color: #00ffff;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25));
+            box-shadow: 0 0 20px rgba(0,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        
+        .persona-btn.active {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,77,243,0.25));
+            border-color: #ff4df3;
+            color: #ff4df3;
+            box-shadow: 0 0 25px rgba(255,77,243,0.5);
+        }
+        
+        .persona-btn.enhanced.active {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,0,0.25));
+            border-color: #ffff00;
+            color: #ffff00;
+            box-shadow: 0 0 25px rgba(255,255,0,0.5);
+        }
+        
+        .select-oracle-text {
+            text-align: center;
+            font-size: 18px;
+            color: rgba(0,255,255,0.8);
+            text-shadow: 0 0 10px rgba(0,255,255,0.8);
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 100%;
+        }
+        
+        .end-session-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.5);
+            color: #ff6666;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            display: none;
+            z-index: 25;
+        }
+        
+        .end-session-btn.active {
+            display: block;
+        }
+        
+        .end-session-btn:hover {
+            background: rgba(255,0,0,0.4);
+            border-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Parallax Background Effect -->
+    <div class="parallax-layer" id="parallaxLayer"></div>
+    
+    <!-- Perfect scaling frame -->
+    <div class="frame" aria-label="Unified 16:9 stage">
+        <!-- 4K Background image -->
+        <img class="bg" src="assets/new-back-4k.png.png" alt="Background" />
+        
+        <!-- UI overlay -->
+        <div class="overlay">
+            <!-- Title section -->
+            <div class="title">Echoes of Indiana</div>
+            <div class="subtitle">Holographic Conversations Powered by Research</div>
+            <div class="tagline">Compelled by Curiosity</div>
+            <div class="credit">Brought to you by Past Presence</div>
+            
+            <!-- Perfect mount with layered system -->
+            <div class="mount" aria-label="Holographic mount">
+                <!-- Layer 1: Base particle video -->
+                <div class="mount-base-layer">
+                    <video class="mount-base-video" autoplay loop muted playsinline>
+                        <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
+                    </video>
+                </div>
+                
+                <!-- Layer 2: Idle state -->
+                <div class="idle-state" id="idleState">
+                    <div class="particles" id="particleContainer"></div>
+                </div>
+                
+                <!-- Layer 3: Loading state -->
+                <div class="loading-state" id="loadingState">
+                    <div class="idle-spinner"></div>
+                    <div style="margin-top: 20px;">Summoning...</div>
+                </div>
+                
+                <!-- Layer 5: Simli agents -->
+                <div class="avatar-container" id="avatarBigfoot"></div>
+                <div class="avatar-container" id="avatarIndiana"></div>
+                <div class="avatar-container" id="avatarVonnegut"></div>
+                <div class="avatar-container" id="avatarLarryBird"></div>
+                
+                <!-- Controls -->
+                <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
+                    END SESSION
+                </div>
+            </div>
+            
+            <!-- Persona controls -->
+            <div class="persona-controls">
+                <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
+                    Brown County Bigfoot
+                </button>
+                <button class="persona-btn" data-persona="indiana" onclick="switchPersona('indiana')">
+                    Hoosier Oracle
+                </button>
+                <button class="persona-btn" data-persona="vonnegut" onclick="switchPersona('vonnegut')">
+                    Kurt Vonnegut
+                </button>
+                <button class="persona-btn" data-persona="larrybird" onclick="switchPersona('larrybird')">
+                    Larry Bird
+                </button>
+            </div>
+            
+            <!-- Select oracle text -->
+            <div id="selectOracleText" class="select-oracle-text">Select Oracle</div>
+        </div>
+    </div>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    <script>
+        console.log('🚀 Loading Main Kiosk v3 - Perfect Mount Positioning');
+        
+        // Working configuration
+        const CONFIG = {
+            personas: {
+                bigfoot: {
+                    name: 'Brown County Bigfoot',
+                    agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                    enhanced: false,
+                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head'
+                },
+                indiana: {
+                    name: 'Hoosier Oracle', 
+                    agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',  // ✅ CORRECT from docs
+                    faceId: 'afdb6a3e-3939-40aa-92df-01604c23101c',
+                    enhanced: false,
+                    description: 'Hoosier Oracle with custom agent and face'
+                },
+                vonnegut: {
+                    name: 'Kurt Vonnegut',
+                    agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+                    faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
+                    enhanced: true,
+                    description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice'
+                },
+                larrybird: {
+                    name: 'Larry Bird',
+                    agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+                    faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+                    enhanced: true,
+                    description: 'Larry Bird persona with basketball wisdom and Indiana pride'
+                }
+            }
+        };
+        
+        const API_BASE = window.location.origin;
+        let currentPersona = null;
+        let currentWidget = null;
+        
+        // DOM elements
+        const idleState = document.getElementById('idleState');
+        const loadingState = document.getElementById('loadingState');
+        const endSessionBtn = document.getElementById('endSessionBtn');
+        const parallaxLayer = document.getElementById('parallaxLayer');
+        const particleContainer = document.getElementById('particleContainer');
+        
+        // Parallax mouse effect
+        let mouseX = 50, mouseY = 50, ticking = false;
+        function updateParallax() {
+            parallaxLayer.style.setProperty('--mx', mouseX + '%');
+            parallaxLayer.style.setProperty('--my', mouseY + '%');
+            ticking = false;
+        }
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 100;
+            mouseY = (e.clientY / window.innerHeight) * 100;
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        }, { passive: true });
+        
+        // Particle system
+        function createParticles() {
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+                particleContainer.appendChild(particle);
+            }
+        }
+        
+        function updateStatus(msg) {
+            console.log('[Main Kiosk v3]', msg);
+        }
+        
+        async function switchPersona(personaId) {
+            console.log(`[Main Kiosk v3] Switching to: ${personaId}`);
+            
+            // Hide "Select Oracle" text
+            document.getElementById('selectOracleText').style.display = 'none';
+            
+            // Update button states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
+            
+            // End current session if active
+            if (currentPersona && currentWidget) {
+                await endCurrentSession();
+            }
+            
+            // Start new session
+            currentPersona = personaId;
+            const persona = CONFIG.personas[personaId];
+            
+            updateStatus(`Summoning ${persona.name}...`);
+            
+            // Show loading state
+            idleState.style.display = 'none';
+            loadingState.classList.add('active');
+            
+            try {
+                // Get token
+                const response = await fetch(`${API_BASE}/simli-token?agentId=${persona.agentId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    }
+                });
+                
+                const data = await response.json();
+                const token = data.token;
+                
+                if (!token) {
+                    throw new Error('No token received');
+                }
+                
+                console.log(`[Main Kiosk v3] Token for ${personaId}: ${token.substring(0, 10)}...`);
+                
+                // Create widget
+                await createSimliWidget(personaId, token, persona.agentId);
+                
+            } catch (error) {
+                console.error(`[Main Kiosk v3] Error for ${personaId}:`, error);
+                updateStatus(`Connection failed: ${error.message}`);
+                returnToIdle();
+            }
+        }
+        
+        async function createSimliWidget(personaId, token, agentId) {
+            const persona = CONFIG.personas[personaId];
+            let containerId;
+            if (personaId === 'larrybird') {
+                containerId = 'avatarLarryBird';
+            } else {
+                containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            }
+            const container = document.getElementById(containerId);
+            
+            console.log(`[Main Kiosk v3] Creating widget for ${personaId}`);
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Hide loading, show container
+            loadingState.classList.remove('active');
+            container.classList.add('active');
+            
+            // Hide other containers
+            document.querySelectorAll('.avatar-container').forEach(c => {
+                if (c.id !== containerId) c.classList.remove('active');
+            });
+            
+            // Create simli-widget element
+            const widget = document.createElement('simli-widget');
+            widget.setAttribute('token', token);
+            widget.setAttribute('agentid', agentId);
+            
+            // Add face ID if specified
+            if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
+                console.log(`[Main Kiosk v3] Setting face ID for ${personaId}: ${persona.faceId}`);
+            }
+            
+            widget.setAttribute('position', 'relative');
+            widget.setAttribute('customtext', ' ');
+            widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+            widget.setAttribute('hidetrigger', 'true');
+            widget.setAttribute('autostart', 'true');
+            
+            // Event listeners
+            widget.addEventListener('load', () => {
+                console.log(`[Main Kiosk v3] Widget loaded: ${personaId}`);
+                updateStatus(`${persona.name} Ready - Click to Talk`);
+                endSessionBtn.classList.add('active');
+            });
+            
+            widget.addEventListener('error', (e) => {
+                console.error(`[Main Kiosk v3] Widget error:`, e);
+                updateStatus(`Widget error: ${e.detail || 'Unknown'}`);
+                returnToIdle();
+            });
+            
+            widget.addEventListener('callstart', () => {
+                console.log(`[Main Kiosk v3] Call started: ${personaId}`);
+                updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
+            });
+            
+            widget.addEventListener('callend', () => {
+                console.log(`[Main Kiosk v3] Call ended: ${personaId}`);
+                updateStatus(`${persona.name} Ready - Click to Talk`);
+            });
+            
+            // Add to container
+            container.appendChild(widget);
+            currentWidget = widget;
+            
+            console.log(`[Main Kiosk v3] Widget created successfully: ${personaId}`);
+            updateStatus(`${persona.name} Connected${persona.enhanced ? ' [ENHANCED]' : ''}`);
+        }
+        
+        async function endCurrentSession() {
+            if (!currentWidget || !currentPersona) return;
+            
+            console.log(`[Main Kiosk v3] Ending session: ${currentPersona}`);
+            updateStatus('Ending session...');
+            
+            // Remove widget with cleanup
+            if (currentWidget) {
+                if (typeof currentWidget.destroy === 'function') {
+                    currentWidget.destroy();
+                }
+                if (typeof currentWidget.disconnect === 'function') {
+                    currentWidget.disconnect();
+                }
+                
+                if (currentWidget.parentNode) {
+                    currentWidget.parentNode.removeChild(currentWidget);
+                }
+                currentWidget = null;
+            }
+            
+            // Clear all containers
+            document.querySelectorAll('.avatar-container').forEach(c => {
+                c.classList.remove('active');
+                c.innerHTML = '';
+            });
+            
+            setTimeout(returnToIdle, 500);
+        }
+        
+        function returnToIdle() {
+            console.log('[Main Kiosk v3] Returning to idle');
+            currentPersona = null;
+            currentWidget = null;
+            
+            // Clear states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            loadingState.classList.remove('active');
+            endSessionBtn.classList.remove('active');
+            
+            // Show idle state
+            idleState.style.display = 'flex';
+            document.getElementById('selectOracleText').style.display = 'block';
+            updateStatus('Ready - Perfect Mount System');
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            console.log('🚀 MAIN KIOSK v3 - PERFECT MOUNT POSITIONING');
+            console.log('🎯 Mount: GPT-5 mathematical positioning with responsive scaling');
+            console.log('📹 Background: 4K image with perfect aspect ratio handling');
+            console.log('📹 All elements constrained to mount boundaries');
+            updateStatus('Ready - Perfect Mount System');
+            
+            // Initialize particle system
+            createParticles();
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && currentPersona) {
+                    endCurrentSession();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

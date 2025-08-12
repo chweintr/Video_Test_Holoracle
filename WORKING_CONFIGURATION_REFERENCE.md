@@ -113,9 +113,80 @@ python simli_voice_backend.py  # Should start on port 8083
 - ✅ Custom UI overlay system
 - ✅ Press-to-talk / disconnect buttons
 
+## 🎯 PERFECT MOUNT POSITIONING - GPT-5'S METHODOLOGY ✅
+
+### The Problem
+- Original system worked with 2560×1440 background (37.66%, 24.86%, 24.53%)
+- Outpainting to eliminate black borders broke positioning
+- Different aspect ratios caused mount drift from target cube
+
+### GPT-5's Solution - 3 Cases
+
+**Case 1: Pure Upscale** - Use original percentages
+**Case 2: Outpaint with Padding** - Use padding formula  
+**Case 3: Recomposition (Most Common)** - Measure directly
+
+### ✅ WORKING SOLUTION: Case 3 Formula
+```
+For any outpainted image:
+1. Measure target area in pixels:
+   - x1_px = left edge to target
+   - y1_px = top edge to target  
+   - w1_px = target width
+   
+2. Calculate percentages:
+   - left% = x1_px / image_width × 100%
+   - top% = y1_px / image_height × 100%
+   - size% = w1_px / image_width × 100%
+```
+
+### 🎯 CURRENT WORKING VALUES (4K Image)
+```css
+/* 4K Image: new-back-4k.png.png (3840×2160) */
+--target-left: 42.08%;  /* 1616px / 3840px × 100% */
+--target-top: 33.56%;   /* 725px / 2160px × 100% */
+--target-size: 15.86%;  /* 609px / 3840px × 100% */
+--design-w: 16; --design-h: 9;  /* Match image aspect ratio */
+```
+
+### 📐 Mount System Architecture
+```css
+/* 16:9 FRAME - Scales perfectly with viewport */
+.stage-frame {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(100vw, calc(100vh * (16 / 9)));
+    aspect-ratio: 16 / 9;
+}
+
+/* MOUNT - Perfect percentage positioning */
+.hologram-window {
+    position: absolute;
+    left: var(--target-left);
+    top: var(--target-top);
+    width: var(--target-size);
+    aspect-ratio: 1 / 1;  /* Perfect square */
+    overflow: hidden;
+}
+```
+
+### 🔑 Key Success Factors
+1. **Match container aspect ratio to image** (16:9 for 16:9 image)
+2. **Use `object-fit: cover`** for responsive scaling
+3. **Measure target precisely** in image editor
+4. **Apply Case 3 formula** for pixel-perfect positioning
+5. **All child elements inherit mount constraints**
+
+### 🎯 BENEFITS ACHIEVED
+- ✅ **No black borders** (4K image fills all screens)  
+- ✅ **Perfect mount alignment** (mathematically calculated)
+- ✅ **Universal scaling** (works on any screen size)
+- ✅ **Element containment** (all layers stay within mount)
+
 ## 🚨 CRITICAL REMINDER
 **This configuration represents 9 days of debugging work. Do not modify agent IDs or core widget creation logic without testing on a copy first.**
 
 ---
-*Generated: 2025-08-10 - Rolled back to working state*
+*Updated: 2025-08-12 - Added GPT-5's outpaint positioning methodology*
 *Keep this file updated with any successful changes*

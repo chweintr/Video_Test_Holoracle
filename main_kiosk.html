@@ -301,16 +301,22 @@
             overflow: hidden !important;
         }
         
-        /* Hide Simli's built-in start button and preloader */
-        simli-widget::shadow .start-button,
+        /* Hide Simli's preloader and loading states but SHOW start button */
         simli-widget::shadow .preloader,
         simli-widget::shadow .loading-spinner,
-        simli-widget::shadow [class*="start"],
         simli-widget::shadow [class*="loading"],
         simli-widget::shadow [class*="preload"] {
             display: none !important;
             opacity: 0 !important;
             visibility: hidden !important;
+        }
+        
+        /* SHOW the start button - users need to see this to know what to do */
+        simli-widget::shadow .start-button,
+        simli-widget::shadow [class*="start"] {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         
         /* LOCK Simli content to exact 363x363 - NO flexibility for pitch demo */
@@ -690,8 +696,8 @@
             widget.setAttribute('position', 'relative');
             widget.setAttribute('customtext', ' ');  // Single space instead of empty
             widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-            widget.setAttribute('hidetrigger', 'true');  // Should hide trigger
-            widget.setAttribute('autostart', 'true');  // Try autostarting to skip button
+            widget.setAttribute('hidetrigger', 'false');  // SHOW the trigger - users need to see start button
+            widget.setAttribute('autostart', 'false');  // Manual start so users can control
             
             // Use custom image if specified (for particle videos)
             if (persona.customImage) {

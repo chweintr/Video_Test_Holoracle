@@ -315,6 +315,14 @@ async def square_mount_prototype():
     else:
         return {"message": "Square mount prototype not found"}
 
+@app.get("/square-mount-ui")
+async def square_mount_ui():
+    """Interactive UI with cover-stage and live mount controls (safe route)."""
+    if os.path.exists("square_mount_ui.html"):
+        return FileResponse("square_mount_ui.html")
+    else:
+        return {"message": "square_mount_ui.html not found"}
+
 @app.get("/transitions")
 async def main_kiosk_transitions():
     """Serve the 3-Layer Holographic Transition System - EXPERIMENTAL"""

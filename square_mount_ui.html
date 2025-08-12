@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Square Mount UI (Cover Stage)</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin: 0; background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+      /* Defaults (can be tuned by the control panel) */
+      :root {
+        --target-left: 37.66%;
+        --target-top: 24.86%;
+        --target-size: 24.53%;
+        --ui-scale: 1; /* global typography scale */
+      }
+
+      /* 16:9 stage that COVERS the viewport (no borders). dvh fixes Safari toolbars. */
+      .stage {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: max(100vw, calc(100dvh * 16 / 9));
+        aspect-ratio: 16 / 9;
+        container-type: size; /* enables cqw/cqh */
+        overflow: hidden; /* crop edges as needed */
+        background: #000;
+      }
+
+      /* Background fills the stage; center-cropped if viewport is taller/narrower. */
+      .stage > img.bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        user-select: none;
+        -webkit-user-drag: none;
+        pointer-events: none;
+      }
+
+      /* Square mount in stage coordinates */
+      .mount {
+        position: absolute;
+        left: var(--target-left);
+        top: var(--target-top);
+        width: var(--target-size);
+        aspect-ratio: 1 / 1;
+        display: grid;
+        place-items: center;
+        outline: 2px solid rgba(0, 200, 255, 0.85);
+        box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.25) inset;
+        border-radius: 3px;
+      }
+
+      /* Example UI elements that scale with the stage height */
+      .ui {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .title { position: absolute; left: 6cqw; top: 9cqh; font-weight: 700; font-size: calc(4.2cqh * var(--ui-scale)); letter-spacing: 0.02em; }
+      .subtitle { position: absolute; left: 6cqw; top: 14.5cqh; font-size: calc(2.6cqh * var(--ui-scale)); color: #cfefff; opacity: 0.95; }
+      .buttons { position: absolute; left: 6cqw; bottom: 10cqh; display: flex; gap: 2cqw; }
+      .buttons button { pointer-events: auto; font-size: calc(2.1cqh * var(--ui-scale)); padding: 1.4cqh 2.2cqw; border-radius: 0.9cqh; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.45); color: #fff; cursor: pointer; }
+
+      /* Compact control panel */
+      .panel { position: fixed; right: 12px; top: 12px; z-index: 10000; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; padding: 10px 10px 8px; width: 260px; font: 12px/1.25 system-ui; }
+      .panel h3 { margin: 0 0 8px; font-size: 12px; color: #fff; }
+      .panel label { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; color: #ddd; }
+      .panel input[type=range] { width: 100%; }
+      .panel .row { display: grid; grid-template-columns: 1fr 48px; gap: 8px; align-items: center; }
+      .panel .group { display: grid; gap: 6px; }
+      .panel .actions { display: flex; gap: 6px; margin-top: 6px; }
+      .panel button { pointer-events: auto; font-size: 12px; padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.45); color: #fff; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <img class="bg" src="assets/new-back.png" alt="Background" />
+      <div class="mount" aria-label="Square mount"></div>
+      <div class="ui" aria-hidden="true">
+        <div class="title">Echoes of Indiana</div>
+        <div class="subtitle">Holographic Conversations Powered by Research</div>
+        <div class="buttons">
+          <button>Begin</button>
+          <button>About</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live control panel to tune left/top/size and UI scale; values persist locally -->
+    <div class="panel" id="panel">
+      <h3>Square Mount Controls</h3>
+      <div class="group">
+        <div class="row"><label>Left <span id="v-left">0</span>%</label><input id="sm-left" type="range" min="0" max="100" step="0.01"></div>
+        <div class="row"><label>Top <span id="v-top">0</span>%</label><input id="sm-top" type="range" min="0" max="100" step="0.01"></div>
+        <div class="row"><label>Size <span id="v-size">0</span>%</label><input id="sm-size" type="range" min="0" max="100" step="0.01"></div>
+        <div class="row"><label>Text ×<span id="v-scale">1.00</span></label><input id="sm-scale" type="range" min="0.5" max="2" step="0.01"></div>
+      </div>
+      <div class="actions">
+        <button id="sm-copy">Copy CSS</button>
+        <button id="sm-reset">Reset</button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const root = document.documentElement;
+        const storeKey = 'square-mount-vars';
+        const store = JSON.parse(localStorage.getItem(storeKey) || '{}');
+        let state = {
+          left:  Number.isFinite(store.left)  ? store.left  : 37.66,
+          top:   Number.isFinite(store.top)   ? store.top   : 24.86,
+          size:  Number.isFinite(store.size)  ? store.size  : 24.53,
+          scale: Number.isFinite(store.scale) ? store.scale : 1.00,
+        };
+        const el = {
+          left: document.getElementById('sm-left'),
+          top: document.getElementById('sm-top'),
+          size: document.getElementById('sm-size'),
+          scale: document.getElementById('sm-scale'),
+          vLeft: document.getElementById('v-left'),
+          vTop: document.getElementById('v-top'),
+          vSize: document.getElementById('v-size'),
+          vScale: document.getElementById('v-scale'),
+          copy: document.getElementById('sm-copy'),
+          reset: document.getElementById('sm-reset'),
+        };
+        function apply() {
+          root.style.setProperty('--target-left', state.left + '%');
+          root.style.setProperty('--target-top', state.top + '%');
+          root.style.setProperty('--target-size', state.size + '%');
+          root.style.setProperty('--ui-scale', state.scale);
+          localStorage.setItem(storeKey, JSON.stringify(state));
+        }
+        function syncUI() {
+          el.left.value = state.left; el.vLeft.textContent = state.left.toFixed(2);
+          el.top.value = state.top; el.vTop.textContent = state.top.toFixed(2);
+          el.size.value = state.size; el.vSize.textContent = state.size.toFixed(2);
+          el.scale.value = state.scale; el.vScale.textContent = state.scale.toFixed(2);
+        }
+        el.left.oninput  = e => { state.left  = +e.target.value; apply(); syncUI(); };
+        el.top.oninput   = e => { state.top   = +e.target.value; apply(); syncUI(); };
+        el.size.oninput  = e => { state.size  = +e.target.value; apply(); syncUI(); };
+        el.scale.oninput = e => { state.scale = +e.target.value; apply(); syncUI(); };
+        el.copy.onclick = () => {
+          const css = `:root{\n  --target-left:${state.left.toFixed(2)}%;\n  --target-top:${state.top.toFixed(2)}%;\n  --target-size:${state.size.toFixed(2)}%;\n  --ui-scale:${state.scale.toFixed(2)};\n}`;
+          navigator.clipboard.writeText(css);
+          el.copy.textContent = 'Copied!';
+          setTimeout(() => (el.copy.textContent = 'Copy CSS'), 1200);
+        };
+        el.reset.onclick = () => {
+          state = { left: 37.66, top: 24.86, size: 24.53, scale: 1.00 };
+          apply(); syncUI();
+        };
+        // Keyboard nudging for fine control (panel must be focused)
+        const panel = document.getElementById('panel');
+        panel.tabIndex = 0;
+        panel.addEventListener('keydown', (e) => {
+          const step = e.shiftKey ? 0.5 : 0.05;
+          if (e.key === 'ArrowLeft')  { state.left -= step; }
+          if (e.key === 'ArrowRight') { state.left += step; }
+          if (e.key === 'ArrowUp')    { state.top  -= step; }
+          if (e.key === 'ArrowDown')  { state.top  += step; }
+          apply(); syncUI();
+        });
+        apply(); syncUI();
+      })();
+    </script>
+  </body>
+  </html>
+
+

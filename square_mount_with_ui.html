@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Square Mount + UI Test - Perfect Scaling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin: 0; background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; }
+      :root { 
+        /* Exact measurements from 4K image using GPT-5's Case 3 formula */
+        --target-left: 42.08%;  /* 1616px / 3840px × 100% */
+        --target-top: 33.56%;   /* 725px / 2160px × 100% */
+        --target-size: 15.86%;  /* 609px / 3840px × 100% */
+        --design-w: 16; --design-h: 9;  /* 16:9 aspect ratio */ 
+      }
+      
+      /* The magic scaling frame - always fill viewport, let background crop */
+      .frame { 
+        position: fixed; 
+        inset: 0; /* Fill entire viewport */
+        width: 100vw;
+        height: 100vh;
+      }
+      
+      /* Background scales with frame */
+      .frame img.bg { 
+        position: absolute; 
+        inset: 0; 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        object-position: center 40%; /* Focus on center scene */
+        user-select: none; 
+        -webkit-user-drag: none; 
+        pointer-events: none; 
+      }
+      
+      /* All UI elements inside this overlay - they scale with frame */
+      .overlay { 
+        position: absolute; 
+        inset: 0; 
+      }
+      
+      /* Mount using GPT-5's perfect positioning */
+      .mount { 
+        position: absolute; 
+        left: var(--target-left); 
+        top: var(--target-top); 
+        width: var(--target-size); 
+        aspect-ratio: 1 / 1; 
+        display: grid; 
+        place-items: center; 
+        outline: 2px solid rgba(0, 200, 255, 0.8); 
+        box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.25) inset; 
+        border-radius: 2px; 
+        overflow: hidden;
+      }
+      
+      .placeholder { 
+        width: 100%; 
+        height: 100%; 
+        display: grid; 
+        place-items: center; 
+        background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(0, 200, 255, 0.05)); 
+        color: #00e1ff; 
+        font-weight: 600; 
+        letter-spacing: 0.02em; 
+      }
+      
+      /* UI elements positioned relative to frame - use same percentages from GPT-5 */
+      .title {
+        position: absolute;
+        top: 4.17%; /* GPT-5: 45px / 1080px × 100% */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        text-align: center;
+        font-family: 'Michroma', 'Courier New', monospace;
+        font-size: clamp(1.5em, 4vw, 2.2em);
+        text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #00ffff;
+        padding: 0 20px;
+      }
+      
+      .subtitle {
+        position: absolute;
+        top: 9.72%; /* GPT-5: 105px / 1080px × 100% */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        text-align: center;
+        font-size: clamp(0.7em, 2vw, 0.9em);
+        color: #ff4df3;
+        text-shadow: 0 0 10px #ff4df3;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        padding: 0 20px;
+      }
+      
+      .tagline {
+        position: absolute;
+        top: 12.04%; /* GPT-5: 130px / 1080px × 100% */
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      
+      .credit {
+        position: absolute;
+        top: 13.89%; /* GPT-5: 150px / 1080px × 100% */
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      
+      /* Buttons positioned relative to frame */
+      .persona-controls {
+        position: absolute;
+        top: 66.67%; /* GPT-5: 720px / 1080px × 100% */
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: clamp(6px, 1vw, 12px);
+        flex-wrap: nowrap;
+        justify-content: center;
+        padding: 0 20px;
+      }
+      
+      .persona-btn {
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+        border: 2px solid rgba(77,227,255,0.5);
+        color: #00ffff;
+        padding: clamp(5px, 1.2vw, 8px) clamp(10px, 2.5vw, 15px);
+        font-size: clamp(0.6em, 1.6vw, 0.8em);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+        min-width: 0;
+        flex-shrink: 1;
+      }
+      
+      .persona-btn:hover {
+        border-color: #00ffff;
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25));
+        box-shadow: 0 0 20px rgba(0,255,255,0.4);
+        transform: translateY(-2px);
+      }
+      
+      .select-text {
+        position: absolute;
+        top: 71.30%; /* GPT-5: 770px / 1080px × 100% */
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        font-size: 18px;
+        color: rgba(0,255,255,0.8);
+        text-shadow: 0 0 10px rgba(0,255,255,0.8);
+        width: 100%;
+      }
+      
+      /* Base particle video inside mount */
+      .mount-base-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+      }
+      
+      .mount-content {
+        position: relative;
+        z-index: 2;
+        color: #00e1ff; 
+        font-weight: 600; 
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame" aria-label="Unified 16:9 stage">
+      <!-- Background image -->
+      <img class="bg" src="assets/new-back-4k.png.png" alt="Background" />
+      
+      <!-- ALL UI elements inside overlay - they scale together with background -->
+      <div class="overlay">
+        
+        <!-- Titles and text -->
+        <div class="title">Echoes of Indiana</div>
+        <div class="subtitle">Holographic Conversations Powered by Research</div>
+        <div class="tagline">Compelled by Curiosity</div>
+        <div class="credit">Brought to you by Past Presence</div>
+        
+        <!-- Mount with base video -->
+        <div class="mount" aria-label="Square mount">
+          <!-- Base particle video -->
+          <video class="mount-base-video" autoplay loop muted playsinline>
+            <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
+          </video>
+          
+          <!-- Mount content overlay -->
+          <div class="mount-content">Mount Ready</div>
+        </div>
+        
+        <!-- Buttons -->
+        <div class="persona-controls">
+          <button class="persona-btn">Brown County Bigfoot</button>
+          <button class="persona-btn">Hoosier Oracle</button>
+          <button class="persona-btn">Kurt Vonnegut</button>
+          <button class="persona-btn">Larry Bird</button>
+        </div>
+        
+        <!-- Select text -->
+        <div class="select-text">Select Oracle</div>
+        
+      </div> <!-- End overlay -->
+    </div> <!-- End frame -->
+  </body>
+</html>

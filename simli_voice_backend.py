@@ -363,6 +363,14 @@ async def main_kiosk_v3():
     else:
         return {"message": "main_kiosk_v3.html not found"}
 
+@app.get("/square-mount-ui")
+async def square_mount_ui():
+    """Test square mount with UI scaling"""
+    if os.path.exists("square_mount_with_ui.html"):
+        return FileResponse("square_mount_with_ui.html")
+    else:
+        return {"message": "square_mount_with_ui.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.

@@ -20,9 +20,9 @@
         --W1: 3000;
         --H1: 2000;
 
-        /* ADJUST THESE VALUES based on your outpaint padding */
-        --padLeft: 220;  /* pixels from left edge to original content - MEASURE THIS */
-        --padTop: 280;   /* pixels from top edge to original content - MEASURE THIS */
+        /* EXACT measurements from your outpaint */
+        --padLeft: 540;  /* pixels from left edge to original content */
+        --padTop: 497;   /* pixels from top edge to original content */
 
         /* Auto-calculated new percentages using GPT-5's formula */
         --target-left: calc((var(--padLeft) + var(--x0) * var(--W0)) / var(--W1) * 100%);

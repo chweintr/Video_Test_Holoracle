@@ -14,7 +14,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #000 url('assets/new-back.png') center/cover fixed;
+            background: #000 url('assets/new-back.png') center/100% no-repeat fixed;
             color: #00ffff;
             font-family: 'Courier New', monospace;
             height: 100vh;
@@ -68,17 +68,17 @@
             padding: 0 20px;
         }
         
-        /* MOUNT - Restored from FINAL_LAYOUT_SPECS.md working configuration */
+        /* MOUNT - Fixed background + smaller mount to fit inside glow */
         .hologram-window {
-            width: 380px;   /* From documented working specs */
-            height: 380px;  /* From documented working specs */
+            width: 320px;   /* Smaller to fit nicely inside glowing cube */
+            height: 320px;  /* Smaller to fit nicely inside glowing cube */
             position: absolute;
-            top: 195px;     /* From documented working specs */
+            top: 195px;     /* Keep same vertical position */
             left: 50%;
             transform: translateX(-50%); /* Center horizontally */
             overflow: hidden;
             z-index: 5;
-            /* Restored from proven working configuration */
+            /* Fixed background + smaller mount for better fit */
         }
         
         /* Status Display */

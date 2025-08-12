@@ -27,36 +27,46 @@
         .stage {
             position: relative;
             width: min(100vw, calc(100vh * 16 / 9));
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16/9;
             margin: 0 auto;
             overflow: hidden;
-            /* Try site-back-with-text.png - might be better resolution */
-            background: url('assets/site-back-with-text.png') center/cover no-repeat;
-            border: 2px solid rgba(0, 255, 255, 0.3);
+            background: #000;  /* if you see black, the image isn't loading */
         }
         
-        /* Background maps 1:1 to the stage */
+        /* Pin the background image to the stage, no cover/contain */
         .bg {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: fill;
-            display: block;
+            object-fit: fill;           /* exact 16:9 → 16:9 mapping */
+            object-position: 0% 0%;     /* top-left origin */
+            z-index: 0;
+            pointer-events: none;
         }
         
-        /* MOUNT - Adjusted positioning to match the cube in the background */
+        /* Mount from your Photoshop numbers on 2560×1440 */
         #mount {
             position: absolute;
-            left: 50%;
-            top: 30%;  /* Rough estimate - cube appears in upper-middle */
-            width: 20%;  /* Smaller to fit the cube */
-            transform: translateX(-50%);
+            left: 43.28125%;            /* 1108 / 2560 × 100 */
+            top: 28.95833%;             /* 417  / 1440 × 100 */
+            width: 28.55469%;           /* 731  / 2560 × 100 */
             aspect-ratio: 1 / 1;
             overflow: hidden;
-            z-index: 5;
-            /* Debug border to see exact position */
-            border: 2px solid rgba(255, 0, 255, 0.5);
+            z-index: 1;
+        }
+        
+        /* Optional debug: shows the expected square */
+        .guide {
+            position: absolute;
+            left: 43.28125%;
+            top: 28.95833%;
+            width: 28.55469%;
+            aspect-ratio: 1/1;
+            border: 2px solid red;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 2;
         }
         
         /* Mount content styling */
@@ -198,7 +208,7 @@
 <body>
     <!-- Stage: fixed 16:9 canvas that scales uniformly -->
     <div class="stage">
-        <!-- Background now applied via CSS like working /main version -->
+        <img class="bg" src="assets/new-back.png" alt="" onload="console.log('BG loaded:', this.naturalWidth, 'x', this.naturalHeight)" onerror="console.error('BG failed:', this.src)">
         
         <!-- Dynamic square mount (SIMLI / canvas / video goes in here) -->
         <div id="mount">
@@ -212,6 +222,9 @@
                 <div class="loading-spinner"></div>
             </div>
         </div>
+        
+        <!-- Debug guide to show where mount should be -->
+        <div class="guide"></div>
         
         <!-- Persona Controls - positioned relative to stage -->
         <div class="persona-controls">

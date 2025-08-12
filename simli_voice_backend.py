@@ -307,6 +307,14 @@ async def main_kiosk():
     else:
         return {"message": "main_kiosk.html not found"}
 
+@app.get("/square-mount")
+async def square_mount_prototype():
+    """Serve GPT-5's square mount CSS solution - Testing mount positioning fixes"""
+    if os.path.exists("square_mount_prototype.html"):
+        return FileResponse("square_mount_prototype.html")
+    else:
+        return {"message": "Square mount prototype not found"}
+
 @app.get("/transitions")
 async def main_kiosk_transitions():
     """Serve the 3-Layer Holographic Transition System - EXPERIMENTAL"""

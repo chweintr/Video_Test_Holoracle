@@ -307,6 +307,14 @@ async def main_kiosk():
     else:
         return {"message": "main_kiosk.html not found"}
 
+@app.get("/square-mount")
+async def square_mount_prototype():
+    """Serve the square mount prototype page (pure frontend, safe route)."""
+    if os.path.exists("square_mount_prototype.html"):
+        return FileResponse("square_mount_prototype.html")
+    else:
+        return {"message": "square_mount_prototype.html not found"}
+
 @app.get("/main_kiosk_stage")
 async def main_kiosk_stage():
     """Serve the Stage-Based Kiosk - Fixed 16:9 with baked background"""

@@ -24,12 +24,12 @@
         --padLeft: 540;  /* pixels from left edge to original content */
         --padTop: 497;   /* pixels from top edge to original content */
 
-        /* Auto-calculated new percentages using GPT-5's formula */
-        --target-left: calc((var(--padLeft) + var(--x0) * var(--W0)) / var(--W1) * 100%);
-        --target-top:  calc((var(--padTop)  + var(--y0) * var(--H0)) / var(--H1) * 100%);
-        --target-size: calc((var(--s0) * var(--W0)) / var(--W1) * 100%);
+        /* Direct percentages for 3000×2000 image - you'll need to measure these */
+        --target-left: 50%;   /* Adjust based on where cube actually is in 3000×2000 image */
+        --target-top: 42%;    /* Adjust based on where cube actually is in 3000×2000 image */ 
+        --target-size: 21%;   /* Adjust based on cube size in 3000×2000 image */
         
-        --design-w: 16; --design-h: 9; 
+        --design-w: 3; --design-h: 2;  /* Match outpainted image 3000×2000 = 3:2 */ 
       }
       .frame { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h)))); aspect-ratio: var(--design-w) / var(--design-h); }
       .frame img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; user-select: none; -webkit-user-drag: none; pointer-events: none; }

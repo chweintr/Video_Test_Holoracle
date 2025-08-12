@@ -68,18 +68,17 @@
             padding: 0 20px;
         }
         
-        /* Responsive Mount - Scales proportionally with background frame */
+        /* MOUNT - Scales to match the glowing square in background image */
         .hologram-window {
-            width: min(380px, 28vw, 35vh);  /* Scale with viewport, max 380px */
-            height: min(380px, 28vw, 35vh); /* Keep square, responsive */
-            border: none;
-            background: transparent;
+            width: 25vw;   /* Scale with viewport - matches glowing square */
+            height: 25vw;  /* Always square - matches glowing square */
             position: absolute;
-            top: 50%;   /* Center in viewport */
-            left: 50%;  /* Center in viewport */
-            transform: translate(-50%, -50%); /* Perfect center */
+            top: 35vh;     /* Position to match glowing square location */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally only */
             overflow: hidden;
             z-index: 5;
+            /* NO size caps - must scale with background glowing square */
         }
         
         /* Status Display */
@@ -96,9 +95,30 @@
             font-family: 'Courier New', monospace;
         }
         
-        /* Enhanced Idle State with particles */
+        /* BASE LAYER - Particle video that stays in mount at all times */
+        .mount-base-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;  /* Fill entire mount */
+            height: 100%; /* Fill entire mount */
+            z-index: 1;   /* Bottom layer */
+        }
+        
+        .mount-base-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Maintain aspect ratio, fill mount */
+        }
+        
+        /* IDLE STATE - Overlay on top of base video */
         .idle-state {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
@@ -107,7 +127,8 @@
             flex-direction: column;
             text-align: center;
             color: rgba(0,255,255,0.8);
-            background: radial-gradient(circle at center, rgba(0,255,255,0.1) 0%, transparent 70%);
+            background: rgba(0,0,0,0.3); /* Slight overlay so text is readable */
+            z-index: 2; /* Above base video */
         }
         
         .idle-spinner {
@@ -154,17 +175,19 @@
             }
         }
         
-        /* Enhanced loading state with transition effects */
+        /* LOADING STATE - Overlay layer */
         .loading-state {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: rgba(0,0,0,0.9);
-            z-index: 15;
+            background: rgba(0,0,0,0.8);
+            z-index: 10; /* Above idle state, below controls */
             transition: all 0.3s ease;
         }
         
@@ -248,34 +271,34 @@
             display: flex;
         }
         
-        /* Avatar Container */
+        /* SIMLI AGENT LAYER - Perfectly aligned to mount */
         .avatar-container {
             position: absolute;
-            width: 380px;
-            height: 380px;
             top: 0;
             left: 0;
+            width: 100%; /* Fill entire mount */
+            height: 100%; /* Fill entire mount */
             display: none;
             overflow: hidden;
+            z-index: 5; /* Above idle/loading states */
         }
         
         .avatar-container.active {
             display: block;
         }
         
-        /* Force Simli widget to exact mount size */
+        /* Simli widget must follow mount size - NO independent sizing */
         simli-widget {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 380px !important;
-            height: 380px !important;
+            width: 100% !important; /* Follows mount size exactly */
+            height: 100% !important; /* Follows mount size exactly */
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             display: block !important;
             overflow: hidden !important;
-            /* Force exact 380x380 sizing */
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -290,14 +313,14 @@
             visibility: hidden !important;
         }
         
-        /* Force video to fill mount exactly */
+        /* Simli video must follow mount size - scales with glowing square */
         simli-widget::shadow video,
         simli-widget::shadow canvas {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 380px !important;
-            height: 380px !important;
+            width: 100% !important; /* Scales with mount = scales with glowing square */
+            height: 100% !important; /* Scales with mount = scales with glowing square */
             object-fit: cover !important;
             background: transparent !important;
         }
@@ -346,27 +369,20 @@
             border-color: #ff0000;
         }
 
-        /* Responsive breakpoints */
+        /* Responsive scaling - mount always matches glowing square */
         @media (max-width: 1366px) {
-            .title {
-                font-size: clamp(1.2em, 4vw, 1.8em);
-                margin-top: 15px;
-            }
-            .subtitle {
-                font-size: clamp(0.6em, 2vw, 0.8em);
-                margin-bottom: 15px;
-            }
             .hologram-window {
-                width: min(350px, 85vw);
-                height: min(350px, 85vw);
+                width: 28vw;  /* Slightly larger on medium screens */
+                height: 28vw;
+                top: 32vh;    /* Adjust position for medium screens */
             }
         }
 
         @media (max-width: 1024px) {
             .hologram-window {
-                width: min(320px, 90vw);
-                height: min(320px, 90vw);
-                /* Removed margin that was pushing mount down */
+                width: 35vw;  /* Larger on tablets */
+                height: 35vw;
+                top: 30vh;    /* Adjust position for tablets */
             }
             .persona-controls {
                 gap: clamp(8px, 2vw, 15px);
@@ -379,18 +395,10 @@
         }
 
         @media (max-width: 768px) {
-            .title {
-                font-size: clamp(1em, 5vw, 1.5em);
-                margin-top: 10px;
-            }
-            .subtitle {
-                font-size: clamp(0.5em, 3vw, 0.7em);
-                margin-bottom: 10px;
-            }
             .hologram-window {
-                width: min(280px, 95vw);
-                height: min(280px, 95vw);
-                /* Removed margin that was pushing mount down */
+                width: 45vw;  /* Much larger on phones */
+                height: 45vw;
+                top: 25vh;    /* Higher position on phones */
             }
             .persona-controls {
                 flex-direction: column;
@@ -405,12 +413,10 @@
         }
 
         @media (max-width: 480px) {
-            .title {
-                font-size: clamp(0.9em, 6vw, 1.2em);
-            }
             .hologram-window {
-                width: min(250px, 95vw);
-                height: min(250px, 95vw);
+                width: 60vw;  /* Even larger on small phones */
+                height: 60vw;
+                top: 20vh;    /* Higher position on small phones */
             }
             .persona-btn {
                 width: min(180px, 85vw);
@@ -437,45 +443,42 @@
         font-family: 'Courier New', monospace;
     ">Brought to you by Past Presence</div>
     
-    <!-- Fixed 380x380 Hologram Window -->
+    <!-- FIXED MOUNT CONTAINER - All elements layer inside this exact square -->
     <div class="hologram-window" id="hologramWindow">
-        <!-- Alpha overlay frame - always on top -->
-        <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 8; /* Behind buttons (20) but in front of widget (5) */
-            pointer-events: none;
-            background-image: url('assets/Overlay-Scene.png');
-            background-size: cover;
-            background-position: center;
-            display: none; /* Overlay disabled - was blocking interactions */
-        " id="mountFrameOverlay"></div>
-        <!-- Status removed - no longer needed -->
         
-        <!-- Idle State with particles -->
-        <div class="idle-state" id="idleState">
-            <video autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+        <!-- LAYER 1: BASE VIDEO - Always present, never changes size -->
+        <div class="mount-base-layer">
+            <video class="mount-base-video" autoplay loop muted playsinline>
                 <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
             </video>
-            <div class="particles" id="particleContainer" style="z-index: 2;"></div>
         </div>
         
-        <!-- Loading State -->
+        <!-- LAYER 2: IDLE STATE - Overlay on base video -->
+        <div class="idle-state" id="idleState">
+            <div class="particles" id="particleContainer"></div>
+            <div class="idle-spinner"></div>
+            <div style="margin-top: 20px;">Select Oracle</div>
+        </div>
+        
+        <!-- LAYER 3: LOADING STATE -->
         <div class="loading-state" id="loadingState">
             <div class="idle-spinner"></div>
             <div style="margin-top: 20px;">Summoning...</div>
         </div>
         
-        <!-- Avatar Containers -->
+        <!-- LAYER 4: TRANSITION VIDEOS (future) -->
+        <!-- Will be added here for transition-in, transition-out effects -->
+        
+        <!-- LAYER 5: SIMLI AGENTS - Perfectly aligned to mount -->
         <div class="avatar-container" id="avatarBigfoot"></div>
         <div class="avatar-container" id="avatarIndiana"></div>
         <div class="avatar-container" id="avatarVonnegut"></div>
         <div class="avatar-container" id="avatarLarryBird"></div>
         
-        <!-- End Session Button -->
+        <!-- LAYER 6: OVERLAYS (e.g., Bigfoot overlay, future effects) -->
+        <!-- Will be added dynamically as needed -->
+        
+        <!-- LAYER 7: CONTROLS -->
         <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
             END SESSION
         </div>
@@ -790,15 +793,8 @@
             container.appendChild(widget);
             currentWidget = widget;
             
-            // Force widget size after adding to DOM
-            setTimeout(() => {
-                widget.style.width = '380px';
-                widget.style.height = '380px';
-                widget.style.position = 'absolute';
-                widget.style.top = '0';
-                widget.style.left = '0';
-                console.log(`[Main Kiosk] Forced widget sizing for ${personaId}`);
-            }, 100);
+            // Widget sizing is now handled by CSS - no need for forced sizing
+            // Widget will automatically fill the mount container (100% width/height)
             
             // Overlay will be added when call starts (after user clicks Start)
             
@@ -839,37 +835,35 @@
         }
         
         function returnToIdle() {
-            console.log('[Main Kiosk] Returning to idle');
+            console.log('[Main Kiosk] Returning to idle - base video always stays');
             currentPersona = null;
             currentWidget = null;
             
-            // Restore original idle video
-            const idleVideo = idleState.querySelector('video');
-            if (idleVideo) {
-                const source = idleVideo.querySelector('source');
-                source.src = 'assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4';
-                idleVideo.load();
-                idleVideo.play();
-            }
+            // Base video never changes - it's always there in LAYER 1
+            // No need to modify the base video layer
             
             // Clear states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             loadingState.classList.remove('active');
             endSessionBtn.classList.remove('active');
             
-            // Show idle and "Select Oracle" text
+            // Show idle state (LAYER 2) over base video
             idleState.style.display = 'flex';
             document.getElementById('selectOracleText').style.display = 'block';
-            updateStatus('Ready');
+            updateStatus('Ready - Layered Mount System');
         }
         
         
         // Initialize
         window.addEventListener('load', () => {
-            console.log('🚀 MAIN KIOSK v2.2 - CACHE BUST VERSION - 3 Personas Available');
-            console.log('📍 Layout: Title(20px), Subtitle(80px), Mount(120px), Buttons(570px), Select(625px)');
-            console.log('🎯 Mount: Fixed 380x380px, Background: new-back.png');
-            updateStatus('Ready');
+            console.log('🚀 MAIN KIOSK - FIXED LAYERED MOUNT SYSTEM');
+            console.log('🎯 Mount: Responsive square container with perfect layering');
+            console.log('📹 LAYER 1: Base particle video (always present, never changes)');
+            console.log('📹 LAYER 2: Idle state overlay');
+            console.log('📹 LAYER 3: Loading state');
+            console.log('📹 LAYER 5: Simli agents (perfectly aligned to mount)');
+            console.log('📹 All elements stay within mount boundaries, maintain proportions');
+            updateStatus('Ready - Layered Mount System');
             
             // Initialize particle system
             createParticles();

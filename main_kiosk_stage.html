@@ -33,16 +33,18 @@
             background: #000;  /* if you see black, the image isn't loading */
         }
         
-        /* Pin the background image to the stage, no cover/contain */
+        /* Pin the background image to the stage, no cropping */
         .bg {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: fill;           /* exact 16:9 → 16:9 mapping */
-            object-position: 0% 0%;     /* top-left origin */
+            object-fit: contain;  /* Show full image, no cropping */
+            object-position: center;
             z-index: 0;
             pointer-events: none;
+            display: block;  /* Ensure it displays */
         }
         
         /* Mount - Use simpler centered positioning like original */
@@ -210,8 +212,8 @@
 <body>
     <!-- Stage: fixed 16:9 canvas that scales uniformly -->
     <div class="stage">
-        <!-- Using new-back.png which we KNOW loads on /main -->
-        <img class="bg" src="assets/new-back.png" alt="" onload="console.log('BG loaded:', this.naturalWidth, 'x', this.naturalHeight)" onerror="console.error('BG failed:', this.src)">
+        <!-- Try the 16:9 image ONE MORE TIME with correct path -->
+        <img class="bg" src="assets/site-back-with-text-standard.png" alt="" onload="console.log('BG loaded:', this.naturalWidth, 'x', this.naturalHeight)" onerror="console.error('BG failed:', this.src)">
         
         <!-- Dynamic square mount (SIMLI / canvas / video goes in here) -->
         <div id="mount">

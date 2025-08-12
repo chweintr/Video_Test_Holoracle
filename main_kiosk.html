@@ -191,6 +191,32 @@
             transition: all 0.3s ease;
         }
         
+        /* TRANSITION LAYER - Morphing effect videos */
+        .transition-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            z-index: 15; /* Above all other layers during transitions */
+            pointer-events: none; /* Don't block interactions */
+        }
+        
+        .transition-layer.active {
+            display: block;
+        }
+        
+        .transition-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Fill mount maintaining aspect ratio */
+            background: transparent;
+        }
+        
         .loading-state.active {
             display: flex;
             animation: fadeIn 0.3s ease;
@@ -432,8 +458,12 @@
             <div style="margin-top: 20px;">Summoning...</div>
         </div>
         
-        <!-- LAYER 4: TRANSITION VIDEOS (future) -->
-        <!-- Will be added here for transition-in, transition-out effects -->
+        <!-- LAYER 4: TRANSITION VIDEOS - Particles morphing effects -->
+        <div class="transition-layer" id="transitionLayer">
+            <video class="transition-video" id="transitionVideo" playsinline>
+                <!-- Source will be set dynamically -->
+            </video>
+        </div>
         
         <!-- LAYER 5: SIMLI AGENTS - Perfectly aligned to mount -->
         <div class="avatar-container" id="avatarBigfoot"></div>
@@ -512,6 +542,39 @@
     <script>
         console.log('🚀 Loading Main Kiosk - 4 Personas with Larry Bird');
         
+        // TRANSITION SYSTEM - Random video selection for holographic morphing
+        const TRANSITIONS = {
+            bigfoot: {
+                morphIn: ['particles-to-bigfoot.gif', 'particles-to-bigfoot-alt.mp4'],
+                morphOut: ['bigfoot-to-particles.mp4'] // Add more as created
+            },
+            indiana: {
+                morphIn: ['particles-to-Hoosier-Oracle.mp4'],
+                morphOut: ['Hoosier-Oracle-to-particles.mp4', 'Hoosier-Oracle-to-particles-2.mp4']
+            },
+            vonnegut: {
+                morphIn: ['particles-to-KVJ.mp4'],
+                morphOut: ['KVJ-to-particles.mp4']
+            },
+            larrybird: {
+                morphIn: ['Blank-to-KVJ.mp4'], // Placeholder - using KVJ as temp
+                morphOut: ['KVJ-to-particles.mp4'] // Placeholder - using KVJ as temp
+            },
+            // Base particle loops for idle transitions
+            particles: ['particles-to-particles-2.mp4', 'particles-to-particles-3.mp4', 'particles-to-particles-4.mp4', 'particles-swirl-simple.mp4']
+        };
+        
+        function getRandomTransition(persona, type) {
+            const options = TRANSITIONS[persona] && TRANSITIONS[persona][type];
+            if (!options || !options.length) {
+                console.warn(`[Transitions] No ${type} transitions for ${persona}`);
+                return null;
+            }
+            const selected = options[Math.floor(Math.random() * options.length)];
+            console.log(`[Transitions] Selected ${type} for ${persona}: ${selected}`);
+            return selected;
+        }
+        
         // WHAT WORKED: Simple widget embed with correct agent IDs
         const CONFIG = {
             personas: {
@@ -556,6 +619,8 @@
         const endSessionBtn = document.getElementById('endSessionBtn');
         const parallaxLayer = document.getElementById('parallaxLayer');
         const particleContainer = document.getElementById('particleContainer');
+        const transitionLayer = document.getElementById('transitionLayer');
+        const transitionVideo = document.getElementById('transitionVideo');
         
         // Parallax mouse effect
         let mouseX = 50, mouseY = 50, ticking = false;
@@ -594,8 +659,76 @@
             console.log('[Main Kiosk]', msg);
         }
         
+        // HOLOGRAPHIC TRANSITION FUNCTIONS
+        async function playTransition(videoFile, onComplete) {
+            return new Promise((resolve) => {
+                console.log(`[Transitions] Playing: ${videoFile}`);
+                
+                // Clear any existing source
+                transitionVideo.innerHTML = '';
+                
+                // Set up new source
+                const source = document.createElement('source');
+                source.src = `assets/${videoFile}`;
+                source.type = videoFile.endsWith('.gif') ? 'image/gif' : 'video/mp4';
+                transitionVideo.appendChild(source);
+                
+                // Show transition layer
+                transitionLayer.classList.add('active');
+                
+                // When video ends, hide layer and complete
+                transitionVideo.onended = () => {
+                    console.log(`[Transitions] Completed: ${videoFile}`);
+                    transitionLayer.classList.remove('active');
+                    transitionVideo.innerHTML = ''; // Clear source
+                    if (onComplete) onComplete();
+                    resolve();
+                };
+                
+                // Handle errors
+                transitionVideo.onerror = (e) => {
+                    console.error(`[Transitions] Error playing ${videoFile}:`, e);
+                    transitionLayer.classList.remove('active');
+                    transitionVideo.innerHTML = '';
+                    if (onComplete) onComplete();
+                    resolve();
+                };
+                
+                // Start playback
+                transitionVideo.load();
+                transitionVideo.play().catch(e => {
+                    console.error(`[Transitions] Playback failed for ${videoFile}:`, e);
+                    transitionLayer.classList.remove('active');
+                    if (onComplete) onComplete();
+                    resolve();
+                });
+            });
+        }
+        
+        async function transitionToPersona(personaId) {
+            const transitionFile = getRandomTransition(personaId, 'morphIn');
+            if (!transitionFile) {
+                console.warn(`[Transitions] No morph-in transition for ${personaId}, skipping`);
+                return;
+            }
+            
+            console.log(`[Transitions] Transitioning to ${personaId} with ${transitionFile}`);
+            await playTransition(transitionFile);
+        }
+        
+        async function transitionFromPersona(personaId) {
+            const transitionFile = getRandomTransition(personaId, 'morphOut');
+            if (!transitionFile) {
+                console.warn(`[Transitions] No morph-out transition for ${personaId}, skipping`);
+                return;
+            }
+            
+            console.log(`[Transitions] Transitioning from ${personaId} with ${transitionFile}`);
+            await playTransition(transitionFile);
+        }
+        
         async function switchPersona(personaId) {
-            console.log(`[Main Kiosk] Switching to: ${personaId}`);
+            console.log(`[Main Kiosk] 🎬 HOLOGRAPHIC TRANSITION to: ${personaId}`);
             
             // Hide "Select Oracle" text when persona is selected
             document.getElementById('selectOracleText').style.display = 'none';
@@ -604,8 +737,10 @@
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
             
-            // End current session if active
+            // End current session if active (with transition out)
             if (currentPersona && currentWidget) {
+                console.log(`[Main Kiosk] Transitioning out from ${currentPersona}`);
+                await transitionFromPersona(currentPersona);
                 await endCurrentSession();
             }
             
@@ -613,17 +748,15 @@
             currentPersona = personaId;
             const persona = CONFIG.personas[personaId];
             
-            // TRANSITIONS DISABLED - Focus on working Simli widgets first
-            // Will implement proper transition logic after 4 personas work
-            
             updateStatus(`Summoning ${persona.name}...`);
             
-            // Show loading state
+            // Hide idle state (Layer 2) - base video (Layer 1) stays
             idleState.style.display = 'none';
-            loadingState.classList.add('active');
             
             try {
-                // Get token using WORKING approach
+                // STEP 1: Start loading Simli agent SILENTLY (hidden)
+                console.log(`[Main Kiosk] 🔄 Loading ${persona.name} silently behind transition...`);
+                
                 const response = await fetch(`${API_BASE}/simli-token?agentId=${persona.agentId}`, {
                     method: "GET",
                     headers: {
@@ -639,16 +772,154 @@
                     throw new Error('No token received');
                 }
                 
-                console.log(`[Main Kiosk] Token for ${personaId}: ${token.substring(0, 10)}...`);
+                console.log(`[Main Kiosk] 🎫 Token received for ${personaId}`);
                 
-                // Create widget using WORKING method
-                await createSimliWidget(personaId, token, persona.agentId);
+                // STEP 2: Create widget HIDDEN (will be revealed after transition)
+                await createSimliWidgetHidden(personaId, token, persona.agentId);
+                
+                // STEP 3: Play transition-in video (particles-to-X)
+                console.log(`[Main Kiosk] 🎭 Playing transition-in for ${personaId}`);
+                await transitionToPersona(personaId);
+                
+                // STEP 4: Reveal Simli agent in EXACT same spot
+                console.log(`[Main Kiosk] ✨ Revealing ${persona.name} after transition`);
+                revealSimliAgent(personaId);
                 
             } catch (error) {
                 console.error(`[Main Kiosk] Error for ${personaId}:`, error);
                 updateStatus(`Connection failed: ${error.message}`);
                 returnToIdle();
             }
+        }
+        
+        async function createSimliWidgetHidden(personaId, token, agentId) {
+            const persona = CONFIG.personas[personaId];
+            // Fix for Larry Bird - needs special case for camelCase
+            let containerId;
+            if (personaId === 'larrybird') {
+                containerId = 'avatarLarryBird';  // Capital B for Bird
+            } else {
+                containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            }
+            const container = document.getElementById(containerId);
+            
+            console.log(`[Main Kiosk] Creating HIDDEN widget for ${personaId}`);
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // DO NOT show container yet - it will be revealed after transition
+            container.classList.remove('active');
+            
+            // Hide other containers
+            document.querySelectorAll('.avatar-container').forEach(c => {
+                if (c.id !== containerId) c.classList.remove('active');
+            });
+            
+            // Create simli-widget element using PROVEN WORKING pattern
+            const widget = document.createElement('simli-widget');
+            widget.setAttribute('token', token);
+            widget.setAttribute('agentid', agentId);
+            
+            // CRITICAL: Add face ID if specified - REQUIRED for custom faces
+            if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
+                console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
+            }
+            
+            widget.setAttribute('position', 'relative');
+            widget.setAttribute('customtext', ' ');  // Single space instead of empty
+            widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+            widget.setAttribute('hidetrigger', 'true');  // Should hide trigger
+            widget.setAttribute('autostart', 'true');  // Try autostarting to skip button
+            
+            // Use custom image if specified (for particle videos)
+            if (persona.customImage) {
+                // For local files, need full URL
+                const fullUrl = `${window.location.origin}/${persona.customImage}`;
+                widget.setAttribute('customimage', fullUrl);
+                console.log(`[Main Kiosk] Using custom image for ${personaId}: ${fullUrl}`);
+            } else {
+                widget.setAttribute('customimage', '');
+            }
+            
+            // Add event listeners
+            widget.addEventListener('load', () => {
+                console.log(`[Main Kiosk] 🔇 HIDDEN Widget loaded: ${personaId} (ready for reveal)`);
+            });
+            
+            widget.addEventListener('error', (e) => {
+                console.error(`[Main Kiosk] Widget error:`, e);
+                updateStatus(`Widget error: ${e.detail || 'Unknown'}`);
+                returnToIdle();
+            });
+            
+            widget.addEventListener('callstart', () => {
+                console.log(`[Main Kiosk] Call started: ${personaId}`);
+                updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
+                
+                // Add overlay ONLY after call starts (user clicked Start)
+                if (personaId === 'bigfoot' && !container.querySelector('.bigfoot-overlay-inner')) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'bigfoot-overlay-inner';
+                    overlay.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-image: url('assets/bigfoot-overlay.png');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        pointer-events: none;
+                        z-index: 1000;
+                    `;
+                    container.appendChild(overlay);
+                    console.log('[Main Kiosk] Bigfoot overlay added after call start');
+                }
+            });
+            
+            widget.addEventListener('callend', () => {
+                console.log(`[Main Kiosk] Call ended: ${personaId}`);
+                updateStatus(`${persona.name} Ready - Click to Talk`);
+                
+                // Remove overlay when call ends
+                const overlay = container.querySelector('.bigfoot-overlay-inner');
+                if (overlay) {
+                    overlay.remove();
+                    console.log('[Main Kiosk] Bigfoot overlay removed');
+                }
+            });
+            
+            // Add to container (hidden)
+            container.appendChild(widget);
+            currentWidget = widget;
+            
+            console.log(`[Main Kiosk] 🫥 HIDDEN widget created successfully: ${personaId} (awaiting reveal)`);
+        }
+        
+        function revealSimliAgent(personaId) {
+            // Fix for Larry Bird - needs special case for camelCase
+            let containerId;
+            if (personaId === 'larrybird') {
+                containerId = 'avatarLarryBird';  // Capital B for Bird
+            } else {
+                containerId = `avatar${personaId.charAt(0).toUpperCase() + personaId.slice(1)}`;
+            }
+            const container = document.getElementById(containerId);
+            const persona = CONFIG.personas[personaId];
+            
+            console.log(`[Main Kiosk] 🎭 REVEALING ${persona.name} after transition`);
+            
+            // Show the container - agent appears in exact same spot as transition ended
+            container.classList.add('active');
+            
+            // Update status and show controls
+            updateStatus(`${persona.name} Connected${persona.enhanced ? ' [ENHANCED]' : ''}`);
+            endSessionBtn.classList.add('active');
+            
+            console.log(`[Main Kiosk] ✅ ${persona.name} revealed and ready`);
         }
         
         async function createSimliWidget(personaId, token, agentId) {
@@ -802,35 +1073,42 @@
         }
         
         function returnToIdle() {
-            console.log('[Main Kiosk] Returning to idle - base video always stays');
+            console.log('[Main Kiosk] 🏠 Returning to idle - base particle video continues');
             currentPersona = null;
             currentWidget = null;
             
-            // Base video never changes - it's always there in LAYER 1
-            // No need to modify the base video layer
+            // LAYER 1: Base particle video never changes - it's always there
+            // LAYER 2: Show idle state overlay over base video
+            // LAYER 3: Hide any transition videos
+            // LAYER 4: Hide all Simli agents
             
             // Clear states
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             loadingState.classList.remove('active');
             endSessionBtn.classList.remove('active');
+            transitionLayer.classList.remove('active'); // Hide any transition
             
-            // Show idle state (LAYER 2) over base video
+            // Hide all agent containers
+            document.querySelectorAll('.avatar-container').forEach(c => c.classList.remove('active'));
+            
+            // Show idle state (LAYER 2) over base video (LAYER 1)
             idleState.style.display = 'flex';
             document.getElementById('selectOracleText').style.display = 'block';
-            updateStatus('Ready - Layered Mount System');
+            updateStatus('Ready - 3-Layer Holographic System');
         }
         
         
         // Initialize
         window.addEventListener('load', () => {
-            console.log('🚀 MAIN KIOSK - FIXED LAYERED MOUNT SYSTEM');
-            console.log('🎯 Mount: Responsive square container with perfect layering');
-            console.log('📹 LAYER 1: Base particle video (always present, never changes)');
-            console.log('📹 LAYER 2: Idle state overlay');
-            console.log('📹 LAYER 3: Loading state');
-            console.log('📹 LAYER 5: Simli agents (perfectly aligned to mount)');
-            console.log('📹 All elements stay within mount boundaries, maintain proportions');
-            updateStatus('Ready - Layered Mount System');
+            console.log('🚀 MAIN KIOSK - 3-LAYER HOLOGRAPHIC TRANSITION SYSTEM');
+            console.log('🎯 Mount: 363x363px perfect cube alignment');
+            console.log('🎬 LAYER 1: Base particle video (always running, never changes)');
+            console.log('🎬 LAYER 2: Idle state overlay (when no persona active)');
+            console.log('🎬 LAYER 3: Transition videos (particles-to-X, X-to-particles)');
+            console.log('🎬 LAYER 4: Simli agents (load hidden, reveal after transition)');
+            console.log('🎲 RANDOM TRANSITIONS: Multiple video options per persona');
+            console.log('✨ SEAMLESS ILLUSION: Particles morph into personas');
+            updateStatus('Ready - 3-Layer Holographic System');
             
             // Initialize particle system
             createParticles();

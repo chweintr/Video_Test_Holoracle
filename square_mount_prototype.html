@@ -8,7 +8,29 @@
       *, *::before, *::after { box-sizing: border-box; }
       html, body { height: 100%; }
       body { margin: 0; background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
-      :root { --target-left: 37.66%; --target-top: 24.86%; --target-size: 24.53%; --design-w: 16; --design-h: 9; }
+      :root { 
+        /* Original design dimensions and coordinates */
+        --W0: 2560;
+        --H0: 1440; 
+        --x0: 0.3766;   /* 37.66% as decimal */
+        --y0: 0.2486;   /* 24.86% as decimal */
+        --s0: 0.2453;   /* 24.53% as decimal */
+
+        /* New outpainted image dimensions */
+        --W1: 3000;
+        --H1: 2000;
+
+        /* ADJUST THESE VALUES based on your outpaint padding */
+        --padLeft: 220;  /* pixels from left edge to original content - MEASURE THIS */
+        --padTop: 280;   /* pixels from top edge to original content - MEASURE THIS */
+
+        /* Auto-calculated new percentages using GPT-5's formula */
+        --target-left: calc((var(--padLeft) + var(--x0) * var(--W0)) / var(--W1) * 100%);
+        --target-top:  calc((var(--padTop)  + var(--y0) * var(--H0)) / var(--H1) * 100%);
+        --target-size: calc((var(--s0) * var(--W0)) / var(--W1) * 100%);
+        
+        --design-w: 16; --design-h: 9; 
+      }
       .frame { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h)))); aspect-ratio: var(--design-w) / var(--design-h); }
       .frame img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; user-select: none; -webkit-user-drag: none; pointer-events: none; }
       .overlay { position: absolute; inset: 0; }
@@ -18,7 +40,7 @@
   </head>
   <body>
     <div class="frame" aria-label="Unified 16:9 stage">
-      <img class="bg" src="assets/new-back.png" alt="Background" />
+      <img class="bg" src="assets/new-back-big-2.png" alt="Background" />
       <div class="overlay">
         <div class="mount" aria-label="Square mount">
           <div class="placeholder">Square Mount</div>

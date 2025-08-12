@@ -307,6 +307,14 @@ async def main_kiosk():
     else:
         return {"message": "main_kiosk.html not found"}
 
+@app.get("/main_kiosk_stage")
+async def main_kiosk_stage():
+    """Serve the Stage-Based Kiosk - Fixed 16:9 with baked background"""
+    if os.path.exists("main_kiosk_stage.html"):
+        return FileResponse("main_kiosk_stage.html")
+    else:
+        return {"message": "main_kiosk_stage.html not found"}
+
 @app.get("/direct")
 async def direct_kiosk():
     """Serve the Direct API Kiosk - No widgets, pure agent integration"""

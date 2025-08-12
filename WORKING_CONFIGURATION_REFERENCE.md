@@ -113,9 +113,90 @@ python simli_voice_backend.py  # Should start on port 8083
 - ✅ Custom UI overlay system
 - ✅ Press-to-talk / disconnect buttons
 
+## 🎬 HOLOGRAPHIC TRANSITION SYSTEM - THE VISION
+**⚠️ FOR FUTURE CLAUDE INSTANCES: THIS IS THE 183RD TIME USER HAS EXPLAINED THIS VISION**
+
+### The Complete Holographic Illusion Flow
+
+#### LAYER SYSTEM (Z-INDEX ORDER - BOTTOM TO TOP):
+1. **LAYER 1 (Base)**: Constant particle animation loop (ALWAYS running)
+2. **LAYER 2 (Background)**: Simli agent (HIDDEN initially, loads silently)
+3. **LAYER 3 (Foreground)**: Transition videos (particles-to-X, X-to-particles)
+
+#### USER INTERACTION FLOW:
+
+**1. IDLE STATE:**
+- Base particle loop plays constantly in holographic box
+- No Simli agents visible
+- User sees: Continuous particle animation
+
+**2. USER SELECTS ORACLE (e.g., "Bigfoot"):**
+- **Background**: Simli Bigfoot agent loads SILENTLY (hidden behind transition)
+- **Foreground**: "particles-to-bigfoot" video plays ONCE (no loop)
+- User sees: Particles morphing into Bigfoot shape
+- **When transition completes**: Video disappears, revealing Simli Bigfoot in EXACT same spot
+
+**3. CONVERSATION STATE:**
+- Base particles: Still looping (hidden)
+- Simli agent: Visible and interactive
+- User sees: Bigfoot responding to voice
+
+**4A. USER ENDS CONVERSATION:**
+- **Foreground**: "bigfoot-to-particles" video plays ONCE (no loop) 
+- **When transition completes**: Video disappears, revealing base particle loop
+- Simli agent: Destroyed/cleaned up
+- User sees: Bigfoot dissolving back into particles
+
+**4B. USER SWITCHES ORACLES (e.g., "Larry Bird"):**
+- **Background**: Simli Larry loads SILENTLY while Bigfoot still visible
+- **Foreground**: "particles-to-larry" video plays ONCE
+- **Immediately after**: Old Simli (Bigfoot) destroyed
+- **When transition completes**: Video disappears, revealing Larry in EXACT same spot
+
+### CRITICAL REQUIREMENTS:
+- ✅ **NO LOOPS** on transition videos (particles-to-X, X-to-particles)
+- ✅ **EXACT POSITIONING** - All agents appear in identical spot
+- ✅ **SEAMLESS ILLUSION** - No visible loading, no positioning jumps
+- ✅ **LAYER COORDINATION** - Perfect timing between video end and reveal
+- ✅ **SILENT LOADING** - Simli agents load hidden, appear only after transition
+
+### TRANSITION VIDEO NAMING CONVENTION:
+- `particles-to-bigfoot.mp4` (morphing in)
+- `bigfoot-to-particles.mp4` (morphing out)
+- `particles-to-larry.mp4` (morphing in)
+- `particles-to-vonnegut.mp4` (morphing in)
+- etc.
+
+**🎯 THE GOAL: Perfect holographic illusion where particles seamlessly become personas and vice versa**
+
+## 🚨 PLATFORM ISSUES DISCOVERED (Aug 12, 2025)
+
+### Critical Simli Support Exchange Findings:
+
+#### 1. **Trinity Process Breaking Face Positioning** 🎯
+- Trinity automatically repositions/crops/outpaints faces - THIS IS WHY ALIGNMENT KEEPS BREAKING
+- User provides 512×512 with faces at specific coordinates, Trinity moves them
+- Simli working on "raw positioning mode" to preserve original positioning
+- **This explains the entire 3-week alignment struggle**
+
+#### 2. **ttsAPIKey Bug Breaks ALL Widgets** 🐛  
+- Adding `ttsAPIKey` to session token breaks even widgets that don't need custom voices
+- Simli confirms this "shouldn't happen" - it's a platform bug
+- **This explains voice inconsistencies**
+
+#### 3. **Alpha Channel/Custom Backgrounds Not Ready** ⏳
+- WebRTC doesn't support alpha channels
+- Custom backgrounds feature "coming soon"  
+- Current alpha masks aren't perfect
+
+### Current Workarounds:
+- Use agents that work with standard voice setup
+- Wait for Trinity "raw positioning mode" fix
+- Wait for proper ttsAPIKey bug fix
+
 ## 🚨 CRITICAL REMINDER
-**This configuration represents 9 days of debugging work. Do not modify agent IDs or core widget creation logic without testing on a copy first.**
+**This configuration represents 9 days of debugging work + 3 weeks of platform-level struggles. The alignment and voice issues are largely PLATFORM LIMITATIONS, not implementation bugs.**
 
 ---
-*Generated: 2025-08-10 - Rolled back to working state*
+*Updated: 2025-08-12 - Added platform intelligence and transition system vision*
 *Keep this file updated with any successful changes*

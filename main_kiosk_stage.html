@@ -45,12 +45,13 @@
             pointer-events: none;
         }
         
-        /* Mount from your Photoshop numbers on 2560×1440 */
+        /* Mount - Use simpler centered positioning like original */
         #mount {
             position: absolute;
-            left: 43.28125%;            /* 1108 / 2560 × 100 */
-            top: 28.95833%;             /* 417  / 1440 × 100 */
-            width: 28.55469%;           /* 731  / 2560 × 100 */
+            left: 50%;
+            top: 19.0741%;  /* 206/1080 from your tested values */
+            width: 18.9062%;  /* 363/1920 from your tested values */
+            transform: translateX(-50%);
             aspect-ratio: 1 / 1;
             overflow: hidden;
             z-index: 1;
@@ -59,9 +60,10 @@
         /* Optional debug: shows the expected square */
         .guide {
             position: absolute;
-            left: 43.28125%;
-            top: 28.95833%;
-            width: 28.55469%;
+            left: 50%;
+            top: 19.0741%;
+            width: 18.9062%;
+            transform: translateX(-50%);
             aspect-ratio: 1/1;
             border: 2px solid red;
             mix-blend-mode: screen;
@@ -208,7 +210,8 @@
 <body>
     <!-- Stage: fixed 16:9 canvas that scales uniformly -->
     <div class="stage">
-        <img class="bg" src="assets/site-back-with-text-standard.png" alt="" onload="console.log('BG loaded:', this.naturalWidth, 'x', this.naturalHeight)" onerror="console.error('BG failed:', this.src)">
+        <!-- Using new-back.png which we KNOW loads on /main -->
+        <img class="bg" src="assets/new-back.png" alt="" onload="console.log('BG loaded:', this.naturalWidth, 'x', this.naturalHeight)" onerror="console.error('BG failed:', this.src)">
         
         <!-- Dynamic square mount (SIMLI / canvas / video goes in here) -->
         <div id="mount">

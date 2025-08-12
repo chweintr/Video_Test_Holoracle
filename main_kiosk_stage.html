@@ -42,17 +42,18 @@
             display: block;
         }
         
-        /* MOUNT placement from Photoshop:
-           X = 1108, Y = 417, W = 731, H = 731 on a 2560×1440 image */
+        /* MOUNT - Adjusted positioning to match the cube in the background */
         #mount {
             position: absolute;
-            left: 43.28125%;    /* 1108 / 2560 */
-            top: 28.95833%;     /* 417 / 1440 */
-            width: 28.55469%;   /* 731 / 2560 */
-            height: 50.76389%;  /* 731 / 1440 - maintains square aspect */
+            left: 50%;
+            top: 30%;  /* Rough estimate - cube appears in upper-middle */
+            width: 20%;  /* Smaller to fit the cube */
+            transform: translateX(-50%);
             aspect-ratio: 1 / 1;
             overflow: hidden;
             z-index: 5;
+            /* Debug border to see exact position */
+            border: 2px solid rgba(255, 0, 255, 0.5);
         }
         
         /* Mount content styling */

@@ -483,6 +483,7 @@
         Title: <input type="number" id="titleAdjust" value="45" style="width: 50px; padding: 2px;"><br>
         Subtitle: <input type="number" id="subtitleAdjust" value="105" style="width: 50px; padding: 2px;"><br>
         Mount: <input type="number" id="mountAdjust" value="195" style="width: 50px; padding: 2px;"><br>
+        Scale: <input type="number" id="scaleAdjust" value="320" style="width: 50px; padding: 2px;">px<br>
         Buttons: <input type="number" id="buttonsAdjust" value="720" style="width: 50px; padding: 2px;"><br><br>
         <button onclick="applyQuickFix()" style="background: #00ffff; color: black; padding: 5px 10px; border: none; font-size: 11px; font-weight: bold;">APPLY ALL</button>
         <div style="margin-top: 8px; font-size: 9px; color: #888;">Press 'C' to hide</div>
@@ -834,15 +835,18 @@
             const titleTop = document.getElementById('titleAdjust').value;
             const subtitleTop = document.getElementById('subtitleAdjust').value;
             const mountTop = document.getElementById('mountAdjust').value;
+            const mountScale = document.getElementById('scaleAdjust').value;
             const buttonsTop = document.getElementById('buttonsAdjust').value;
             
             document.querySelector('.title').style.top = titleTop + 'px';
             document.querySelector('.subtitle').style.top = subtitleTop + 'px';
             document.querySelector('.hologram-window').style.top = mountTop + 'px';
+            document.querySelector('.hologram-window').style.width = mountScale + 'px';
+            document.querySelector('.hologram-window').style.height = mountScale + 'px';
             document.querySelector('.persona-controls').style.top = buttonsTop + 'px';
             document.getElementById('selectOracleText').style.top = (parseInt(buttonsTop) + 50) + 'px';
             
-            console.log(`🎯 Applied: Title=${titleTop}, Subtitle=${subtitleTop}, Mount=${mountTop}, Buttons=${buttonsTop}`);
+            console.log(`🎯 Applied: Title=${titleTop}, Subtitle=${subtitleTop}, Mount=${mountTop}, Scale=${mountScale}, Buttons=${buttonsTop}`);
         }
     </script>
 </body>

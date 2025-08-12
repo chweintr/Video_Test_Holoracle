@@ -68,16 +68,16 @@
             padding: 0 20px;
         }
         
-        /* 380x380 Mount - Fixed size, no scaling */
+        /* Responsive Mount - Scales proportionally with background frame */
         .hologram-window {
-            width: 380px;
-            height: 380px;
+            width: min(380px, 28vw, 35vh);  /* Scale with viewport, max 380px */
+            height: min(380px, 28vw, 35vh); /* Keep square, responsive */
             border: none;
             background: transparent;
             position: absolute;
-            top: 195px; /* Your perfect measurement */
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;   /* Center in viewport */
+            left: 50%;  /* Center in viewport */
+            transform: translate(-50%, -50%); /* Perfect center */
             overflow: hidden;
             z-index: 5;
         }

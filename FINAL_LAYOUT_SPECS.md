@@ -5,22 +5,25 @@
 
 ## Final Perfect Layout Values ✅
 
-### CSS Positioning (Absolute positioning for independent control)
+### CSS Positioning (Full-screen tested absolute positioning)
 ```css
-.title { top: 45px; }
-.subtitle { top: 105px; }
-.hologram-window { top: 195px; width: 380px; height: 380px; }
+.title { top: 45px; } /* "Echoes of Indiana" */
+.subtitle { top: 105px; } /* "Holographic Conversations Powered by Research" */
+/* NEW TAGLINE */ { top: 130px; } /* "Compelled by Curiosity" */
+/* BOTTOM TAGLINE */ { top: 150px; } /* "Brought to you by Past Presence" */
+.hologram-window { top: 206px; width: 363px; height: 363px; } /* PERFECT: Full-screen tested cube fit */
 .persona-controls { top: 720px; }
 #selectOracleText { top: 770px; }
 ```
 
-### Element Specifications
+### Element Specifications (Updated Aug 12, 2025)
 - **Title**: "Echoes of Indiana" at 45px from top
 - **Subtitle**: "Holographic Conversations Powered by Research" at 105px
-- **Tagline**: "Brought to you by Past Presence" at 130px
-- **Mount**: Fixed 380x380px hologram display at 195px
-- **Buttons**: 3 persona controls at 720px
-- **Select Text**: "Select Oracle" prompt at 770px
+- **Tagline 1**: "Compelled by Curiosity" at 130px (ADDED)
+- **Tagline 2**: "Brought to you by Past Presence" at 150px (MOVED)
+- **Mount**: Fixed 363x363px hologram display at 206px (full-screen tested perfect fit)
+- **Buttons**: 4 persona controls at 720px (added Larry Bird)
+- **Select Text**: "Select Oracle" prompt at 770px (bottom guide only - removed from mount center)
 
 ## Persona Configuration
 
@@ -206,4 +209,34 @@ Per Simli support: "The elevenlabs api key and the LLM api key are not stored wi
 
 ---
 
+## 🚨 CRITICAL RECENT FIXES (Aug 12, 2025)
+
+### Background Scaling Issue FIXED
+- **Problem**: Mount stayed fixed pixels while background image scaled with window resize
+- **Solution**: Changed background from `center/cover` to `center/100% no-repeat fixed`
+- **Result**: Both background and mount now stay perfectly aligned
+
+### Simli Widget Sizing Issue FIXED  
+- **Problem**: Simli agents naturally 420x420, causing cropping in 363x363 mount
+- **Solution**: Force exact sizing with `width: 363px !important` and `object-fit: fill`
+- **Result**: No more cropping, perfect fit within cube boundaries
+
+### Mount Center Cleanup
+- **Removed**: Old spinning icon and "Select Oracle" text from mount center
+- **Kept**: Clean particle background and bottom guide text only
+- **Result**: Unobstructed mount for Simli content
+
+### Complete Tagline Sequence
+1. "Echoes of Indiana"
+2. "Holographic Conversations Powered by Research"  
+3. "Compelled by Curiosity" (was missing)
+4. "Brought to you by Past Presence"
+
+---
 *This document represents the final working configuration after extensive testing and user feedback. The CSS adjuster pattern proved invaluable for rapid iteration and should be considered for similar projects requiring precise positioning.*
+
+**⚠️ IMPORTANT FOR FUTURE CLAUDE INSTANCES:**
+- **Main file is `main_kiosk.html`** (not index.html)
+- **Always test in full-screen mode** for accurate positioning
+- **Use live CSS adjuster (press 'C')** before making code changes
+- **Current positioning is optimized for full-screen demo presentation**

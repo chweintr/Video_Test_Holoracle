@@ -1,10 +1,11 @@
 # 🚨 CRITICAL - WORKING CONFIGURATION REFERENCE 🚨
 **DO NOT LOSE THIS - USE AS PREAMBLE FOR FUTURE CONVERSATIONS**
 
-## Current Working State (Railway Rollback)
-- **URL**: https://videotestholoracle-production.up.railway.app/main
-- **Status**: Buttons working, Bigfoot ✅, Vonnegut ✅, Hoosier ✅ (FIXED with correct agent)
-- **Date Rolled Back To**: Earlier today when buttons were functional
+## Current Working State (Updated Aug 12, 2025)
+- **URL**: https://videotestholoracle-production.up.railway.app/main  
+- **MAIN FILE**: `main_kiosk.html` (THIS IS THE ACTIVE FILE - NOT index.html)
+- **Status**: Perfect cube positioning ✅, All 4 personas ✅, Clean mount ✅, Simli sizing fixed ✅
+- **Last Updated**: Full-screen tested positioning with forced 363x363 Simli sizing
 
 ## 🔥 WORKING SIMLI CONFIGURATION
 
@@ -64,10 +65,12 @@ function updateStatus(msg) {
 - **New**: `d793889d-33ed-44b3-a8b0-e5b9d074e897` (correct Hoosier Oracle)
 - **Face ID**: `afdb6a3e-3939-40aa-92df-01604c23101c`
 
-### 2. Visual/Layout Issues
-- Mount position wrong (too high/low)
-- Website doesn't fit screen properly
-- Background alignment issues
+### 2. ✅ Visual/Layout Issues - FIXED Aug 12, 2025
+- ✅ Mount position: Fixed at 363x363px, top: 206px (full-screen tested)
+- ✅ Background scaling: Fixed with `center/100% no-repeat` (no more responsive scaling)
+- ✅ Cube alignment: Perfect fit inside glowing cube boundaries
+- ✅ Simli sizing: Forced to exact 363x363px (no more 420x420 cropping)
+- ✅ Clean mount: Removed old spinner/text from center
 
 ### 3. Vonnegut Voice Issue
 - Agent loads but doesn't respond to voice

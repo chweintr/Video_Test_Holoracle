@@ -647,6 +647,20 @@ async def debug_personas_page():
         return FileResponse("debug_personas.html")
     return {"message": "debug_personas.html not found"}
 
+@app.get("/debug-assets")
+async def debug_assets():
+    """Debug endpoint to see what files are in assets folder"""
+    import os
+    try:
+        assets_files = os.listdir("assets") if os.path.exists("assets") else []
+        return {
+            "assets_exists": os.path.exists("assets"),
+            "assets_files": assets_files,
+            "site_back_exists": os.path.exists("assets/site-back-with-text-standard.png")
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.get("/debug-env")
 async def debug_environment():
     """Debug endpoint to see what environment variables are available"""

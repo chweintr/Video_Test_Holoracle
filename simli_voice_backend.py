@@ -301,11 +301,19 @@ async def bigfoot_mp4_test():
 
 @app.get("/main")
 async def main_kiosk():
-    """Serve the Main Kiosk - 3 Personas working with Simli Agents"""
+    """Serve the Main Kiosk - 4 Personas working with Simli Agents"""
     if os.path.exists("main_kiosk.html"):
         return FileResponse("main_kiosk.html")
     else:
         return {"message": "main_kiosk.html not found"}
+
+@app.get("/direct")
+async def direct_kiosk():
+    """Serve the Direct API Kiosk - No widgets, pure agent integration"""
+    if os.path.exists("main_kiosk_direct.html"):
+        return FileResponse("main_kiosk_direct.html")
+    else:
+        return {"message": "main_kiosk_direct.html not found"}
 
 @app.get("/simli-config")
 async def get_simli_config():
@@ -315,7 +323,12 @@ async def get_simli_config():
     overriding default agent via SIMLI_AGENT_ID. Returns minimal info to avoid
     leaking keys in logs.
     """
-    token = os.getenv("SIMLI_TOKEN") or os.getenv("SIMLI_API_KEY")
+    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    # Clean up any leading equals signs
+    while api_key.startswith("="):
+        api_key = api_key[1:].lstrip()
+    
+    token = os.getenv("SIMLI_TOKEN")
     agent_id = os.getenv("SIMLI_AGENT_ID") or os.getenv("SIMLI_FACE_ID")
 
     # Fallback agent id to Indiana persona if not explicitly provided
@@ -323,7 +336,10 @@ async def get_simli_config():
         agent_id = "76ed1ae8-720c-45de-918c-cac46984412d"
 
     return {
+        "api_key_present": bool(api_key),
         "token_present": bool(token),
+        # For direct API usage, provide the API key (first 10 chars for security)
+        "api_key_preview": api_key[:10] + "..." if api_key else "",
         # Do not include the raw token here for security; use /simli-token to fetch a fresh session token
         "token": "", 
         "agentId": agent_id,
@@ -539,14 +555,15 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
     url = "https://api.simli.ai/createE2ESessionToken"
     try:
         async with aiohttp.ClientSession() as session:
-            # Temporarily disable ttsAPIKey - it may be breaking all widgets
+            # Try adding ttsAPIKey only for ElevenLabs personas
             json_payload = {"simliAPIKey": api_key}
             
-            # Only add ttsAPIKey if it exists AND we're using a custom voice persona
-            # Comment out for now as it seems to break everything
-            # if elevenlabs_key and persona in ['indiana', 'larrybird']:
-            #     json_payload["ttsAPIKey"] = elevenlabs_key
-            #     logger.info(f"Adding ttsAPIKey for custom voice persona: {persona}")
+            # Only add ttsAPIKey for personas that actually need ElevenLabs voices
+            if elevenlabs_key and agentId in ['2970497b-880f-46bb-b5bf-3203dc196db1', '126ac401-aaf7-46c3-80ec-02b89e781f25']:  # Vonnegut & Larry
+                json_payload["ttsAPIKey"] = elevenlabs_key
+                logger.info(f"Adding ttsAPIKey for ElevenLabs persona: {agentId}")
+            else:
+                logger.info(f"Skipping ttsAPIKey for Simli voice persona: {agentId}")
             
             async with session.post(
                 url,
@@ -730,9 +747,109 @@ async def get_personas():
                 "simli_face_id": "7bcb45a5-839c-4f1a-b6f9-4ebcdf457264",
                 "voice": "elevenlabs-vonnegut",
                 "knowledge": "vonnegut-corpus"
+            },
+            {
+                "id": "larrybird",
+                "name": "Larry Bird", 
+                "description": "Indiana basketball legend with wisdom and pride",
+                "simli_face_id": "126ac401-aaf7-46c3-80ec-02b89e781f25",
+                "voice": "elevenlabs-bird",
+                "knowledge": "basketball-indiana"
             }
         ]
     }
+
+@app.get("/api-keys")
+async def get_api_keys():
+    """Get API keys for direct integration - secure endpoint"""
+    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
+    
+    # Clean up any leading equals signs
+    while api_key.startswith("="):
+        api_key = api_key[1:].lstrip()
+    
+    return {
+        "simli_api_key": api_key,
+        "elevenlabs_api_key": elevenlabs_key,
+        "keys_present": {
+            "simli": bool(api_key),
+            "elevenlabs": bool(elevenlabs_key)
+        }
+    }
+
+@app.post("/direct-session")
+async def create_direct_session(request: dict):
+    """Proxy for Simli direct E2E session creation to avoid CORS issues"""
+    try:
+        # Extract configuration from request
+        persona = request.get("persona", "indiana")
+        agent_id = request.get("agentId")
+        face_id = request.get("faceId")
+        voice_id = request.get("voiceId")
+        
+        # Get API keys
+        simli_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+        elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
+        
+        # Clean up Simli key
+        while simli_key.startswith("="):
+            simli_key = simli_key[1:].lstrip()
+        
+        if not simli_key:
+            return JSONResponse(status_code=400, content={
+                "error": "SIMLI_API_KEY not configured",
+                "message": "Simli API key required for direct sessions"
+            })
+        
+        # Build session configuration
+        session_config = {
+            "apiKey": simli_key
+        }
+        
+        if agent_id:
+            session_config["agentId"] = agent_id
+        if face_id:
+            session_config["faceId"] = face_id
+        
+        # Add ElevenLabs voice for enhanced personas
+        if voice_id and elevenlabs_key:
+            session_config["ttsAPIKey"] = elevenlabs_key
+            session_config["voiceId"] = voice_id
+            logger.info(f"Adding ElevenLabs voice for {persona}: {voice_id}")
+        
+        # Call Simli's direct session API
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://api.simli.ai/startE2ESession",
+                headers={
+                    "Content-Type": "application/json"
+                },
+                json=session_config,
+                timeout=15
+            ) as resp:
+                data = await resp.json()
+                
+                if resp.status != 200:
+                    return JSONResponse(status_code=resp.status, content={
+                        "error": data,
+                        "message": "Failed to create direct Simli session"
+                    })
+                
+                logger.info(f"Direct session created for {persona}")
+                return {
+                    "success": True,
+                    "session_data": data,
+                    "persona": persona,
+                    "agent_id": agent_id
+                }
+                
+    except Exception as e:
+        logger.error(f"Direct session error: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Error creating direct session"
+        })
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

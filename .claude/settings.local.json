@@ -5,7 +5,9 @@
       "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(identify:*)"
+      "Bash(identify:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.simli.com)"
     ],
     "deny": []
   }

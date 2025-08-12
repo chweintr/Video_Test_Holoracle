@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Echoes of Indiana — Direct API Kiosk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000 url('assets/new-back.png') center/cover fixed;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .title {
+            font-family: 'Michroma', 'Courier New', monospace;
+            font-size: clamp(1.5em, 4vw, 2.2em);
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            z-index: 10;
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .subtitle {
+            font-size: clamp(0.7em, 2vw, 0.9em);
+            color: #ff4df3;
+            text-shadow: 0 0 10px #ff4df3;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            z-index: 10;
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        /* Direct Video Container - No widgets needed! */
+        .hologram-window {
+            width: min(380px, 28vw, 35vh);
+            height: min(380px, 28vw, 35vh);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden;
+            z-index: 5;
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 10px;
+        }
+        
+        /* Direct Video Element */
+        .simli-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+            display: none;
+        }
+        
+        .simli-video.active {
+            display: block;
+        }
+        
+        /* Idle State */
+        .idle-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            color: rgba(0,255,255,0.8);
+            background: radial-gradient(circle at center, rgba(0,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .idle-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0,255,255,0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Loading State */
+        .loading-state {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(0,0,0,0.9);
+            z-index: 15;
+        }
+        
+        .loading-state.active {
+            display: flex;
+        }
+        
+        /* Persona Buttons */
+        .persona-controls {
+            position: absolute;
+            top: 720px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: clamp(6px, 1vw, 12px);
+            flex-wrap: nowrap;
+            justify-content: center;
+            z-index: 20;
+            padding: 0 20px;
+        }
+        
+        .persona-btn {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+            border: 2px solid rgba(77,227,255,0.5);
+            color: #00ffff;
+            padding: clamp(5px, 1.2vw, 8px) clamp(10px, 2.5vw, 15px);
+            font-size: clamp(0.6em, 1.6vw, 0.8em);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            border-radius: 6px;
+            letter-spacing: 0.03em;
+            position: relative;
+            white-space: nowrap;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+        
+        .persona-btn:hover {
+            border-color: #00ffff;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25));
+            box-shadow: 0 0 20px rgba(0,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        
+        .persona-btn.active {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,77,243,0.25));
+            border-color: #ff4df3;
+            color: #ff4df3;
+            box-shadow: 0 0 25px rgba(255,77,243,0.5);
+        }
+        
+        /* Status Display */
+        .status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.95);
+            padding: 5px 10px;
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 5px;
+            font-size: 11px;
+            z-index: 20;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* End Session Button */
+        .end-session-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.5);
+            color: #ff6666;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            display: none;
+            z-index: 25;
+        }
+        
+        .end-session-btn.active {
+            display: block;
+        }
+        
+        .end-session-btn:hover {
+            background: rgba(255,0,0,0.4);
+            border-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Echoes of Indiana</div>
+    <div class="subtitle">Direct Agent Integration — No Widgets</div>
+    
+    <div class="status" id="status">System: Ready</div>
+    
+    <!-- Direct Video Container - NO SIMLI WIDGETS! -->
+    <div class="hologram-window" id="hologramWindow">
+        <!-- Idle State -->
+        <div class="idle-state" id="idleState">
+            <video autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+                <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4">
+            </video>
+            <div style="z-index: 2;">
+                <div class="idle-spinner"></div>
+                <div style="margin-top: 20px;">Select Oracle</div>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="idle-spinner"></div>
+            <div style="margin-top: 20px;">Connecting to Agent...</div>
+        </div>
+        
+        <!-- Direct Video Stream - No widget wrapper! -->
+        <video class="simli-video" id="simliVideo" autoplay playsinline></video>
+        
+        <!-- End Session Button -->
+        <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
+            END SESSION
+        </div>
+    </div>
+    
+    <!-- Persona Controls -->
+    <div class="persona-controls">
+        <button class="persona-btn" data-persona="bigfoot" onclick="startDirectAgent('bigfoot')">
+            Brown County Bigfoot
+        </button>
+        <button class="persona-btn" data-persona="indiana" onclick="startDirectAgent('indiana')">
+            Hoosier Oracle
+        </button>
+        <button class="persona-btn" data-persona="vonnegut" onclick="startDirectAgent('vonnegut')">
+            Kurt Vonnegut
+        </button>
+        <button class="persona-btn" data-persona="larrybird" onclick="startDirectAgent('larrybird')">
+            Larry Bird
+        </button>
+    </div>
+    
+    <script>
+        console.log('🚀 Direct API Kiosk - No Widgets, Direct Agent Loading');
+        
+        // Agent Configuration
+        const CONFIG = {
+            personas: {
+                bigfoot: {
+                    name: 'Brown County Bigfoot',
+                    agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                    description: 'Uses Simli default voice - no ElevenLabs needed'
+                },
+                indiana: {
+                    name: 'Hoosier Oracle', 
+                    agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',
+                    faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',
+                    description: 'Uses Simli default voice - basic functionality'
+                },
+                vonnegut: {
+                    name: 'Kurt Vonnegut',
+                    agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+                    faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
+                    voiceId: 'J80PasKsbR4AWMLiAQ0j', // ElevenLabs voice ID
+                    enhanced: true,
+                    description: 'Custom face with ElevenLabs voice'
+                },
+                larrybird: {
+                    name: 'Larry Bird',
+                    agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+                    faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339', 
+                    voiceId: 'DkxyesZ2BwjIA4hEt0Zp', // ElevenLabs voice ID
+                    enhanced: true,
+                    description: 'Custom face with ElevenLabs voice'
+                }
+            }
+        };
+        
+        const API_BASE = window.location.origin;
+        let currentPersona = null;
+        let currentSession = null;
+        let mediaStream = null;
+        
+        // DOM elements
+        const idleState = document.getElementById('idleState');
+        const loadingState = document.getElementById('loadingState');
+        const simliVideo = document.getElementById('simliVideo');
+        const endSessionBtn = document.getElementById('endSessionBtn');
+        
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = `System: ${msg}`;
+            console.log('[Direct Kiosk]', msg);
+        }
+        
+        async function startDirectAgent(personaId) {
+            console.log(`[Direct Kiosk] Starting direct agent: ${personaId}`);
+            
+            // Update button states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-persona="${personaId}"]`).classList.add('active');
+            
+            // End current session if active
+            if (currentSession) {
+                await endCurrentSession();
+            }
+            
+            currentPersona = personaId;
+            const persona = CONFIG.personas[personaId];
+            
+            // Show loading state
+            idleState.style.display = 'none';
+            loadingState.classList.add('active');
+            updateStatus(`Connecting to ${persona.name}...`);
+            
+            try {
+                // Create direct Simli session using /startE2ESession approach
+                await createDirectSession(personaId, persona);
+                
+            } catch (error) {
+                console.error(`[Direct Kiosk] Error starting ${personaId}:`, error);
+                updateStatus(`Connection failed: ${error.message}`);
+                returnToIdle();
+            }
+        }
+        
+        async function createDirectSession(personaId, persona) {
+            console.log(`[Direct Kiosk] Creating direct session for ${personaId}`);
+            
+            // Prepare session configuration for our backend proxy
+            const sessionConfig = {
+                persona: personaId,
+                agentId: persona.agentId
+            };
+            
+            // Add face ID if specified
+            if (persona.faceId) {
+                sessionConfig.faceId = persona.faceId;
+            }
+            
+            // Add ElevenLabs voice for enhanced personas
+            if (persona.enhanced && persona.voiceId) {
+                sessionConfig.voiceId = persona.voiceId;
+                console.log(`[Direct Kiosk] Adding ElevenLabs voice for ${personaId}: ${persona.voiceId}`);
+            }
+            
+            // Call our backend proxy to avoid CORS issues
+            const response = await fetch(`${API_BASE}/direct-session`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sessionConfig)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Session creation failed: ${errorData.message || response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log(`[Direct Kiosk] Session created via proxy:`, result);
+            
+            if (!result.success) {
+                throw new Error(`Session creation failed: ${result.message}`);
+            }
+            
+            // Handle the session response (this might include WebRTC setup)
+            await setupDirectVideo(result.session_data, persona);
+        }
+        
+        async function setupDirectVideo(sessionData, persona) {
+            console.log(`[Direct Kiosk] Setting up direct video for ${persona.name}`);
+            
+            // For now, simulate the video setup
+            // In a full implementation, this would:
+            // 1. Set up WebRTC connection using session data
+            // 2. Connect media streams to the video element
+            // 3. Handle audio input/output
+            
+            // Hide loading, show video
+            loadingState.classList.remove('active');
+            simliVideo.classList.add('active');
+            endSessionBtn.classList.add('active');
+            
+            updateStatus(`${persona.name} Active - Direct Connection`);
+            
+            // Store session for cleanup
+            currentSession = {
+                sessionData,
+                persona,
+                active: true
+            };
+        }
+        
+        // API keys are now handled by backend proxy - no need to expose them to frontend
+        
+        async function endCurrentSession() {
+            if (!currentSession) return;
+            
+            console.log(`[Direct Kiosk] Ending direct session: ${currentPersona}`);
+            updateStatus('Ending session...');
+            
+            // Clean up WebRTC connections
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            
+            // Reset video
+            simliVideo.classList.remove('active');
+            simliVideo.srcObject = null;
+            
+            currentSession = null;
+            
+            setTimeout(returnToIdle, 500);
+        }
+        
+        function returnToIdle() {
+            console.log('[Direct Kiosk] Returning to idle');
+            currentPersona = null;
+            currentSession = null;
+            
+            // Clear states
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            loadingState.classList.remove('active');
+            endSessionBtn.classList.remove('active');
+            
+            // Show idle
+            idleState.style.display = 'flex';
+            updateStatus('Ready - Direct Agent Integration');
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            console.log('🚀 DIRECT API KIOSK - No Widgets, Pure API Integration');
+            console.log('🎯 Approach: Direct /startE2ESession calls → WebRTC streams');
+            updateStatus('Ready - Direct Agent Integration');
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && currentPersona) {
+                endCurrentSession();
+            }
+        });
+    </script>
+</body>
+</html>

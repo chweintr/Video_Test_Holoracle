@@ -68,17 +68,17 @@
             padding: 0 20px;
         }
         
-        /* MOUNT - Fixed background + smaller mount to fit inside glow */
+        /* MOUNT - User-tested perfect positioning via live adjuster */
         .hologram-window {
-            width: 320px;   /* Smaller to fit nicely inside glowing cube */
-            height: 320px;  /* Smaller to fit nicely inside glowing cube */
+            width: 367px;   /* User-tested optimal size */
+            height: 367px;  /* User-tested optimal size */
             position: absolute;
-            top: 195px;     /* Keep same vertical position */
+            top: 176px;     /* User-tested optimal position */
             left: 50%;
             transform: translateX(-50%); /* Center horizontally */
             overflow: hidden;
             z-index: 5;
-            /* Fixed background + smaller mount for better fit */
+            /* Perfect fit inside glowing cube - tested with live adjuster */
         }
         
         /* Status Display */
@@ -482,8 +482,8 @@
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🎯 Live Adjuster</div>
         Title: <input type="number" id="titleAdjust" value="45" style="width: 50px; padding: 2px;"><br>
         Subtitle: <input type="number" id="subtitleAdjust" value="105" style="width: 50px; padding: 2px;"><br>
-        Mount: <input type="number" id="mountAdjust" value="195" style="width: 50px; padding: 2px;"><br>
-        Scale: <input type="number" id="scaleAdjust" value="320" style="width: 50px; padding: 2px;">px<br>
+        Mount: <input type="number" id="mountAdjust" value="176" style="width: 50px; padding: 2px;"><br>
+        Scale: <input type="number" id="scaleAdjust" value="367" style="width: 50px; padding: 2px;">px<br>
         Buttons: <input type="number" id="buttonsAdjust" value="720" style="width: 50px; padding: 2px;"><br><br>
         <button onclick="applyQuickFix()" style="background: #00ffff; color: black; padding: 5px 10px; border: none; font-size: 11px; font-weight: bold;">APPLY ALL</button>
         <div style="margin-top: 8px; font-size: 9px; color: #888;">Press 'C' to hide</div>

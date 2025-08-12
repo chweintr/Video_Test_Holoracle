@@ -355,6 +355,14 @@ async def direct_kiosk():
     else:
         return {"message": "main_kiosk_direct.html not found"}
 
+@app.get("/main_kiosk_v3")
+async def main_kiosk_v3():
+    """Serve Main Kiosk v3 - Perfect Mount Positioning"""
+    if os.path.exists("main_kiosk_v3.html"):
+        return FileResponse("main_kiosk_v3.html")
+    else:
+        return {"message": "main_kiosk_v3.html not found"}
+
 @app.get("/simli-config")
 async def get_simli_config():
     """Expose Simli token/agent configuration from environment for the frontend.

@@ -37,14 +37,14 @@
             aspect-ratio: var(--design-w) / var(--design-h); 
         }
         
-        /* Background image - perfect scaling */
+        /* Background image - center focus (crop top/bottom if needed) */
         .frame img.bg { 
             position: absolute; 
             inset: 0; 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
-            object-position: center; 
+            object-position: center 40%; /* Focus on center scene, allow top to be cropped */
             user-select: none; 
             -webkit-user-drag: none; 
             pointer-events: none; 
@@ -440,7 +440,7 @@
                 </div>
             </div>
             
-            <!-- Persona controls -->
+            <!-- Persona controls - now inside overlay to scale together -->
             <div class="persona-controls">
                 <button class="persona-btn" data-persona="bigfoot" onclick="switchPersona('bigfoot')">
                     Brown County Bigfoot
@@ -458,8 +458,9 @@
             
             <!-- Select oracle text -->
             <div id="selectOracleText" class="select-oracle-text">Select Oracle</div>
-        </div>
-    </div>
+            
+        </div> <!-- End overlay -->
+    </div> <!-- End frame -->
     
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" async></script>

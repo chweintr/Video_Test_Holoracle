@@ -9,10 +9,10 @@
       html, body { height: 100%; }
       body { margin: 0; background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
       :root { 
-        /* Adjusted for 4K image - mount should fit inside the inner cube */
-        --target-left: 37.66%;
-        --target-top: 24.86%;
-        --target-size: 16%;  /* Much smaller to fit inside the glowing square */
+        /* Exact measurements from 4K image using GPT-5's Case 3 formula */
+        --target-left: 42.08%;  /* 1616px / 3840px × 100% */
+        --target-top: 33.56%;   /* 725px / 2160px × 100% */
+        --target-size: 15.86%;  /* 609px / 3840px × 100% */
         --design-w: 16; --design-h: 9;  /* 16:9 aspect ratio */ 
       }
       .frame { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * (var(--design-w) / var(--design-h)))); aspect-ratio: var(--design-w) / var(--design-h); }

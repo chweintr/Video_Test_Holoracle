@@ -456,6 +456,9 @@ async def simli_compose_session(request: Request, persona: Optional[str] = None,
             "kurt": "vonnegut",
             "vonnegut": "vonnegut",
             "bigfoot": "bigfoot",
+            "larry": "larrybird",
+            "bird": "larrybird",
+            "larrybird": "larrybird",
         }.get(norm, norm)
 
     # Resolve faceId - CHECK ENV FIRST, then builtin mapping
@@ -464,14 +467,15 @@ async def simli_compose_session(request: Request, persona: Optional[str] = None,
         faceId = os.getenv(env_key)
         logger.info(f"Checking {env_key}: {faceId}")
     if not faceId and persona:
-        # Built-in mapping - UPDATED WITH CORRECT AGENT IDs  
+        # Built-in mapping - UPDATED WITH CORRECT AGENT IDs from WORKING_CONFIGURATION_REFERENCE.md
         builtin = {
-            "bigfoot": "4a857f92-feee-4b70-b973-290baec4d545",
-            "indiana": "76ed1ae8-720c-45de-918c-cac46984412d", 
-            "vonnegut": "7bcb45a5-839c-4f1a-b6f9-4ebcdf457264",
+            "bigfoot": "4a857f92-feee-4b70-b973-290baec4d545",  # Correct agent ID
+            "indiana": "cd04320d-987b-4e26-ba7f-ba4f75701ebd",  # FIXED Aug 12, 2025 - Working Hoosier Oracle agent
+            "vonnegut": "2970497b-880f-46bb-b5bf-3203dc196db1", # Correct Vonnegut agent ID
+            "larrybird": "126ac401-aaf7-46c3-80ec-02b89e781f25", # Larry Bird agent ID
         }
         faceId = builtin.get(persona)
-        logger.info(f"Using builtin faceId for {persona}: {faceId}")
+        logger.info(f"Using builtin agentId for {persona}: {faceId}")
 
     if not api_key:
         logger.error("SIMLI_API_KEY not set or empty")
@@ -592,6 +596,9 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
             "kurt": "vonnegut",
             "vonnegut": "vonnegut",
             "bigfoot": "bigfoot",
+            "larry": "larrybird",
+            "bird": "larrybird",
+            "larrybird": "larrybird",
         }.get(norm, norm)
 
     # Resolve agent ID with strict fallbacks (never return null)
@@ -631,11 +638,16 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
             json_payload = {"simliAPIKey": api_key}
             
             # Only add ttsAPIKey for personas that actually need ElevenLabs voices
-            if elevenlabs_key and agentId in ['2970497b-880f-46bb-b5bf-3203dc196db1', '126ac401-aaf7-46c3-80ec-02b89e781f25']:  # Vonnegut & Larry
+            # Using correct agent IDs from WORKING_CONFIGURATION_REFERENCE.md
+            elevenlabs_agents = [
+                '2970497b-880f-46bb-b5bf-3203dc196db1',  # Vonnegut (enhanced with ElevenLabs)
+                '126ac401-aaf7-46c3-80ec-02b89e781f25'   # Larry Bird (enhanced with ElevenLabs)
+            ]
+            if elevenlabs_key and resolved_agent_id in elevenlabs_agents:
                 json_payload["ttsAPIKey"] = elevenlabs_key
-                logger.info(f"Adding ttsAPIKey for ElevenLabs persona: {agentId}")
+                logger.info(f"Adding ttsAPIKey for ElevenLabs persona: {resolved_agent_id}")
             else:
-                logger.info(f"Skipping ttsAPIKey for Simli voice persona: {agentId}")
+                logger.info(f"Skipping ttsAPIKey for Simli voice persona: {resolved_agent_id}")
             
             async with session.post(
                 url,

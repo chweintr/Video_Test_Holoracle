@@ -99,6 +99,22 @@
         letter-spacing: 0.15em;
         text-shadow: 0 0 10px #ff4df3;
       }
+
+      /* Small strap lines under subtitle */
+      .strap {
+        position: absolute;
+        left: var(--mount-center-x);
+        transform: translateX(-50%);
+        text-align: center;
+        max-width: 80cqw;
+        color: rgba(255,255,255,0.75);
+        font-family: 'Courier New', monospace;
+        font-size: calc(1.3cqh * var(--ui-scale));
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .strap.s1 { top: calc(14.5cqh + 3cqh); }
+      .strap.s2 { top: calc(14.5cqh + 5cqh); }
       .persona-controls {
         position: absolute;
         left: var(--mount-center-x);
@@ -161,11 +177,13 @@
   </head>
   <body>
     <div class="stage">
-      <img class="bg" src="assets/new-back.png" alt="Background" />
+      <img class="bg" src="assets/site-back-with-text.png" alt="Background" />
       <div class="mount" aria-label="Square mount"></div>
       <div class="ui" aria-hidden="false">
         <div class="title">Echoes of Indiana</div>
         <div class="subtitle">Holographic Conversations Powered by Research</div>
+        <div class="strap s1">Compelled by Curiosity</div>
+        <div class="strap s2">Brought to you by Past Presence</div>
         <div class="persona-controls">
           <button class="persona-btn" data-persona="bigfoot">Brown County Bigfoot</button>
           <button class="persona-btn" data-persona="indiana">Hoosier Oracle</button>
@@ -175,83 +193,14 @@
       </div>
     </div>
 
-    <!-- Live control panel to tune left/top/size and UI scale; values persist locally -->
-    <div class="panel" id="panel">
-      <h3>Square Mount Controls</h3>
-      <div class="group">
-        <div class="row"><label>Left <span id="v-left">0</span>%</label><input id="sm-left" type="range" min="0" max="100" step="0.01"></div>
-        <div class="row"><label>Top <span id="v-top">0</span>%</label><input id="sm-top" type="range" min="0" max="100" step="0.01"></div>
-        <div class="row"><label>Size <span id="v-size">0</span>%</label><input id="sm-size" type="range" min="0" max="100" step="0.01"></div>
-        <div class="row"><label>Text ×<span id="v-scale">1.00</span></label><input id="sm-scale" type="range" min="0.5" max="2" step="0.01"></div>
-      </div>
-      <div class="actions">
-        <button id="sm-copy">Copy CSS</button>
-        <button id="sm-reset">Reset</button>
-      </div>
-    </div>
-
     <script>
       (function () {
-        const root = document.documentElement;
-        const storeKey = 'square-mount-vars';
-        const store = JSON.parse(localStorage.getItem(storeKey) || '{}');
-        let state = {
-          left:  Number.isFinite(store.left)  ? store.left  : 37.66,
-          top:   Number.isFinite(store.top)   ? store.top   : 24.86,
-          size:  Number.isFinite(store.size)  ? store.size  : 24.53,
-          scale: Number.isFinite(store.scale) ? store.scale : 1.00,
-        };
-        const el = {
-          left: document.getElementById('sm-left'),
-          top: document.getElementById('sm-top'),
-          size: document.getElementById('sm-size'),
-          scale: document.getElementById('sm-scale'),
-          vLeft: document.getElementById('v-left'),
-          vTop: document.getElementById('v-top'),
-          vSize: document.getElementById('v-size'),
-          vScale: document.getElementById('v-scale'),
-          copy: document.getElementById('sm-copy'),
-          reset: document.getElementById('sm-reset'),
-        };
-        function apply() {
-          root.style.setProperty('--target-left', state.left + '%');
-          root.style.setProperty('--target-top', state.top + '%');
-          root.style.setProperty('--target-size', state.size + '%');
-          root.style.setProperty('--ui-scale', state.scale);
-          localStorage.setItem(storeKey, JSON.stringify(state));
-        }
-        function syncUI() {
-          el.left.value = state.left; el.vLeft.textContent = state.left.toFixed(2);
-          el.top.value = state.top; el.vTop.textContent = state.top.toFixed(2);
-          el.size.value = state.size; el.vSize.textContent = state.size.toFixed(2);
-          el.scale.value = state.scale; el.vScale.textContent = state.scale.toFixed(2);
-        }
-        el.left.oninput  = e => { state.left  = +e.target.value; apply(); syncUI(); };
-        el.top.oninput   = e => { state.top   = +e.target.value; apply(); syncUI(); };
-        el.size.oninput  = e => { state.size  = +e.target.value; apply(); syncUI(); };
-        el.scale.oninput = e => { state.scale = +e.target.value; apply(); syncUI(); };
-        el.copy.onclick = () => {
-          const css = `:root{\n  --target-left:${state.left.toFixed(2)}%;\n  --target-top:${state.top.toFixed(2)}%;\n  --target-size:${state.size.toFixed(2)}%;\n  --ui-scale:${state.scale.toFixed(2)};\n}`;
-          navigator.clipboard.writeText(css);
-          el.copy.textContent = 'Copied!';
-          setTimeout(() => (el.copy.textContent = 'Copy CSS'), 1200);
-        };
-        el.reset.onclick = () => {
-          state = { left: 37.66, top: 24.86, size: 24.53, scale: 1.00 };
-          apply(); syncUI();
-        };
-        // Keyboard nudging for fine control (panel must be focused)
-        const panel = document.getElementById('panel');
-        panel.tabIndex = 0;
-        panel.addEventListener('keydown', (e) => {
-          const step = e.shiftKey ? 0.5 : 0.05;
-          if (e.key === 'ArrowLeft')  { state.left -= step; }
-          if (e.key === 'ArrowRight') { state.left += step; }
-          if (e.key === 'ArrowUp')    { state.top  -= step; }
-          if (e.key === 'ArrowDown')  { state.top  += step; }
-          apply(); syncUI();
-        });
-        apply(); syncUI();
+        // Basic active-state behavior for persona buttons (visual only on UI route)
+        const btns = document.querySelectorAll('.persona-btn');
+        btns.forEach(btn => btn.addEventListener('click', () => {
+          btns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }));
       })();
     </script>
   </body>

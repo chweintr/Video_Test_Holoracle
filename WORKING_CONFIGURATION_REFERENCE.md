@@ -109,6 +109,22 @@ function updateStatus(msg) {
 - ElevenLabs custom voice blocked by VPN detection
 - **Solution**: Use Simli's voice cloning or proxy method
 
+### 4. Widget Sizing Challenge
+- Widgets contained in 363x363 mount but getting cropped
+- Need same positioning logic as particle video (object-fit: cover)
+- **Current approach**: Using particle video methodology with 100% fill + object-fit
+- **Fallback**: May need to accept current state if too complex
+
+### 5. Latency Messages - IMPLEMENTATION NOTES
+- **Ideal Trigger**: Between user stops talking and agent starts reply
+- **Current**: Shows when speechend event fires, hides on audiostart
+- **Custom Messages**:
+  - Bigfoot: "mulling it over", "pondering in the woods", "considering the question"
+  - Hoosier: "hatching an idea", "consulting the corn fields", "gathering wisdom"  
+  - Vonnegut: "cooking up a thought", "considering the absurdity", "crafting a response"
+  - Larry Bird: "lining up a shot", "sizing up the play", "reading the court"
+- **Animation**: Blinking with cycling ellipses, 2-second message rotation
+
 ## 🛡️ PRESERVATION STRATEGY
 
 ### For Future Claude Instances:

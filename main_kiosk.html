@@ -298,17 +298,13 @@
             display: block;
         }
         
-        /* Simli widget must follow mount size - NO independent sizing */
+        /* Simli widget - use same approach as particle video */
         simli-widget {
-            position: relative !important;
+            position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 363px !important; /* EXACT mount size */
-            height: 363px !important; /* EXACT mount size */
-            max-width: 363px !important;
-            max-height: 363px !important;
-            min-width: 363px !important;
-            min-height: 363px !important;
+            width: 100% !important;  /* Fill mount like particle video */
+            height: 100% !important; /* Fill mount like particle video */
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
@@ -330,21 +326,16 @@
             visibility: hidden !important;
         }
         
-        /* FORCE Simli content to exact 363x363 - AGGRESSIVE OVERRIDES */
+        /* Simli content - use particle video approach with object-fit: cover */
         simli-widget::shadow video,
         simli-widget::shadow canvas,
-        simli-widget::shadow iframe,
-        simli-widget::shadow div {
+        simli-widget::shadow iframe {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 363px !important; /* LOCKED - do not change */
-            height: 363px !important; /* LOCKED - do not change */
-            max-width: 363px !important;
-            max-height: 363px !important;
-            min-width: 363px !important;
-            min-height: 363px !important;
-            object-fit: cover !important; /* Cover to fill, crop if needed */
+            width: 100% !important;  /* Fill container like particle video */
+            height: 100% !important; /* Fill container like particle video */
+            object-fit: cover !important; /* Maintain aspect ratio, fill mount */
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
@@ -352,13 +343,6 @@
             padding: 0 !important;
             transform: none !important;
             scale: none !important;
-        }
-        
-        /* Additional aggressive targeting for any Simli internal elements */
-        simli-widget * {
-            max-width: 363px !important;
-            max-height: 363px !important;
-            box-sizing: border-box !important;
         }
         
         /* Bigfoot Overlay - appears only when Bigfoot is active */
@@ -702,15 +686,13 @@
         }
         
         function enforceWidgetSizing(widget, personaId) {
-            // Force the widget container itself
+            // Use particle video approach - fill container with object-fit: cover
             widget.style.cssText = `
-                position: relative !important;
-                width: 363px !important;
-                height: 363px !important;
-                max-width: 363px !important;
-                max-height: 363px !important;
-                min-width: 363px !important;
-                min-height: 363px !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
@@ -720,24 +702,22 @@
                 scale: none !important;
             `;
             
-            // Also try to force any video/canvas elements inside
+            // Apply particle video approach to media elements
             const videos = widget.querySelectorAll('video, canvas, iframe');
             videos.forEach(el => {
                 el.style.cssText = `
                     position: absolute !important;
                     top: 0 !important;
                     left: 0 !important;
-                    width: 363px !important;
-                    height: 363px !important;
-                    max-width: 363px !important;
-                    max-height: 363px !important;
+                    width: 100% !important;
+                    height: 100% !important;
                     object-fit: cover !important;
                     transform: none !important;
                     scale: none !important;
                 `;
             });
             
-            console.log(`[Main Kiosk] Enforced sizing on ${personaId}: ${videos.length} media elements found`);
+            console.log(`[Main Kiosk] Applied particle video approach to ${personaId}: ${videos.length} media elements found`);
         }
         
         async function switchPersona(personaId) {

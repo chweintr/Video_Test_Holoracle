@@ -747,6 +747,80 @@ async def daily_sdk_test():
         return FileResponse("simli_daily_custom.html")
     return {"message": "simli_daily_custom.html not found"}
 
+@app.post("/api/test-dailybot")
+async def test_dailybot():
+    """Test if we can access Daily Bots API"""
+    daily_bots_key = os.getenv("DAILY_BOTS_KEY")
+    
+    if not daily_bots_key:
+        return JSONResponse(status_code=400, content={
+            "error": "DAILY_BOTS_KEY not configured",
+            "message": "Set DAILY_BOTS_KEY in environment variables"
+        })
+    
+    logger.info(f"Testing Daily Bots API with key: {daily_bots_key[:10]}...")
+    
+    # Test payload for Daily Bots
+    payload = {
+        "bot_profile": "voice_2024_10",
+        "max_duration": 60,  # Just 1 minute for testing
+        "services": {
+            "stt": "deepgram",
+            "tts": "cartesia", 
+            "llm": "anthropic"
+        },
+        "config": [
+            {
+                "service": "llm",
+                "options": [
+                    {
+                        "name": "model",
+                        "value": "claude-3-haiku-20240307"  # Cheaper model for testing
+                    },
+                    {
+                        "name": "initial_messages",
+                        "value": [
+                            {
+                                "role": "system",
+                                "content": "You are a helpful assistant. Say hello."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://api.daily.co/v1/bots/start",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {daily_bots_key}"
+                },
+                json=payload,
+                timeout=15
+            ) as resp:
+                data = await resp.json()
+                
+                if resp.status == 200:
+                    logger.info("Daily Bots API accessible!")
+                    return {"success": True, "data": data}
+                else:
+                    logger.warning(f"Daily Bots API returned {resp.status}: {data}")
+                    return JSONResponse(status_code=resp.status, content={
+                        "error": data,
+                        "message": "Daily Bots API not accessible with this key"
+                    })
+                    
+    except Exception as e:
+        logger.error(f"Daily Bots test error: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Failed to test Daily Bots API"
+        })
+
 @app.post("/api/get-simli-token")
 async def get_simli_token_for_daily_sdk(request: Request):
     """Get Simli token for Daily SDK - wrapper around /simli-token endpoint"""

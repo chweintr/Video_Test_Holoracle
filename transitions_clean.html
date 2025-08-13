@@ -33,6 +33,28 @@
 
       .mount{position:absolute;left:var(--target-left);top:var(--target-top);width:var(--target-size);aspect-ratio:1/1;outline:2px solid rgba(0,200,255,.7);overflow:hidden;z-index:2}
       .mount video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+      
+      /* Widget layer - GPT-5's solution for perfect sizing */
+      .widget-layer { position: absolute; inset: 0; }
+      
+      /* Generic glue for any widget type placed inside .widget-layer */
+      .widget-layer > * {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: 0 !important;
+        object-fit: cover;  /* match particles video behavior */
+      }
+      
+      /* Simli web component specifics */
+      simli-widget { 
+        position: absolute !important; 
+        inset: 0 !important; 
+        width: 100% !important; 
+        height: 100% !important; 
+      }
       .ui{position:absolute;inset:0;pointer-events:none;z-index:3}
       .title{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--title-up) - 1.0cqh);transform:translateX(-50%);text-align:center;max-width:60cqw;white-space:nowrap;font-weight:700;font-family:'Michroma','Courier New',monospace;letter-spacing:.08em;text-transform:uppercase;font-size:var(--title-size);line-height:1.05;color:#00ffff;text-shadow:0 0 20px #00ffff,0 0 40px #7e6bff}
       .subtitle{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--subtitle-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-size:var(--subtitle-size);line-height:1.05;color:#ff4df3;letter-spacing:.15em;text-transform:uppercase;text-shadow:0 0 10px #ff4df3}
@@ -53,6 +75,7 @@
         <video class="base" autoplay loop muted playsinline>
           <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4" />
         </video>
+        <div class="widget-layer" id="widgetLayer"></div>
       </div>
       <div class="ui">
         <div class="title">Echoes of Indiana</div>
@@ -161,42 +184,14 @@
       }
       
       async function createSimliWidget(personaId, token, agentId, faceId) {
-        const mount = document.querySelector('.mount');
-        
-        // Remove base video
-        const baseVideo = mount.querySelector('video.base');
+        // Hide base video
+        const baseVideo = document.querySelector('video.base');
         if (baseVideo) {
           baseVideo.style.display = 'none';
         }
         
-        // Create widget
-        const widget = document.createElement('simli-widget');
-        widget.setAttribute('token', token);
-        widget.setAttribute('agentid', agentId);
-        
-        if (faceId) {
-          widget.setAttribute('faceid', faceId);
-        }
-        
-        // Hide trigger and autostart
-        widget.setAttribute('hidetrigger', 'true');
-        widget.setAttribute('autostart', 'true');
-        widget.setAttribute('position', 'relative');
-        widget.setAttribute('overlay', 'false');
-        
-        // Style to fill mount
-        widget.style.cssText = `
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 5;
-        `;
-        
-        // Add to mount
-        mount.appendChild(widget);
-        currentWidget = widget;
+        // Use GPT-5's minimal attach function
+        attachSimliWidget({ token, agentId, faceId });
         
         // Show end session button
         document.getElementById('endSession').style.display = 'block';
@@ -204,11 +199,27 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
+      // GPT-5's minimal attach function
+      function attachSimliWidget({ token, agentId, faceId }) {
+        const host = document.getElementById('widgetLayer');
+        host.innerHTML = ''; // remove prior
+        const w = document.createElement('simli-widget');
+        w.setAttribute('token', token);
+        w.setAttribute('agentid', agentId);
+        if (faceId) w.setAttribute('faceid', faceId);
+        w.setAttribute('hidetrigger', 'true');
+        w.setAttribute('autostart', 'true');
+        host.appendChild(w);
+        currentWidget = w; // Store reference for cleanup
+      }
+      
       async function endCurrentSession() {
-        if (currentWidget) {
-          currentWidget.remove();
-          currentWidget = null;
+        // Clear widget layer (GPT-5's approach)
+        const host = document.getElementById('widgetLayer');
+        if (host) {
+          host.innerHTML = '';
         }
+        currentWidget = null;
         
         // Show base video again
         const baseVideo = document.querySelector('video.base');

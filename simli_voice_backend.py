@@ -747,6 +747,13 @@ async def daily_sdk_test():
         return FileResponse("simli_daily_custom.html")
     return {"message": "simli_daily_custom.html not found"}
 
+@app.get("/test-dailybot")
+async def serve_dailybot_test():
+    """Serve the Daily Bots API test page"""
+    if os.path.exists("test_dailybot.html"):
+        return FileResponse("test_dailybot.html")
+    return {"message": "test_dailybot.html not found"}
+
 @app.post("/api/test-dailybot")
 async def test_dailybot():
     """Test if we can access Daily Bots API"""

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Bots API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #0a0;
+        }
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        #result {
+            background: #111;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #0f0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #0f0;
+        }
+        .error {
+            color: #f00;
+        }
+        h1 {
+            color: #0f0;
+            text-shadow: 0 0 10px #0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 Daily Bots API Test</h1>
+    <p>This tests if your DAILY_BOTS_KEY can access the Daily Bots API.</p>
+    
+    <button id="testBtn" onclick="testDailyBot()">Test Daily Bots API</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function testDailyBot() {
+            const btn = document.getElementById('testBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            result.innerHTML = 'Testing Daily Bots API...';
+            result.className = '';
+            
+            try {
+                const response = await fetch('/api/test-dailybot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    result.innerHTML = '✅ SUCCESS! Daily Bots API is accessible!\n\n' + 
+                                     'Response:\n' + 
+                                     JSON.stringify(data, null, 2);
+                    result.className = 'success';
+                } else {
+                    result.innerHTML = '❌ FAILED: ' + (data.message || 'Unknown error') + '\n\n' +
+                                     'Details:\n' + 
+                                     JSON.stringify(data.error || data, null, 2);
+                    result.className = 'error';
+                    
+                    if (response.status === 401 || response.status === 403) {
+                        result.innerHTML += '\n\n⚠️ This key doesn\'t have access to Daily Bots API.\n' +
+                                          'You may need:\n' +
+                                          '1. A different type of Daily key\n' +
+                                          '2. To enable Bots in your Daily account\n' +
+                                          '3. To ask Simli for alternative integration';
+                    }
+                }
+            } catch (error) {
+                result.innerHTML = '❌ Network Error: ' + error.message;
+                result.className = 'error';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('Ready to test Daily Bots API');
+        });
+    </script>
+</body>
+</html>

@@ -705,8 +705,17 @@
         }
         
         function enforceWidgetSizing(widget, personaId) {
-            // DISABLED - Let Simli handle its own sizing
-            console.log(`[Main Kiosk] Sizing enforcement DISABLED for ${personaId} - letting Simli control it`);
+            // GENTLE sizing - respect Simli's aspect ratio
+            console.log(`[Main Kiosk] Applying gentle sizing for ${personaId}`);
+            
+            // Just ensure it's centered and visible
+            widget.style.width = '100%';
+            widget.style.height = '100%';
+            widget.style.position = 'absolute';
+            widget.style.top = '0';
+            widget.style.left = '0';
+            
+            // Don't force internal elements - let Simli handle them
             return;
             
             // ULTRA-AGGRESSIVE widget sizing enforcement
@@ -920,19 +929,19 @@
                 console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
             }
             
-            widget.setAttribute('position', 'absolute');
+            widget.setAttribute('position', 'relative');  // Use relative positioning as per docs
+            widget.setAttribute('overlay', 'false');  // Explicitly set overlay mode to false
             widget.setAttribute('customtext', 'SUMMON');  // Clear button text
             widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
             widget.setAttribute('hidetrigger', 'false');  // Show the button clearly
             widget.setAttribute('autostart', 'false');  // Don't auto-start, let user click
             
-            // Let Simli handle sizing naturally - just position it
-            widget.style.cssText = `
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-            `;
+            // Basic positioning - let widget handle its own sizing
+            widget.style.position = 'absolute';
+            widget.style.width = '100%';
+            widget.style.height = '100%';
+            widget.style.top = '0';
+            widget.style.left = '0';
             
             // Don't force size attributes - let Simli decide
             // widget.setAttribute('width', '363');

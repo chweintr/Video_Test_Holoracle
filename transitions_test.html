@@ -1,3 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Transitions UI (Anchored to Mount)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin: 0; background: #000; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+      :root {
+        /* Working anchors for new-back.png */
+        --target-left: 37.66%;
+        --target-top: 24.86%;
+        --target-size: 24.53%;
+        --ui-scale: 1;
+        /* Mount center for horizontal alignment */
+        --mount-center-x: calc(var(--target-left) + (var(--target-size) / 2));
+        /* Vertical spacing relative to stage height */
+        --title-top: 9cqh;
+        --subtitle-top: 14.5cqh;
+        --buttons-bottom: 10cqh;
+      }
+
+      /* 16:9 stage that covers viewport; crops edges as needed */
+      .stage {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: max(100vw, calc(100dvh * 16 / 9));
+        aspect-ratio: 16 / 9;
+        container-type: size; /* enable cqw/cqh */
+        overflow: hidden;
+        background: #000 url('assets/new-back.png') center / cover no-repeat;
+      }
+
+      .stage > img.bg { /* optional explicit <img> if needed */
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; object-position: center;
+        opacity: 0; /* use CSS background above; keep for future swaps */
+      }
+
+      /* Mount locked to design coordinates (square) */
+      .mount {
+        position: absolute;
+        left: var(--target-left);
+        top: var(--target-top);
+        width: var(--target-size);
+        aspect-ratio: 1 / 1;
+        outline: 2px solid rgba(0, 200, 255, 0.65);
+        box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.2) inset;
+        border-radius: 2px;
+      }
+
+      /* UI anchored to mount center horizontally; vertical via cqh vars */
+      .ui { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+
+      .title {
+        position: absolute;
+        left: var(--mount-center-x);
+        top: var(--title-top);
+        transform: translateX(-50%);
+        text-align: center;
+        max-width: calc(var(--target-size) * 1.25);
+        font-weight: 700;
+        font-size: calc(4.2cqh * var(--ui-scale));
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-family: 'Michroma', 'Courier New', monospace;
+        text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
+      }
+
+      .subtitle {
+        position: absolute;
+        left: var(--mount-center-x);
+        top: var(--subtitle-top);
+        transform: translateX(-50%);
+        text-align: center;
+        max-width: calc(var(--target-size) * 1.25);
+        font-size: calc(2.6cqh * var(--ui-scale));
+        color: #ff4df3; opacity: 0.95;
+        text-transform: uppercase; letter-spacing: 0.15em;
+        text-shadow: 0 0 10px #ff4df3;
+      }
+
+      .strap { position: absolute; left: var(--mount-center-x); transform: translateX(-50%); text-align: center; max-width: 80cqw; color: rgba(255,255,255,0.75); font-family: 'Courier New', monospace; font-size: calc(1.3cqh * var(--ui-scale)); letter-spacing: 0.14em; text-transform: uppercase; }
+      .strap.s1 { top: calc(var(--subtitle-top) + 3cqh); }
+      .strap.s2 { top: calc(var(--subtitle-top) + 5cqh); }
+
+      .persona-controls {
+        position: absolute;
+        left: var(--mount-center-x);
+        bottom: var(--buttons-bottom);
+        transform: translateX(-50%);
+        display: flex; gap: clamp(6px, 1vw, 12px); flex-wrap: nowrap; justify-content: center;
+        z-index: 20; padding: 0 2cqw; pointer-events: auto;
+      }
+      .persona-btn {
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+        border: 2px solid rgba(77,227,255,0.5);
+        color: #00ffff;
+        padding: clamp(5px, 1.2vw, 8px) clamp(10px, 2.5vw, 15px);
+        font-size: clamp(0.6em, 1.6vw, 0.8em);
+        cursor: pointer; transition: all 0.3s ease;
+        font-family: 'Courier New', monospace; text-transform: uppercase;
+        border-radius: 6px; letter-spacing: 0.03em; position: relative; white-space: nowrap; min-width: 0; flex-shrink: 1;
+      }
+      .persona-btn:hover { border-color: #00ffff; background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25)); box-shadow: 0 0 20px rgba(0,255,255,0.4); transform: translateY(-2px); }
+      .persona-btn.active { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,77,243,0.25)); border-color: #ff4df3; color: #ff4df3; box-shadow: 0 0 25px rgba(255,77,243,0.5); }
+      .persona-btn.enhanced.active { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,0,0.25)); border-color: #ffff00; color: #ffff00; box-shadow: 0 0 25px rgba(255,255,0,0.5); }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <img class="bg" src="assets/new-back.png" alt="Background" />
+      <div class="mount" aria-label="Square mount"></div>
+      <div class="ui" aria-hidden="false">
+        <div class="title">Echoes of Indiana</div>
+        <div class="subtitle">Holographic Conversations Powered by Research</div>
+        <div class="strap s1">Compelled by Curiosity</div>
+        <div class="strap s2">Brought to you by Past Presence</div>
+        <div class="persona-controls">
+          <button class="persona-btn" data-persona="bigfoot">Brown County Bigfoot</button>
+          <button class="persona-btn" data-persona="indiana">Hoosier Oracle</button>
+          <button class="persona-btn" data-persona="vonnegut">Kurt Vonnegut</button>
+          <button class="persona-btn" data-persona="larrybird">Larry Bird</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Visual-only active state for buttons; no Simli wiring on transitions test
+      (function(){
+        const btns = document.querySelectorAll('.persona-btn');
+        btns.forEach(b => b.addEventListener('click', () => {
+          btns.forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+        }));
+      })();
+    </script>
+  </body>
+  </html>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

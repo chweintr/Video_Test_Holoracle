@@ -695,6 +695,13 @@ async def debug_personas_page():
         return FileResponse("debug_personas.html")
     return {"message": "debug_personas.html not found"}
 
+@app.get("/daily-sdk")
+async def daily_sdk_test():
+    """Serve the Daily SDK custom implementation test page."""
+    if os.path.exists("simli_daily_custom.html"):
+        return FileResponse("simli_daily_custom.html")
+    return {"message": "simli_daily_custom.html not found"}
+
 @app.get("/debug-assets")
 async def debug_assets():
     """Debug endpoint to see what files are in assets folder"""

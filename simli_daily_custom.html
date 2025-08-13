@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simli Custom Daily SDK Implementation</title>
+    <!-- Daily Client SDK -->
+    <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+        
+        .avatar-mount {
+            width: 512px;
+            height: 512px;
+            margin: 0 auto;
+            border: 2px solid #00ffff;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(0,255,255,0.1), transparent);
+        }
+        
+        #avatarVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        button {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: rgba(0,255,255,0.1);
+            box-shadow: 0 0 20px rgba(0,255,255,0.5);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            color: #ff4df3;
+        }
+        
+        .persona-selector {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        select {
+            background: #000;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 5px 10px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; margin-bottom: 30px;">Simli Custom Daily SDK Test</h1>
+        
+        <div class="persona-selector">
+            <label for="personaSelect">Select Persona: </label>
+            <select id="personaSelect">
+                <option value="bigfoot">Bigfoot</option>
+                <option value="indiana">Hoosier Oracle</option>
+                <option value="vonnegut">Kurt Vonnegut</option>
+                <option value="larrybird">Larry Bird</option>
+            </select>
+        </div>
+        
+        <div class="avatar-mount">
+            <video id="avatarVideo" autoplay playsinline></video>
+        </div>
+        
+        <div class="controls">
+            <button id="connectBtn">Connect</button>
+            <button id="startBtn" disabled>Start Session</button>
+            <button id="stopBtn" disabled>Stop Session</button>
+            <button id="disconnectBtn" disabled>Disconnect</button>
+        </div>
+        
+        <div class="status" id="status">Ready</div>
+    </div>
+    
+    <script>
+        // Configuration matching main_kiosk.html
+        const CONFIG = {
+            personas: {
+                bigfoot: {
+                    name: 'Brown County Bigfoot',
+                    agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+                    enhanced: false
+                },
+                indiana: {
+                    name: 'Hoosier Oracle',
+                    agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',
+                    faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',
+                    enhanced: false
+                },
+                vonnegut: {
+                    name: 'Kurt Vonnegut',
+                    agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+                    faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
+                    enhanced: true
+                },
+                larrybird: {
+                    name: 'Larry Bird',
+                    agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+                    faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+                    enhanced: true
+                }
+            }
+        };
+        
+        let callObject = null;
+        let currentSession = null;
+        
+        // DOM elements
+        const connectBtn = document.getElementById('connectBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const statusDiv = document.getElementById('status');
+        const personaSelect = document.getElementById('personaSelect');
+        const avatarVideo = document.getElementById('avatarVideo');
+        
+        function updateStatus(message) {
+            statusDiv.textContent = message;
+            console.log('[Daily SDK]', message);
+        }
+        
+        async function getSimliToken(personaId) {
+            const persona = CONFIG.personas[personaId];
+            if (!persona) {
+                throw new Error(`Unknown persona: ${personaId}`);
+            }
+            
+            updateStatus(`Getting token for ${persona.name}...`);
+            
+            try {
+                // First get the Simli session token
+                const tokenResponse = await fetch('/api/get-simli-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        agentId: persona.agentId,
+                        faceId: persona.faceId,
+                        enhanced: persona.enhanced
+                    })
+                });
+                
+                if (!tokenResponse.ok) {
+                    throw new Error(`Failed to get token: ${tokenResponse.status}`);
+                }
+                
+                const tokenData = await tokenResponse.json();
+                return tokenData;
+            } catch (error) {
+                updateStatus(`Error getting token: ${error.message}`);
+                throw error;
+            }
+        }
+        
+        async function connectToSimli() {
+            const personaId = personaSelect.value;
+            
+            try {
+                // Get session token from our backend
+                const sessionData = await getSimliToken(personaId);
+                
+                updateStatus('Creating Daily call object...');
+                
+                // Create Daily call object
+                callObject = DailyIframe.createCallObject({
+                    url: sessionData.roomUrl, // Assuming Simli returns a Daily room URL
+                    token: sessionData.token,
+                    subscribeToTracksAutomatically: true,
+                    showLeaveButton: false,
+                    showFullscreenButton: false
+                });
+                
+                // Set up event listeners
+                callObject.on('joined-meeting', handleJoinedMeeting);
+                callObject.on('participant-joined', handleParticipantJoined);
+                callObject.on('participant-updated', handleParticipantUpdated);
+                callObject.on('participant-left', handleParticipantLeft);
+                callObject.on('track-started', handleTrackStarted);
+                callObject.on('track-stopped', handleTrackStopped);
+                callObject.on('error', handleError);
+                
+                updateStatus('Connecting to Daily room...');
+                
+                // Join the room
+                await callObject.join();
+                
+                connectBtn.disabled = true;
+                startBtn.disabled = false;
+                disconnectBtn.disabled = false;
+                
+                updateStatus('Connected to Daily room');
+                
+            } catch (error) {
+                updateStatus(`Connection failed: ${error.message}`);
+                console.error('Connection error:', error);
+            }
+        }
+        
+        function handleJoinedMeeting(event) {
+            console.log('Joined meeting:', event);
+            updateStatus('Joined meeting successfully');
+        }
+        
+        function handleParticipantJoined(event) {
+            console.log('Participant joined:', event);
+            const participant = event.participant;
+            
+            // Check if this is the Simli avatar
+            if (participant.user_name && participant.user_name.includes('simli')) {
+                updateStatus(`Simli avatar joined: ${participant.user_name}`);
+            }
+        }
+        
+        function handleParticipantUpdated(event) {
+            console.log('Participant updated:', event);
+            const participant = event.participant;
+            
+            // Update video track if available
+            if (participant.video && participant.videoTrack) {
+                attachVideoTrack(participant.videoTrack);
+            }
+        }
+        
+        function handleParticipantLeft(event) {
+            console.log('Participant left:', event);
+            updateStatus('Participant left');
+        }
+        
+        function handleTrackStarted(event) {
+            console.log('Track started:', event);
+            
+            if (event.track && event.track.kind === 'video') {
+                attachVideoTrack(event.track);
+                updateStatus('Video track started');
+            }
+        }
+        
+        function handleTrackStopped(event) {
+            console.log('Track stopped:', event);
+            
+            if (event.track && event.track.kind === 'video') {
+                detachVideoTrack();
+                updateStatus('Video track stopped');
+            }
+        }
+        
+        function handleError(event) {
+            console.error('Daily error:', event);
+            updateStatus(`Error: ${event.errorMsg || 'Unknown error'}`);
+        }
+        
+        function attachVideoTrack(track) {
+            console.log('Attaching video track:', track);
+            
+            // Create a new MediaStream with the track
+            const stream = new MediaStream([track]);
+            
+            // Attach to video element
+            avatarVideo.srcObject = stream;
+            
+            // Force sizing
+            avatarVideo.style.width = '100%';
+            avatarVideo.style.height = '100%';
+            avatarVideo.style.objectFit = 'cover';
+        }
+        
+        function detachVideoTrack() {
+            avatarVideo.srcObject = null;
+        }
+        
+        async function startSession() {
+            if (!callObject) {
+                updateStatus('Not connected');
+                return;
+            }
+            
+            try {
+                // Start the Simli session
+                // This might require sending a specific message or calling an API
+                updateStatus('Starting Simli session...');
+                
+                // Enable microphone
+                await callObject.setLocalAudio(true);
+                
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                updateStatus('Session started');
+                
+            } catch (error) {
+                updateStatus(`Failed to start session: ${error.message}`);
+                console.error('Start session error:', error);
+            }
+        }
+        
+        async function stopSession() {
+            if (!callObject) return;
+            
+            try {
+                // Disable microphone
+                await callObject.setLocalAudio(false);
+                
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                
+                updateStatus('Session stopped');
+                
+            } catch (error) {
+                updateStatus(`Failed to stop session: ${error.message}`);
+                console.error('Stop session error:', error);
+            }
+        }
+        
+        async function disconnect() {
+            if (!callObject) return;
+            
+            try {
+                await callObject.leave();
+                await callObject.destroy();
+                
+                callObject = null;
+                
+                connectBtn.disabled = false;
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+                disconnectBtn.disabled = true;
+                
+                detachVideoTrack();
+                
+                updateStatus('Disconnected');
+                
+            } catch (error) {
+                updateStatus(`Failed to disconnect: ${error.message}`);
+                console.error('Disconnect error:', error);
+            }
+        }
+        
+        // Event listeners
+        connectBtn.addEventListener('click', connectToSimli);
+        startBtn.addEventListener('click', startSession);
+        stopBtn.addEventListener('click', stopSession);
+        disconnectBtn.addEventListener('click', disconnect);
+        
+        // Initialize
+        updateStatus('Ready - Select a persona and click Connect');
+    </script>
+</body>
+</html>

@@ -21,6 +21,10 @@
         --ui-scale: 1; /* global typography scale */
 			/* center of the square mount (percent of stage width) */
 			--mount-center-x: calc(var(--target-left) + (var(--target-size) / 2));
+        /* vertical layout controls (adjust here, not in code) */
+        --title-top: 9cqh;
+        --subtitle-top: 14.5cqh;
+        --buttons-bottom: 10cqh;
       }
 
       /* 16:9 stage that COVERS the viewport (no borders). dvh fixes Safari toolbars. */
@@ -74,7 +78,7 @@
       .title {
         position: absolute;
         left: var(--mount-center-x);
-        top: 9cqh;
+        top: var(--title-top);
         transform: translateX(-50%);
         text-align: center;
         max-width: calc(var(--target-size) * 1.25);
@@ -88,7 +92,7 @@
       .subtitle {
         position: absolute;
         left: var(--mount-center-x);
-        top: 14.5cqh;
+        top: var(--subtitle-top);
         transform: translateX(-50%);
         text-align: center;
         max-width: calc(var(--target-size) * 1.25);
@@ -118,7 +122,7 @@
       .persona-controls {
         position: absolute;
         left: var(--mount-center-x);
-        bottom: 10cqh;
+        bottom: var(--buttons-bottom);
         transform: translateX(-50%);
         display: flex;
         gap: clamp(6px, 1vw, 12px);
@@ -177,7 +181,7 @@
   </head>
   <body>
     <div class="stage">
-      <img class="bg" src="assets/site-back-with-text.png" alt="Background" />
+      <img class="bg" src="assets/new-back.png" alt="Background" />
       <div class="mount" aria-label="Square mount"></div>
       <div class="ui" aria-hidden="false">
         <div class="title">Echoes of Indiana</div>

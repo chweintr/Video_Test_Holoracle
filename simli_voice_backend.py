@@ -659,6 +659,10 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
                 timeout=15,
             ) as resp:
                 data = await resp.json()
+                
+                # DEBUG: Log full Simli API response to find Daily room info
+                logger.info(f"FULL SIMLI API RESPONSE: {json.dumps(data, indent=2)}")
+                
                 if resp.status != 200:
                     # Fallback: if SIMLI_TOKEN is configured, return it so frontend can proceed
                     env_token = os.getenv("SIMLI_TOKEN")
@@ -676,8 +680,25 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
                         "error": data,
                         "message": "Simli token not found in response"
                     })
-                # Return both token and agentId - widget needs both
-                return {"token": token, "agentId": resolved_agent_id, "source": "api"}
+                
+                # Look for Daily room URL in various possible fields
+                room_url = (data.get("roomUrl") or 
+                           data.get("room_url") or 
+                           data.get("dailyUrl") or 
+                           data.get("daily_url") or 
+                           data.get("meetingUrl") or 
+                           data.get("meeting_url"))
+                
+                response = {"token": token, "agentId": resolved_agent_id, "source": "api"}
+                
+                if room_url:
+                    response["roomUrl"] = room_url
+                    response["sessionId"] = data.get("sessionId") or data.get("session_id")
+                    logger.info(f"Found Daily room URL: {room_url}")
+                else:
+                    logger.warning("No Daily room URL found in Simli response")
+                
+                return response
     except Exception as e:
         logger.error(f"Simli token generation error: {e}")
         return JSONResponse(status_code=500, content={

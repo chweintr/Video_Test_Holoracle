@@ -15,6 +15,7 @@
 
       /* Defaults (can be tuned by the control panel) */
       :root {
+        /* Original working anchors for new-back.png */
         --target-left: 37.66%;
         --target-top: 24.86%;
         --target-size: 24.53%;
@@ -37,7 +38,7 @@
         aspect-ratio: 16 / 9;
         container-type: size; /* enables cqw/cqh */
         overflow: hidden; /* crop edges as needed */
-        background: #000 url('assets/site-back-with-text.png') center / cover no-repeat; /* fallback */
+        background: #000 url('assets/new-back.png') center / cover no-repeat; /* fallback */
       }
 
       /* Background fills the stage; center-cropped if viewport is taller/narrower. */
@@ -181,7 +182,7 @@
   </head>
   <body>
     <div class="stage">
-      <img class="bg" src="assets/site-back-with-text.png" alt="Background" />
+      <img class="bg" src="assets/new-back.png" alt="Background" />
       <div class="mount" aria-label="Square mount"></div>
       <div class="ui" aria-hidden="false">
         <div class="title">Echoes of Indiana</div>

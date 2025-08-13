@@ -176,14 +176,13 @@
             updateStatus(`Getting token for ${persona.name}...`);
             
             try {
-                // First get the Simli session token
-                const tokenResponse = await fetch('/api/get-simli-token', {
+                // First get the Simli session token using working endpoint
+                const tokenResponse = await fetch('/simli-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         agentId: persona.agentId,
-                        faceId: persona.faceId,
-                        enhanced: persona.enhanced
+                        persona: personaId
                     })
                 });
                 

@@ -813,26 +813,26 @@
                 console.log(`[Main Kiosk] Setting face ID for ${personaId}: ${persona.faceId}`);
             }
             
-            widget.setAttribute('position', 'relative');
+            widget.setAttribute('position', 'absolute');
             widget.setAttribute('customtext', ' ');  // Single space instead of empty
             widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
             widget.setAttribute('hidetrigger', 'true');  // Should hide trigger
             widget.setAttribute('autostart', 'true');  // Try autostarting to skip button
             
-            // FORCE sizing with inline styles to override Simli defaults
+            // FORCE sizing with particle video approach
             widget.style.cssText = `
-                position: relative !important;
-                width: 363px !important;
-                height: 363px !important;
-                max-width: 363px !important;
-                max-height: 363px !important;
-                min-width: 363px !important;
-                min-height: 363px !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
                 overflow: hidden !important;
                 background: transparent !important;
+                transform: none !important;
+                scale: none !important;
             `;
             
             // Use custom image if specified (for particle videos)

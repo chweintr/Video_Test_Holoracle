@@ -323,6 +323,14 @@ async def square_mount_ui():
     else:
         return {"message": "square_mount_ui.html not found"}
 
+@app.get("/unified")
+async def main_unified():
+    """Unified Perfect System - GPT-5 positioning + Complete functionality"""
+    if os.path.exists("main_unified.html"):
+        return FileResponse("main_unified.html")
+    else:
+        return {"message": "main_unified.html not found"}
+
 @app.get("/transitions")
 async def main_kiosk_transitions():
     """Serve the 3-Layer Holographic Transition System - EXPERIMENTAL"""

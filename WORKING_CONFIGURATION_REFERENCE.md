@@ -190,3 +190,55 @@ For any outpainted image:
 ---
 *Updated: 2025-08-12 - Added GPT-5's outpaint positioning methodology*
 *Keep this file updated with any successful changes*
+
+---
+
+## ✅ Square‑Mount UI (Layout-Only) – Working Positioning Logic
+
+- Route: `/square-mount-ui`
+- File: `square_mount_ui.html`
+- Backend: `simli_voice_backend.py` → `@app.get("/square-mount-ui")`
+- Deployment: Railway main service (same as `/main`), open
+  `https://videotestholoracle-production.up.railway.app/square-mount-ui`
+
+What works here
+- Unified 16:9 cover stage fills the viewport (no borders), crops edges intentionally
+- Background and mount share the same coordinate space; mount stays locked via percentages
+- Title, subtitle, persona buttons centered relative to the mount center using
+  `--mount-center-x: calc(var(--target-left) + var(--target-size)/2)`
+- Text scales with container query units (`cqh/cqw`) so it tracks the stage height on Mac/PC
+- Live control panel to tune left/top/size/text scale and copy the resulting CSS
+
+Key CSS (essentials)
+```css
+.stage { /* 16:9 cover */
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: max(100vw, calc(100dvh * 16/9)); aspect-ratio: 16/9;
+  container-type: size; overflow: hidden; /* crop edges */
+}
+.stage > img.bg { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+:root {
+  --target-left: 37.66%; --target-top: 24.86%; --target-size: 24.53%;
+  --mount-center-x: calc(var(--target-left) + var(--target-size)/2);
+}
+.mount { position: absolute; left: var(--target-left); top: var(--target-top); width: var(--target-size); aspect-ratio: 1/1; }
+.title { left: var(--mount-center-x); transform: translateX(-50%); top: 9cqh; }
+.subtitle { left: var(--mount-center-x); transform: translateX(-50%); top: 14.5cqh; }
+.persona-controls { left: var(--mount-center-x); transform: translateX(-50%); bottom: 10cqh; }
+```
+
+How to adjust on any device
+1) Open `/square-mount-ui`
+2) Use the control panel (top-right) to tweak Left/Top/Size/Text ×
+3) Click Copy CSS and paste the variables into `:root` in your layout
+
+Important
+- This route is layout-only. It does NOT wire Simli widgets or transitions. The working, fully
+  functional system remains at `/main` (`main_kiosk.html`).
+- Do not change `/main` for the pitch. Integrate new styling/percentages by copying variables and
+  styles from `square_mount_ui.html` when ready.
+
+Open items to integrate later
+- Port holographic styles (fonts, buttons, glow) are partially applied; finish tightening to match `/main`
+- Wire persona buttons to real actions (current UI route has no widget logic)
+- Unify background assets (ensure 16:9 variants to avoid extra math)

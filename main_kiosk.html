@@ -705,6 +705,10 @@
         }
         
         function enforceWidgetSizing(widget, personaId) {
+            // DISABLED - Let Simli handle its own sizing
+            console.log(`[Main Kiosk] Sizing enforcement DISABLED for ${personaId} - letting Simli control it`);
+            return;
+            
             // ULTRA-AGGRESSIVE widget sizing enforcement
             
             // 1. Force the widget itself
@@ -922,26 +926,18 @@
             widget.setAttribute('hidetrigger', 'false');  // Show the button clearly
             widget.setAttribute('autostart', 'false');  // Don't auto-start, let user click
             
-            // FORCE sizing - target the video/canvas element inside the widget
+            // Let Simli handle sizing naturally - just position it
             widget.style.cssText = `
                 position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                overflow: hidden !important;
-                background: transparent !important;
-                transform: none !important;
-                scale: none !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
             `;
             
-            // Set sizing attributes that Simli might respect
-            widget.setAttribute('width', '363');
-            widget.setAttribute('height', '363');
-            widget.setAttribute('sizing', 'fill');  // Try to tell Simli to fill container
+            // Don't force size attributes - let Simli decide
+            // widget.setAttribute('width', '363');
+            // widget.setAttribute('height', '363');
+            // widget.setAttribute('sizing', 'fill');
             
             // Use custom image if specified (for particle videos)
             if (persona.customImage) {

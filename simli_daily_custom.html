@@ -208,6 +208,8 @@
                 
                 updateStatus('Analyzing Simli response...');
                 console.log('Full Simli response:', sessionData);
+                console.log('Response keys:', Object.keys(sessionData));
+                console.log('Response JSON:', JSON.stringify(sessionData, null, 2));
                 
                 // Check if we got a valid room URL
                 if (!sessionData.roomUrl || sessionData.roomUrl.includes('placeholder')) {

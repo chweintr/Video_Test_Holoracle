@@ -1,15 +1,22 @@
 # 🚨 CRITICAL - WORKING CONFIGURATION REFERENCE 🚨
 **DO NOT LOSE THIS - USE AS PREAMBLE FOR FUTURE CONVERSATIONS**
 
-## Current Working State (Updated Aug 12, 2025)
+## 📍 PROJECT LOCATION & SETUP
+- **Git Repository**: `E:\Interactive\interactive_project\indiana-oracle-grpc-face\Video_Test_Holoracle`
+- **Main Working File**: `main_kiosk.html` (THIS IS THE ACTIVE FILE - NOT index.html)
+- **Branch**: `main` 
+- **Remote**: `https://github.com/chweintr/Video_Test_Holoracle.git`
+- **Deployment**: Railway auto-deploys from main branch
+
+## Current Working State (Updated Aug 12, 2025 - 4 Personas)
 - **URL**: https://videotestholoracle-production.up.railway.app/main  
-- **MAIN FILE**: `main_kiosk.html` (THIS IS THE ACTIVE FILE - NOT index.html)
 - **Status**: Perfect cube positioning ✅, All 4 personas ✅, Clean mount ✅, Simli sizing fixed ✅
-- **Last Updated**: Full-screen tested positioning with forced 363x363 Simli sizing
+- **Widget Sizing**: Fixed to fill 363x363 mount box (not native size) ✅
+- **Last Updated**: Widget position/sizing fixes deployed Aug 12 22:15
 
 ## 🔥 WORKING SIMLI CONFIGURATION
 
-### Agent IDs (THESE WORK)
+### 4 WORKING PERSONAS (CURRENT CONFIG)
 ```javascript
 const CONFIG = {
   personas: {
@@ -21,8 +28,8 @@ const CONFIG = {
     },
     indiana: {
       name: 'Hoosier Oracle', 
-      agentId: 'd793889d-33ed-44b3-a8b0-e5b9d074e897',  // ✅ CORRECT HOOSIER ORACLE
-      faceId: 'afdb6a3e-3939-40aa-92df-01604c23101c',
+      agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',  // ✅ WORKING AGENT ID
+      faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',   // ✅ WORKING FACE ID
       enhanced: false,
       description: 'Hoosier Oracle with custom agent and face'
     },
@@ -32,19 +39,42 @@ const CONFIG = {
       faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
       enhanced: true,
       description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice'
+    },
+    larrybird: {
+      name: 'Larry Bird',
+      agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+      faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+      enhanced: true,
+      description: 'Larry Bird persona with basketball wisdom and Indiana pride'
     }
   }
 };
 ```
 
-### ✅ WORKING SIMLI WIDGET PATTERN
+### ✅ WORKING SIMLI WIDGET PATTERN (UPDATED AUG 12, 2025)
 ```javascript
-// CRITICAL: This exact pattern works
-widget.setAttribute('position', 'relative');
-widget.setAttribute('customtext', ''); 
+// CRITICAL: This exact pattern works for 363x363 mount sizing
+widget.setAttribute('position', 'relative');  // Position relative works best
+widget.setAttribute('customtext', ' ');      // Single space instead of empty
 widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
 widget.setAttribute('hidetrigger', 'true');
-widget.setAttribute('autostart', 'false');
+widget.setAttribute('autostart', 'true');    // Auto-start to skip buttons
+
+// FORCE sizing with inline styles to override Simli defaults
+widget.style.cssText = `
+    position: relative !important;
+    width: 363px !important;
+    height: 363px !important;
+    max-width: 363px !important;
+    max-height: 363px !important;
+    min-width: 363px !important;
+    min-height: 363px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    background: transparent !important;
+`;
 ```
 
 ### 🔧 STATUS ELEMENT FIX (CRITICAL)
@@ -60,17 +90,19 @@ function updateStatus(msg) {
 
 ## 🚨 KNOWN ISSUES TO FIX
 
-### 1. ✅ Hoosier Oracle Agent ID - FIXED
-- **Old**: `76ed1ae8-720c-45de-918c-cac46984412d` (was showing nurse)
-- **New**: `d793889d-33ed-44b3-a8b0-e5b9d074e897` (correct Hoosier Oracle)
-- **Face ID**: `afdb6a3e-3939-40aa-92df-01604c23101c`
+### 1. ✅ Hoosier Oracle Agent ID - FIXED AUG 12, 2025
+- **Working Agent ID**: `cd04320d-987b-4e26-ba7f-ba4f75701ebd` (confirmed working)
+- **Working Face ID**: `d21a631c-28f8-4220-8da3-ea89bc4e5487` (confirmed working)
+- **Status**: Functioning properly as of latest deployment
 
-### 2. ✅ Visual/Layout Issues - FIXED Aug 12, 2025
+### 2. ✅ Widget Sizing & Layout Issues - FIXED Aug 12, 2025
 - ✅ Mount position: Fixed at 363x363px, top: 206px (full-screen tested)
 - ✅ Background scaling: Fixed with `center/100% no-repeat` (no more responsive scaling)
 - ✅ Cube alignment: Perfect fit inside glowing cube boundaries
-- ✅ Simli sizing: Forced to exact 363x363px (no more 420x420 cropping)
+- ✅ Widget sizing: FIXED - widgets now fill 363x363 mount (not native size)
+- ✅ Widget position: FIXED - position='relative' prevents right-side drift
 - ✅ Clean mount: Removed old spinner/text from center
+- ✅ Forced sizing: Inline styles + CSS + post-load enforcement
 
 ### 3. Vonnegut Voice Issue
 - Agent loads but doesn't respond to voice
@@ -104,10 +136,14 @@ python simli_voice_backend.py  # Should start on port 8083
 3. **Document visual fixes** - So they don't get lost in future changes
 4. **Test all three personas** - Ensure full functionality
 
-## 📋 WORKING FEATURES (DO NOT BREAK)
+## 📋 WORKING FEATURES (DO NOT BREAK) - 4 PERSONAS
 - ✅ Button clicks trigger Simli widgets
 - ✅ Bigfoot agent works and responds
-- ✅ Vonnegut agent loads (face appears)
+- ✅ Hoosier Oracle agent works and responds (FIXED Aug 12)
+- ✅ Larry Bird agent works and responds  
+- ✅ Vonnegut agent loads (face appears, voice issues remain)
+- ✅ Widget sizing constrained to 363x363 mount (FIXED Aug 12)
+- ✅ Widget positioning relative (FIXED Aug 12)
 - ✅ Status element error fixed
 - ✅ Transition animations work
 - ✅ Custom UI overlay system
@@ -185,9 +221,17 @@ For any outpainted image:
 - ✅ **Element containment** (all layers stay within mount)
 
 ## 🚨 CRITICAL REMINDER
-**This configuration represents 9 days of debugging work. Do not modify agent IDs or core widget creation logic without testing on a copy first.**
+**This configuration represents 9+ days of debugging work. Do not modify agent IDs or core widget creation logic without testing on a copy first.**
+
+### 🎯 FOR NEW CLAUDE INSTANCES:
+1. **Project Path**: `E:\Interactive\interactive_project\indiana-oracle-grpc-face\Video_Test_Holoracle`
+2. **Main File**: `main_kiosk.html` (not index.html)
+3. **Current Status**: 4 working personas, widget sizing fixed
+4. **Deployment**: Railway auto-deploys from main branch
+5. **Always read this file first** to understand current state
 
 ---
+*Updated: 2025-08-12 22:30 - Updated for 4 personas, current agent IDs, and widget sizing fixes*
 *Updated: 2025-08-12 - Added GPT-5's outpaint positioning methodology*
 *Keep this file updated with any successful changes*
 

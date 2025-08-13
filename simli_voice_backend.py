@@ -334,8 +334,8 @@ async def main_unified():
 @app.get("/transitions")
 async def main_kiosk_transitions():
     """Serve the 3-Layer Holographic Transition System - EXPERIMENTAL"""
-    if os.path.exists("transitions_test.html"):
-        return FileResponse("transitions_test.html")
+    if os.path.exists("transitions_clean.html"):
+        return FileResponse("transitions_clean.html")
     else:
         return {"message": "Transition system file not found"}
 

@@ -60,15 +60,172 @@
         <div class="strap s1">Compelled by Curiosity</div>
         <div class="strap s2">Brought to you by Past Presence</div>
         <div class="persona">
-          <button>Brown County Bigfoot</button>
-          <button>Hoosier Oracle</button>
-          <button>Kurt Vonnegut</button>
-          <button>Larry Bird</button>
+          <button data-persona="bigfoot">Brown County Bigfoot</button>
+          <button data-persona="indiana">Hoosier Oracle</button>
+          <button data-persona="vonnegut">Kurt Vonnegut</button>
+          <button data-persona="larrybird">Larry Bird</button>
         </div>
-        <div class="select">Select Oracle</div>
+        <div class="select" id="selectText">Select Oracle</div>
+        <button id="endSession" style="display:none; position:absolute; top:20px; right:20px; background:red; color:white; padding:10px; cursor:pointer; z-index:10; pointer-events:auto;">End Session</button>
       </div>
     </div>
+    
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    
     <script>
+      // Configuration from main_kiosk.html
+      const CONFIG = {
+        personas: {
+          bigfoot: {
+            name: 'Brown County Bigfoot',
+            agentId: '4a857f92-feee-4b70-b973-290baec4d545',
+            enhanced: false
+          },
+          indiana: {
+            name: 'Hoosier Oracle',
+            agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',
+            faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',
+            enhanced: false
+          },
+          vonnegut: {
+            name: 'Kurt Vonnegut',
+            agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
+            faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
+            enhanced: true
+          },
+          larrybird: {
+            name: 'Larry Bird',
+            agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
+            faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
+            enhanced: true
+          }
+        }
+      };
+      
+      let currentWidget = null;
+      let currentPersona = null;
+      
+      // Wire up persona buttons
+      document.querySelectorAll('.persona button').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const personaId = e.target.dataset.persona;
+          if (!personaId) return;
+          
+          await switchPersona(personaId);
+        });
+      });
+      
+      // End session button
+      document.getElementById('endSession').addEventListener('click', async () => {
+        await endCurrentSession();
+      });
+      
+      async function switchPersona(personaId) {
+        console.log(`[Transitions] Switching to: ${personaId}`);
+        
+        // Hide select text
+        document.getElementById('selectText').style.display = 'none';
+        
+        // End current session if active
+        if (currentWidget) {
+          await endCurrentSession();
+        }
+        
+        currentPersona = personaId;
+        const persona = CONFIG.personas[personaId];
+        
+        if (!persona) {
+          console.error(`Unknown persona: ${personaId}`);
+          return;
+        }
+        
+        try {
+          // Get token from backend
+          const response = await fetch(`${window.location.origin}/simli-token?agentId=${persona.agentId}`);
+          const data = await response.json();
+          
+          if (!data.token) {
+            throw new Error('No token received');
+          }
+          
+          console.log(`[Transitions] Got token for ${personaId}`);
+          
+          // Create widget in mount
+          await createSimliWidget(personaId, data.token, persona.agentId, persona.faceId);
+          
+        } catch (error) {
+          console.error(`[Transitions] Error for ${personaId}:`, error);
+          alert(`Failed to load ${persona.name}`);
+        }
+      }
+      
+      async function createSimliWidget(personaId, token, agentId, faceId) {
+        const mount = document.querySelector('.mount');
+        
+        // Remove base video
+        const baseVideo = mount.querySelector('video.base');
+        if (baseVideo) {
+          baseVideo.style.display = 'none';
+        }
+        
+        // Create widget
+        const widget = document.createElement('simli-widget');
+        widget.setAttribute('token', token);
+        widget.setAttribute('agentid', agentId);
+        
+        if (faceId) {
+          widget.setAttribute('faceid', faceId);
+        }
+        
+        // Hide trigger and autostart
+        widget.setAttribute('hidetrigger', 'true');
+        widget.setAttribute('autostart', 'true');
+        widget.setAttribute('position', 'relative');
+        widget.setAttribute('overlay', 'false');
+        
+        // Style to fill mount
+        widget.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 5;
+        `;
+        
+        // Add to mount
+        mount.appendChild(widget);
+        currentWidget = widget;
+        
+        // Show end session button
+        document.getElementById('endSession').style.display = 'block';
+        
+        console.log(`[Transitions] Widget created for ${personaId}`);
+      }
+      
+      async function endCurrentSession() {
+        if (currentWidget) {
+          currentWidget.remove();
+          currentWidget = null;
+        }
+        
+        // Show base video again
+        const baseVideo = document.querySelector('video.base');
+        if (baseVideo) {
+          baseVideo.style.display = 'block';
+        }
+        
+        // Hide end session button
+        document.getElementById('endSession').style.display = 'none';
+        
+        // Show select text
+        document.getElementById('selectText').style.display = 'block';
+        
+        currentPersona = null;
+        console.log('[Transitions] Session ended');
+      }
+      
       // Parallax mouse effect (subtle), desktop only
       (function(){
         const layer = document.getElementById('parallaxLayer');

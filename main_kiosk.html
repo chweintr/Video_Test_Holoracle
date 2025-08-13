@@ -705,13 +705,19 @@
         }
         
         function enforceWidgetSizing(widget, personaId) {
-            // Use particle video approach - fill container with object-fit: cover
+            // ULTRA-AGGRESSIVE widget sizing enforcement
+            
+            // 1. Force the widget itself
             widget.style.cssText = `
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
                 height: 100% !important;
+                min-width: 363px !important;
+                min-height: 363px !important;
+                max-width: 363px !important;
+                max-height: 363px !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
@@ -719,9 +725,65 @@
                 background: transparent !important;
                 transform: none !important;
                 scale: none !important;
+                display: block !important;
             `;
             
-            // Apply particle video approach to media elements
+            // 2. Target shadow DOM if it exists
+            if (widget.shadowRoot) {
+                // Inject styles into shadow DOM
+                const shadowStyle = document.createElement('style');
+                shadowStyle.textContent = `
+                    * {
+                        width: 100% !important;
+                        height: 100% !important;
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        object-fit: cover !important;
+                        transform: none !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    video, canvas, iframe {
+                        width: 100% !important;
+                        height: 100% !important;
+                        min-width: 363px !important;
+                        min-height: 363px !important;
+                        object-fit: cover !important;
+                        transform: scale(1.2) !important; /* Slightly scale up to fill */
+                    }
+                    .simli-video-container, .video-container {
+                        width: 100% !important;
+                        height: 100% !important;
+                        position: absolute !important;
+                        overflow: hidden !important;
+                    }
+                `;
+                
+                // Remove old style if exists
+                const oldStyle = widget.shadowRoot.querySelector('#widget-force-size');
+                if (oldStyle) oldStyle.remove();
+                
+                shadowStyle.id = 'widget-force-size';
+                widget.shadowRoot.appendChild(shadowStyle);
+                
+                // Also force all shadow DOM elements
+                const shadowElements = widget.shadowRoot.querySelectorAll('video, canvas, iframe, div');
+                shadowElements.forEach(el => {
+                    el.style.cssText = `
+                        width: 100% !important;
+                        height: 100% !important;
+                        object-fit: cover !important;
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                    `;
+                });
+                
+                console.log(`[Main Kiosk] Forced ${shadowElements.length} shadow DOM elements`);
+            }
+            
+            // 3. Force regular DOM elements inside widget
             const videos = widget.querySelectorAll('video, canvas, iframe');
             videos.forEach(el => {
                 el.style.cssText = `
@@ -730,13 +792,34 @@
                     left: 0 !important;
                     width: 100% !important;
                     height: 100% !important;
+                    min-width: 363px !important;
+                    min-height: 363px !important;
                     object-fit: cover !important;
-                    transform: none !important;
-                    scale: none !important;
+                    transform: scale(1.1) !important; /* Slightly scale to fill gaps */
                 `;
             });
             
-            console.log(`[Main Kiosk] Applied particle video approach to ${personaId}: ${videos.length} media elements found`);
+            // 4. Try to access nested iframes
+            try {
+                const iframes = widget.querySelectorAll('iframe');
+                iframes.forEach(iframe => {
+                    if (iframe.contentWindow) {
+                        const iframeDoc = iframe.contentWindow.document;
+                        const iframeVideos = iframeDoc.querySelectorAll('video, canvas');
+                        iframeVideos.forEach(v => {
+                            v.style.cssText = `
+                                width: 100% !important;
+                                height: 100% !important;
+                                object-fit: cover !important;
+                            `;
+                        });
+                    }
+                });
+            } catch (e) {
+                // Cross-origin iframe, can't access
+            }
+            
+            console.log(`[Main Kiosk] ULTRA-AGGRESSIVE sizing applied to ${personaId}`);
         }
         
         async function switchPersona(personaId) {

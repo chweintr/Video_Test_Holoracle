@@ -3,7 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Square Mount UI (Cover Stage)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
     <style>
       *, *::before, *::after { box-sizing: border-box; }
       html, body { height: 100%; }
@@ -60,46 +64,89 @@
       }
 
       /* Example UI elements that scale with the stage height */
-		.ui {
-			position: absolute;
-			inset: 0;
-			pointer-events: none;
-			z-index: 10;
-		}
-		/* horizontally center UI on the mount's center */
-		.title {
-			position: absolute;
-			left: var(--mount-center-x);
-			top: 9cqh;
-			transform: translateX(-50%);
-			text-align: center;
-			max-width: calc(var(--target-size) * 1.25);
-			font-weight: 700;
-			font-size: calc(4.2cqh * var(--ui-scale));
-			letter-spacing: 0.02em;
-		}
-		.subtitle {
-			position: absolute;
-			left: var(--mount-center-x);
-			top: 14.5cqh;
-			transform: translateX(-50%);
-			text-align: center;
-			max-width: calc(var(--target-size) * 1.25);
-			font-size: calc(2.6cqh * var(--ui-scale));
-			color: #cfefff;
-			opacity: 0.95;
-		}
-		.buttons {
-			position: absolute;
-			left: var(--mount-center-x);
-			bottom: 10cqh;
-			transform: translateX(-50%);
-			display: flex;
-			gap: 2cqw;
-			pointer-events: auto;
-			z-index: 20;
-		}
-      .buttons button { pointer-events: auto; font-size: calc(2.1cqh * var(--ui-scale)); padding: 1.4cqh 2.2cqw; border-radius: 0.9cqh; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.45); color: #fff; cursor: pointer; }
+      .ui {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+      /* horizontally center UI on the mount's center */
+      .title {
+        position: absolute;
+        left: var(--mount-center-x);
+        top: 9cqh;
+        transform: translateX(-50%);
+        text-align: center;
+        max-width: calc(var(--target-size) * 1.25);
+        font-weight: 700;
+        font-size: calc(4.2cqh * var(--ui-scale));
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-family: 'Michroma', 'Courier New', monospace;
+        text-shadow: 0 0 20px #00ffff, 0 0 40px #7e6bff;
+      }
+      .subtitle {
+        position: absolute;
+        left: var(--mount-center-x);
+        top: 14.5cqh;
+        transform: translateX(-50%);
+        text-align: center;
+        max-width: calc(var(--target-size) * 1.25);
+        font-size: calc(2.6cqh * var(--ui-scale));
+        color: #ff4df3;
+        opacity: 0.95;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        text-shadow: 0 0 10px #ff4df3;
+      }
+      .persona-controls {
+        position: absolute;
+        left: var(--mount-center-x);
+        bottom: 10cqh;
+        transform: translateX(-50%);
+        display: flex;
+        gap: clamp(6px, 1vw, 12px);
+        flex-wrap: nowrap;
+        justify-content: center;
+        z-index: 20;
+        padding: 0 2cqw;
+        pointer-events: auto;
+      }
+      .persona-btn {
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.1));
+        border: 2px solid rgba(77,227,255,0.5);
+        color: #00ffff;
+        padding: clamp(5px, 1.2vw, 8px) clamp(10px, 2.5vw, 15px);
+        font-size: clamp(0.6em, 1.6vw, 0.8em);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        position: relative;
+        white-space: nowrap;
+        min-width: 0;
+        flex-shrink: 1;
+      }
+      .persona-btn:hover {
+        border-color: #00ffff;
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(77,227,255,0.25));
+        box-shadow: 0 0 20px rgba(0,255,255,0.4);
+        transform: translateY(-2px);
+      }
+      .persona-btn.active {
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,77,243,0.25));
+        border-color: #ff4df3;
+        color: #ff4df3;
+        box-shadow: 0 0 25px rgba(255,77,243,0.5);
+      }
+      .persona-btn.enhanced.active {
+        background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,0,0.25));
+        border-color: #ffff00;
+        color: #ffff00;
+        box-shadow: 0 0 25px rgba(255,255,0,0.5);
+      }
 
       /* Compact control panel */
       .panel { position: fixed; right: 12px; top: 12px; z-index: 10000; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; padding: 10px 10px 8px; width: 260px; font: 12px/1.25 system-ui; }
@@ -116,12 +163,14 @@
     <div class="stage">
       <img class="bg" src="assets/new-back.png" alt="Background" />
       <div class="mount" aria-label="Square mount"></div>
-      <div class="ui" aria-hidden="true">
+      <div class="ui" aria-hidden="false">
         <div class="title">Echoes of Indiana</div>
         <div class="subtitle">Holographic Conversations Powered by Research</div>
-        <div class="buttons">
-          <button>Begin</button>
-          <button>About</button>
+        <div class="persona-controls">
+          <button class="persona-btn" data-persona="bigfoot">Brown County Bigfoot</button>
+          <button class="persona-btn" data-persona="indiana">Hoosier Oracle</button>
+          <button class="persona-btn" data-persona="vonnegut">Kurt Vonnegut</button>
+          <button class="persona-btn" data-persona="larrybird">Larry Bird</button>
         </div>
       </div>
     </div>

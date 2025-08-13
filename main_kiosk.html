@@ -11,6 +11,17 @@
     <!-- Cache busting timestamp -->
     <meta name="cache-bust" content="2025081120250811">
     <style>
+        :root {
+            /* Mount geometry (already fixed for demo machine) */
+            --mount-top: 206px;
+            --mount-size: 363px;
+            /* UI offsets relative to mount top so elements stay linked to the box */
+            /* Derived from original pixel layout: title 45px, subtitle 105px, buttons 720px, select 770px */
+            --title-offset: -161px;      /* 45 - 206 */
+            --subtitle-offset: -101px;   /* 105 - 206 */
+            --buttons-offset: 514px;     /* 720 - 206 */
+            --select-offset: 564px;      /* 770 - 206 */
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -45,7 +56,7 @@
             letter-spacing: 0.08em;
             z-index: 10;
             position: absolute;
-            top: 45px; /* Final perfect measurement */
+            top: calc(var(--mount-top) + var(--title-offset));
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
@@ -61,7 +72,7 @@
             letter-spacing: 0.15em;
             z-index: 10;
             position: absolute;
-            top: 105px; /* Final perfect measurement */
+            top: calc(var(--mount-top) + var(--subtitle-offset));
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
@@ -73,7 +84,7 @@
             width: 363px;   /* Full-screen tested optimal size */
             height: 363px;  /* Full-screen tested optimal size */
             position: absolute;
-            top: 206px;     /* Full-screen tested optimal position */
+            top: var(--mount-top);     /* Linked to CSS variable */
             left: 50%;
             transform: translateX(-50%); /* Center horizontally */
             overflow: hidden;
@@ -204,7 +215,7 @@
         /* Persona Buttons - Your measurement + smaller size */
         .persona-controls {
             position: absolute;
-            top: 720px; /* Your perfect measurement */
+            top: calc(var(--mount-top) + var(--buttons-offset));
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -387,28 +398,8 @@
     
     <div class="title">Echoes of Indiana</div>
     <div class="subtitle">Holographic Conversations Powered by Research</div>
-    <div style="
-        position: absolute;
-        top: 130px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 11px;
-        color: rgba(255,255,255,0.6);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-family: 'Courier New', monospace;
-    ">Compelled by Curiosity</div>
-    <div style="
-        position: absolute;
-        top: 150px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 11px;
-        color: rgba(255,255,255,0.6);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-family: 'Courier New', monospace;
-    ">Brought to you by Past Presence</div>
+    <div style="position:absolute; left:50%; transform:translateX(-50%); top: calc(var(--mount-top) + calc(var(--subtitle-offset) + 25px)); font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Courier New', monospace;">Compelled by Curiosity</div>
+    <div style="position:absolute; left:50%; transform:translateX(-50%); top: calc(var(--mount-top) + calc(var(--subtitle-offset) + 45px)); font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Courier New', monospace;">Brought to you by Past Presence</div>
     
     <!-- FIXED MOUNT CONTAINER - All elements layer inside this exact square -->
     <div class="hologram-window" id="hologramWindow">
@@ -473,7 +464,7 @@
         color: rgba(0,255,255,0.8);
         text-shadow: 0 0 10px rgba(0,255,255,0.8);
         position: absolute;
-        top: 770px;
+        top: calc(var(--mount-top) + var(--select-offset));
         left: 50%;
         transform: translateX(-50%);
         z-index: 10;

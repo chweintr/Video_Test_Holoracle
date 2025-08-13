@@ -330,9 +330,11 @@
             visibility: hidden !important;
         }
         
-        /* LOCK Simli content to exact 363x363 - NO flexibility for pitch demo */
+        /* FORCE Simli content to exact 363x363 - AGGRESSIVE OVERRIDES */
         simli-widget::shadow video,
-        simli-widget::shadow canvas {
+        simli-widget::shadow canvas,
+        simli-widget::shadow iframe,
+        simli-widget::shadow div {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
@@ -342,12 +344,21 @@
             max-height: 363px !important;
             min-width: 363px !important;
             min-height: 363px !important;
-            object-fit: fill !important; /* Fill exactly, stretch if needed */
+            object-fit: cover !important; /* Cover to fill, crop if needed */
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
+            transform: none !important;
+            scale: none !important;
+        }
+        
+        /* Additional aggressive targeting for any Simli internal elements */
+        simli-widget * {
+            max-width: 363px !important;
+            max-height: 363px !important;
+            box-sizing: border-box !important;
         }
         
         /* Bigfoot Overlay - appears only when Bigfoot is active */
@@ -392,6 +403,47 @@
         .end-session-btn:hover {
             background: rgba(255,0,0,0.4);
             border-color: #ff0000;
+        }
+
+        /* Thinking indicator - shows during latency */
+        .thinking-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #00ffff;
+            padding: 8px 15px;
+            border: 1px solid rgba(0,255,255,0.5);
+            border-radius: 15px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            display: none;
+            z-index: 30;
+            white-space: nowrap;
+        }
+        
+        .thinking-indicator.active {
+            display: block;
+            animation: thinkingBlink 1.5s infinite;
+        }
+        
+        @keyframes thinkingBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .thinking-ellipses::after {
+            content: '...';
+            animation: ellipsesAnim 1.5s infinite;
+        }
+        
+        @keyframes ellipsesAnim {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: '...'; }
         }
 
         /* Demo machine fixed positioning - no responsive scaling needed */
@@ -444,6 +496,11 @@
         <!-- LAYER 7: CONTROLS -->
         <div class="end-session-btn" id="endSessionBtn" onclick="endCurrentSession()">
             END SESSION
+        </div>
+        
+        <!-- LAYER 8: THINKING INDICATOR -->
+        <div class="thinking-indicator" id="thinkingIndicator">
+            <span id="thinkingText">Thinking</span><span class="thinking-ellipses"></span>
         </div>
     </div>
     
@@ -516,29 +573,48 @@
                     name: 'Brown County Bigfoot',
                     agentId: '4a857f92-feee-4b70-b973-290baec4d545',
                     enhanced: false,
-                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head'
-                    // customImage removed - focus on basic functionality
+                    description: 'Indiana base LM + folklore prompt; SIMLI stock voice/head',
+                    thinkingMessages: [
+                        'Bigfoot is mulling it over',
+                        'Bigfoot is pondering in the woods',
+                        'Bigfoot is considering the question'
+                    ]
                 },
                 indiana: {
                     name: 'Hoosier Oracle', 
                     agentId: 'cd04320d-987b-4e26-ba7f-ba4f75701ebd',  // ✅ UPDATED - working agent ID
                     faceId: 'd21a631c-28f8-4220-8da3-ea89bc4e5487',   // ✅ UPDATED - working face ID
                     enhanced: false,
-                    description: 'Hoosier Oracle with custom agent and face'
+                    description: 'Hoosier Oracle with custom agent and face',
+                    thinkingMessages: [
+                        'Hoosier is hatching an idea',
+                        'Oracle is consulting the corn fields',
+                        'Hoosier is gathering wisdom'
+                    ]
                 },
                 vonnegut: {
                     name: 'Kurt Vonnegut',
                     agentId: '2970497b-880f-46bb-b5bf-3203dc196db1',
                     faceId: 'fde520ba-106d-4529-91b2-fecb04da5257',
                     enhanced: true,
-                    description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice'
+                    description: 'Vonnegut custom face with comprehensive system prompt and ElevenLabs voice',
+                    thinkingMessages: [
+                        'Kurt is cooking up a thought',
+                        'Kurt is considering the absurdity',
+                        'Vonnegut is crafting a response'
+                    ]
                 },
                 larrybird: {
                     name: 'Larry Bird',
                     agentId: '126ac401-aaf7-46c3-80ec-02b89e781f25',
                     faceId: '1b0eef6f-2650-49ce-a7cd-296d1af0e339',
                     enhanced: true,
-                    description: 'Larry Bird persona with basketball wisdom and Indiana pride'
+                    description: 'Larry Bird persona with basketball wisdom and Indiana pride',
+                    thinkingMessages: [
+                        'Larry is lining up a shot',
+                        'Bird is sizing up the play',
+                        'Larry is reading the court'
+                    ]
                 }
             }
         };
@@ -546,6 +622,7 @@
         const API_BASE = window.location.origin;
         let currentPersona = null;
         let currentWidget = null;
+        let thinkingInterval = null;
         
         // DOM elements
         const idleState = document.getElementById('idleState');
@@ -553,6 +630,8 @@
         const endSessionBtn = document.getElementById('endSessionBtn');
         const parallaxLayer = document.getElementById('parallaxLayer');
         const particleContainer = document.getElementById('particleContainer');
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        const thinkingText = document.getElementById('thinkingText');
         
         // Parallax mouse effect
         let mouseX = 50, mouseY = 50, ticking = false;
@@ -589,6 +668,76 @@
                 statusElement.textContent = `System: ${msg}`;
             }
             console.log('[Main Kiosk]', msg);
+        }
+        
+        function showThinkingIndicator(personaId) {
+            const persona = CONFIG.personas[personaId];
+            if (!persona || !persona.thinkingMessages) return;
+            
+            let messageIndex = 0;
+            const messages = persona.thinkingMessages;
+            
+            function cycleMessage() {
+                thinkingText.textContent = messages[messageIndex];
+                messageIndex = (messageIndex + 1) % messages.length;
+            }
+            
+            // Start with first message
+            cycleMessage();
+            thinkingIndicator.classList.add('active');
+            
+            // Cycle through messages every 2 seconds
+            thinkingInterval = setInterval(cycleMessage, 2000);
+            
+            console.log(`[Main Kiosk] Showing thinking indicator: ${persona.name}`);
+        }
+        
+        function hideThinkingIndicator() {
+            thinkingIndicator.classList.remove('active');
+            if (thinkingInterval) {
+                clearInterval(thinkingInterval);
+                thinkingInterval = null;
+            }
+            console.log('[Main Kiosk] Hiding thinking indicator');
+        }
+        
+        function enforceWidgetSizing(widget, personaId) {
+            // Force the widget container itself
+            widget.style.cssText = `
+                position: relative !important;
+                width: 363px !important;
+                height: 363px !important;
+                max-width: 363px !important;
+                max-height: 363px !important;
+                min-width: 363px !important;
+                min-height: 363px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                overflow: hidden !important;
+                background: transparent !important;
+                transform: none !important;
+                scale: none !important;
+            `;
+            
+            // Also try to force any video/canvas elements inside
+            const videos = widget.querySelectorAll('video, canvas, iframe');
+            videos.forEach(el => {
+                el.style.cssText = `
+                    position: absolute !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 363px !important;
+                    height: 363px !important;
+                    max-width: 363px !important;
+                    max-height: 363px !important;
+                    object-fit: cover !important;
+                    transform: none !important;
+                    scale: none !important;
+                `;
+            });
+            
+            console.log(`[Main Kiosk] Enforced sizing on ${personaId}: ${videos.length} media elements found`);
         }
         
         async function switchPersona(personaId) {
@@ -724,13 +873,19 @@
                 updateStatus(`${persona.name} Ready - Click to Talk`);
                 endSessionBtn.classList.add('active');
                 
-                // FORCE sizing after widget loads
+                // FORCE sizing after widget loads - AGGRESSIVE approach
                 setTimeout(() => {
-                    widget.style.width = '363px';
-                    widget.style.height = '363px';
-                    widget.style.position = 'relative';
-                    console.log(`[Main Kiosk] Forced widget sizing: ${personaId}`);
+                    enforceWidgetSizing(widget, personaId);
                 }, 100);
+                
+                // Continue enforcing every 2 seconds to prevent drift
+                const sizeEnforcer = setInterval(() => {
+                    if (widget.parentNode) {
+                        enforceWidgetSizing(widget, personaId);
+                    } else {
+                        clearInterval(sizeEnforcer); // Cleanup if widget removed
+                    }
+                }, 2000);
             });
             
             widget.addEventListener('error', (e) => {
@@ -742,6 +897,7 @@
             widget.addEventListener('callstart', () => {
                 console.log(`[Main Kiosk] Call started: ${personaId}`);
                 updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
+                hideThinkingIndicator(); // Hide thinking when call actually starts
                 
                 // Add overlay ONLY after call starts (user clicked Start)
                 if (personaId === 'bigfoot' && !container.querySelector('.bigfoot-overlay-inner')) {
@@ -768,6 +924,7 @@
             widget.addEventListener('callend', () => {
                 console.log(`[Main Kiosk] Call ended: ${personaId}`);
                 updateStatus(`${persona.name} Ready - Click to Talk`);
+                hideThinkingIndicator(); // Hide thinking when call ends
                 
                 // Remove overlay when call ends
                 const overlay = container.querySelector('.bigfoot-overlay-inner');
@@ -775,6 +932,29 @@
                     overlay.remove();
                     console.log('[Main Kiosk] Bigfoot overlay removed');
                 }
+            });
+            
+            // Listen for user speech events to show thinking indicator
+            widget.addEventListener('speechstart', () => {
+                console.log(`[Main Kiosk] User started speaking to ${personaId}`);
+                // Don't show thinking yet, wait for speech end
+            });
+            
+            widget.addEventListener('speechend', () => {
+                console.log(`[Main Kiosk] User stopped speaking to ${personaId}`);
+                // Show thinking indicator when user finishes speaking
+                showThinkingIndicator(personaId);
+            });
+            
+            widget.addEventListener('audiostart', () => {
+                console.log(`[Main Kiosk] AI started speaking: ${personaId}`);
+                // Hide thinking when AI starts responding
+                hideThinkingIndicator();
+            });
+            
+            widget.addEventListener('audioend', () => {
+                console.log(`[Main Kiosk] AI stopped speaking: ${personaId}`);
+                // AI finished, back to ready state
             });
             
             // Add to container
@@ -834,6 +1014,7 @@
             document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
             loadingState.classList.remove('active');
             endSessionBtn.classList.remove('active');
+            hideThinkingIndicator(); // Clear thinking indicator
             
             // Show idle state (LAYER 2) over base video
             idleState.style.display = 'flex';

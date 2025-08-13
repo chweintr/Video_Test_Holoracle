@@ -7,6 +7,7 @@ import asyncio
 import base64
 import json
 import logging
+import time
 from typing import Optional
 import aiohttp
 import numpy as np
@@ -713,6 +714,100 @@ async def daily_sdk_test():
     if os.path.exists("simli_daily_custom.html"):
         return FileResponse("simli_daily_custom.html")
     return {"message": "simli_daily_custom.html not found"}
+
+@app.post("/api/get-simli-token")
+async def get_simli_token_for_daily_sdk(request: Request):
+    """Get Simli token for Daily SDK - wrapper around /simli-token endpoint"""
+    try:
+        # Parse the request body
+        body = await request.json()
+        agent_id = body.get('agentId')
+        face_id = body.get('faceId') 
+        enhanced = body.get('enhanced', False)
+        
+        # Map to persona if needed
+        persona = None
+        if agent_id == '4a857f92-feee-4b70-b973-290baec4d545':
+            persona = 'bigfoot'
+        elif agent_id == 'cd04320d-987b-4e26-ba7f-ba4f75701ebd':
+            persona = 'indiana'
+        elif agent_id == '2970497b-880f-46bb-b5bf-3203dc196db1':
+            persona = 'vonnegut'
+        elif agent_id == '126ac401-aaf7-46c3-80ec-02b89e781f25':
+            persona = 'larrybird'
+            
+        # Call our existing simli-token endpoint
+        from urllib.parse import urlencode
+        import aiohttp
+        
+        params = {}
+        if agent_id:
+            params['agentId'] = agent_id
+        if persona:
+            params['persona'] = persona
+            
+        query_string = urlencode(params) if params else ''
+        url = f"http://localhost:8083/simli-token?{query_string}"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=body) as response:
+                if response.status == 200:
+                    token_data = await response.json()
+                    
+                    # Log the full response to understand Simli's token structure
+                    logger.info(f"Simli token response: {token_data}")
+                    
+                    # Try to extract Daily room URL from Simli's response
+                    # Simli likely includes room information in their token response
+                    room_url = None
+                    session_id = None
+                    
+                    # Check common places where room URL might be stored
+                    token = token_data.get("token")
+                    if token:
+                        # Simli token might contain encoded room information
+                        # We'll need to analyze the actual response structure
+                        logger.info(f"Simli token (first 50 chars): {str(token)[:50]}...")
+                    
+                    # Look for room-related fields in response
+                    for key, value in token_data.items():
+                        if 'room' in key.lower() or 'url' in key.lower():
+                            logger.info(f"Found potential room field: {key} = {value}")
+                            if 'daily.co' in str(value):
+                                room_url = value
+                        elif 'session' in key.lower():
+                            session_id = value
+                    
+                    # If no room URL found, we may need to create our own Daily room
+                    # or extract it from the widget's behavior
+                    if not room_url:
+                        # For now, create a predictable room URL that Simli might use
+                        # This is based on typical patterns: domain + session identifier
+                        session_hash = f"simli_{agent_id[:8]}_{int(time.time())}"
+                        room_url = f"https://api-simli.daily.co/{session_hash}"
+                        logger.warning(f"No room URL in Simli response, using constructed: {room_url}")
+                    
+                    if not session_id:
+                        session_id = f"session_{agent_id[:8]}_{int(time.time())}"
+                    
+                    return {
+                        "token": token,
+                        "agentId": agent_id,
+                        "roomUrl": room_url,
+                        "sessionId": session_id,
+                        "source": "daily_sdk_wrapper",
+                        "simli_response": token_data  # Include full response for debugging
+                    }
+                else:
+                    error_data = await response.json()
+                    return JSONResponse(status_code=response.status, content=error_data)
+                    
+    except Exception as e:
+        logger.error(f"Daily SDK token error: {e}")
+        return JSONResponse(status_code=500, content={
+            "error": str(e),
+            "message": "Failed to create Daily SDK token"
+        })
 
 @app.get("/debug-assets")
 async def debug_assets():

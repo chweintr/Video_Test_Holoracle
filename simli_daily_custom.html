@@ -6,6 +6,8 @@
     <title>Simli Custom Daily SDK Implementation</title>
     <!-- Daily Client SDK -->
     <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+    <!-- Simli Widget CDN for inspection -->
+    <script src="https://cdn.simli.ai/sdk/v1/simli-widget.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -204,11 +206,23 @@
                 // Get session token from our backend
                 const sessionData = await getSimliToken(personaId);
                 
+                updateStatus('Analyzing Simli response...');
+                console.log('Full Simli response:', sessionData);
+                
+                // Check if we got a valid room URL
+                if (!sessionData.roomUrl || sessionData.roomUrl.includes('placeholder')) {
+                    updateStatus('No valid room URL - trying widget inspection approach...');
+                    
+                    // Alternative approach: Create a hidden Simli widget to inspect its behavior
+                    await inspectSimliWidget(personaId);
+                    return;
+                }
+                
                 updateStatus('Creating Daily call object...');
                 
                 // Create Daily call object
                 callObject = DailyIframe.createCallObject({
-                    url: sessionData.roomUrl, // Assuming Simli returns a Daily room URL
+                    url: sessionData.roomUrl,
                     token: sessionData.token,
                     subscribeToTracksAutomatically: true,
                     showLeaveButton: false,
@@ -238,6 +252,89 @@
             } catch (error) {
                 updateStatus(`Connection failed: ${error.message}`);
                 console.error('Connection error:', error);
+            }
+        }
+        
+        async function inspectSimliWidget(personaId) {
+            const persona = CONFIG.personas[personaId];
+            updateStatus('Creating hidden Simli widget for inspection...');
+            
+            try {
+                // Get token for widget
+                const tokenResponse = await fetch('/simli-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        agentId: persona.agentId,
+                        persona: personaId
+                    })
+                });
+                
+                if (!tokenResponse.ok) {
+                    throw new Error(`Token request failed: ${tokenResponse.status}`);
+                }
+                
+                const tokenData = await tokenResponse.json();
+                updateStatus('Creating inspection widget...');
+                
+                // Create a hidden Simli widget to see how it connects
+                const inspectionWidget = document.createElement('simli-widget');
+                inspectionWidget.setAttribute('token', tokenData.token);
+                inspectionWidget.setAttribute('agentid', persona.agentId);
+                if (persona.faceId) {
+                    inspectionWidget.setAttribute('faceid', persona.faceId);
+                }
+                inspectionWidget.setAttribute('autostart', 'false');
+                inspectionWidget.style.cssText = `
+                    position: fixed;
+                    top: -1000px;
+                    left: -1000px;
+                    width: 100px;
+                    height: 100px;
+                    opacity: 0;
+                    pointer-events: none;
+                `;
+                
+                // Add widget to DOM
+                document.body.appendChild(inspectionWidget);
+                
+                // Try to intercept network requests or inspect widget properties
+                setTimeout(() => {
+                    // Look for Daily-related properties or methods
+                    console.log('Inspecting widget:', inspectionWidget);
+                    
+                    // Check for Daily call object
+                    if (inspectionWidget.callObject) {
+                        console.log('Found callObject:', inspectionWidget.callObject);
+                        updateStatus('Found Daily call object in widget!');
+                    }
+                    
+                    // Check for any Daily-related properties
+                    for (let prop in inspectionWidget) {
+                        if (prop.toLowerCase().includes('daily') || prop.toLowerCase().includes('room')) {
+                            console.log(`Found property: ${prop} =`, inspectionWidget[prop]);
+                        }
+                    }
+                    
+                    // Check shadow DOM
+                    if (inspectionWidget.shadowRoot) {
+                        const shadowElements = inspectionWidget.shadowRoot.querySelectorAll('*');
+                        shadowElements.forEach(el => {
+                            if (el.src && el.src.includes('daily')) {
+                                console.log('Found Daily element:', el);
+                            }
+                        });
+                    }
+                    
+                    // Clean up
+                    document.body.removeChild(inspectionWidget);
+                    updateStatus('Widget inspection complete - check console for details');
+                    
+                }, 3000);
+                
+            } catch (error) {
+                updateStatus(`Widget inspection failed: ${error.message}`);
+                console.error('Inspection error:', error);
             }
         }
         

@@ -298,6 +298,24 @@
             display: block;
         }
         
+        /* Force all Simli widget internal elements to fill container */
+        simli-widget,
+        simli-widget * {
+            max-width: none !important;
+            max-height: none !important;
+        }
+        
+        simli-widget video,
+        simli-widget canvas,
+        simli-widget iframe {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+        
         /* Simli widget - use same approach as particle video */
         simli-widget {
             position: absolute !important;
@@ -820,7 +838,7 @@
             widget.setAttribute('hidetrigger', 'false');  // Show the button clearly
             widget.setAttribute('autostart', 'false');  // Don't auto-start, let user click
             
-            // FORCE sizing with particle video approach
+            // FORCE sizing - target the video/canvas element inside the widget
             widget.style.cssText = `
                 position: absolute !important;
                 top: 0 !important;
@@ -835,6 +853,11 @@
                 transform: none !important;
                 scale: none !important;
             `;
+            
+            // Set sizing attributes that Simli might respect
+            widget.setAttribute('width', '363');
+            widget.setAttribute('height', '363');
+            widget.setAttribute('sizing', 'fill');  // Try to tell Simli to fill container
             
             // Use custom image if specified (for particle videos)
             if (persona.customImage) {
@@ -854,8 +877,8 @@
                 updateStatus(`${persona.name} Ready - Click SUMMON to Talk`);
                 endSessionBtn.classList.add('active');
                 
-                // Show thinking message immediately - user needs to know something is happening
-                showThinkingIndicator(personaId);
+                // Don't show thinking immediately - wait for user to speak
+                // showThinkingIndicator(personaId);
                 
                 // FORCE sizing after widget loads - AGGRESSIVE approach
                 setTimeout(() => {
@@ -881,7 +904,7 @@
             widget.addEventListener('callstart', () => {
                 console.log(`[Main Kiosk] Call started: ${personaId}`);
                 updateStatus(`${persona.name} Active${persona.enhanced ? ' [ENHANCED]' : ''}`);
-                hideThinkingIndicator(); // Hide thinking when call actually starts
+                // hideThinkingIndicator(); // Don't hide here - managed by speech events
                 
                 // Add overlay ONLY after call starts (user clicked Start)
                 if (personaId === 'bigfoot' && !container.querySelector('.bigfoot-overlay-inner')) {
@@ -918,7 +941,20 @@
                 }
             });
             
-            // Simple approach: Hide thinking when AI starts responding
+            // Latency message management - show when user stops, hide when AI starts
+            // Listen for when user stops speaking
+            widget.addEventListener('speechend', () => {
+                console.log(`[Main Kiosk] User stopped speaking: ${personaId}`);
+                showThinkingIndicator(personaId);
+            });
+            
+            // Also try alternative events that Simli might fire
+            widget.addEventListener('userSpeechEnd', () => {
+                console.log(`[Main Kiosk] User speech ended (alt): ${personaId}`);
+                showThinkingIndicator(personaId);
+            });
+            
+            // Hide thinking when AI starts responding
             widget.addEventListener('audiostart', () => {
                 console.log(`[Main Kiosk] AI started speaking: ${personaId}`);
                 hideThinkingIndicator();
@@ -926,15 +962,121 @@
             
             widget.addEventListener('audioend', () => {
                 console.log(`[Main Kiosk] AI stopped speaking: ${personaId}`);
-                // Show thinking again for next interaction
-                showThinkingIndicator(personaId);
+                // Don't show thinking here - wait for user to speak
+            });
+            
+            // Also try alternative audio events
+            widget.addEventListener('agentAudioStart', () => {
+                console.log(`[Main Kiosk] Agent audio started (alt): ${personaId}`);
+                hideThinkingIndicator();
             });
             
             // Add to container
             container.appendChild(widget);
             currentWidget = widget;
             
-            // Widget sizing is now handled by CSS - no need for forced sizing
+            // After widget is added, try to find and resize internal elements
+            setTimeout(() => {
+                // Try to find Simli's internal video/canvas elements and force sizing
+                const simliVideo = widget.querySelector('video');
+                const simliCanvas = widget.querySelector('canvas');
+                const simliIframe = widget.querySelector('iframe');
+                
+                if (simliVideo) {
+                    console.log('[Main Kiosk] Found Simli video element, forcing size');
+                    simliVideo.style.cssText = `
+                        width: 100% !important;
+                        height: 100% !important;
+                        object-fit: cover !important;
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                    `;
+                }
+                
+                if (simliCanvas) {
+                    console.log('[Main Kiosk] Found Simli canvas element, forcing size');
+                    simliCanvas.style.cssText = `
+                        width: 100% !important;
+                        height: 100% !important;
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                    `;
+                }
+                
+                if (simliIframe) {
+                    console.log('[Main Kiosk] Found Simli iframe element, forcing size');
+                    simliIframe.style.cssText = `
+                        width: 100% !important;
+                        height: 100% !important;
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        border: none !important;
+                    `;
+                }
+                
+                // Also check shadow DOM if Simli uses it
+                if (widget.shadowRoot) {
+                    console.log('[Main Kiosk] Simli widget has shadow DOM');
+                    const shadowVideo = widget.shadowRoot.querySelector('video');
+                    const shadowCanvas = widget.shadowRoot.querySelector('canvas');
+                    
+                    if (shadowVideo) {
+                        shadowVideo.style.cssText = `
+                            width: 100% !important;
+                            height: 100% !important;
+                            object-fit: cover !important;
+                        `;
+                    }
+                    if (shadowCanvas) {
+                        shadowCanvas.style.cssText = `
+                            width: 100% !important;
+                            height: 100% !important;
+                        `;
+                    }
+                }
+            }, 1000); // Give widget time to initialize
+            
+            // Set up MutationObserver to catch any dynamically added elements
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        // Check for video/canvas elements being added
+                        const videos = widget.querySelectorAll('video');
+                        const canvases = widget.querySelectorAll('canvas');
+                        
+                        videos.forEach(video => {
+                            video.style.cssText = `
+                                width: 100% !important;
+                                height: 100% !important;
+                                object-fit: cover !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                            `;
+                        });
+                        
+                        canvases.forEach(canvas => {
+                            canvas.style.cssText = `
+                                width: 100% !important;
+                                height: 100% !important;
+                                position: absolute !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                            `;
+                        });
+                    }
+                });
+            });
+            
+            // Observe the widget for changes
+            observer.observe(widget, {
+                childList: true,
+                subtree: true
+            });
+            
             // Widget will automatically fill the mount container (100% width/height)
             
             // Overlay will be added when call starts (after user clicks Start)

@@ -201,6 +201,7 @@
         
         async function connectToSimli() {
             const personaId = personaSelect.value;
+            currentPersona = personaId; // Set current persona for thinking messages
             
             try {
                 // Get session token from our backend
@@ -220,13 +221,9 @@
                 
                 updateStatus('Creating Daily call object...');
                 
-                // Create Daily call object
-                callObject = DailyIframe.createCallObject({
-                    url: sessionData.roomUrl,
-                    token: sessionData.token,
-                    subscribeToTracksAutomatically: true,
-                    showLeaveButton: false,
-                    showFullscreenButton: false
+                // Create Daily call object using proper Daily.js method
+                callObject = Daily.createCallObject({
+                    subscribeToTracksAutomatically: true
                 });
                 
                 // Set up event listeners
@@ -238,10 +235,18 @@
                 callObject.on('track-stopped', handleTrackStopped);
                 callObject.on('error', handleError);
                 
+                // Speech detection for latency messages (Step 4: Thinking triggers)
+                callObject.on('active-speaker-change', handleActiveSpeakerChange);
+                callObject.on('recording-started', handleRecordingStarted);
+                callObject.on('recording-stopped', handleRecordingStopped);
+                
                 updateStatus('Connecting to Daily room...');
                 
-                // Join the room
-                await callObject.join();
+                // Join the room with URL and token
+                await callObject.join({
+                    url: sessionData.roomUrl,
+                    token: sessionData.token
+                });
                 
                 connectBtn.disabled = true;
                 startBtn.disabled = false;
@@ -357,9 +362,49 @@
             console.log('Participant updated:', event);
             const participant = event.participant;
             
-            // Update video track if available
-            if (participant.video && participant.videoTrack) {
-                attachVideoTrack(participant.videoTrack);
+            // Handle video tracks using Daily.js participant pattern
+            if (participant.tracks && participant.tracks.video) {
+                const videoTrack = participant.tracks.video;
+                
+                // Check if persistentTrack is available (Daily.js pattern)
+                if (videoTrack.persistentTrack) {
+                    console.log('Found video persistentTrack, attaching...');
+                    attachVideoTrack(videoTrack.persistentTrack);
+                    
+                    // Show/hide video based on track state
+                    updateVideoUI(videoTrack);
+                } else {
+                    console.log('No persistentTrack, detaching video');
+                    detachVideoTrack();
+                }
+            }
+            
+            // Handle audio tracks
+            if (participant.tracks && participant.tracks.audio) {
+                const audioTrack = participant.tracks.audio;
+                console.log('Audio track state:', audioTrack.state);
+                
+                // Log audio track but don't play (avoid feedback)
+                if (audioTrack.persistentTrack && !participant.local) {
+                    console.log('Remote audio track available');
+                }
+            }
+        }
+        
+        function updateVideoUI(videoTrack) {
+            // Show/hide video based on Daily.js track states
+            switch (videoTrack.state) {
+                case 'off':
+                case 'interrupted':
+                case 'blocked':
+                    avatarVideo.style.display = 'none';
+                    updateStatus(`Video ${videoTrack.state}`);
+                    break;
+                case 'playable':
+                default:
+                    avatarVideo.style.display = '';
+                    updateStatus('Video playing');
+                    break;
             }
         }
         
@@ -394,16 +439,32 @@
         function attachVideoTrack(track) {
             console.log('Attaching video track:', track);
             
-            // Create a new MediaStream with the track
+            // Create a new MediaStream with the track using Daily.js pattern
             const stream = new MediaStream([track]);
             
-            // Attach to video element
-            avatarVideo.srcObject = stream;
+            // Check if source needs updating (Daily.js best practice)
+            const existingTracks = avatarVideo.srcObject?.getTracks();
+            const needsUpdate = !existingTracks?.includes(track);
             
-            // Force sizing
-            avatarVideo.style.width = '100%';
-            avatarVideo.style.height = '100%';
-            avatarVideo.style.objectFit = 'cover';
+            if (needsUpdate) {
+                // Attach to video element
+                avatarVideo.srcObject = stream;
+                
+                // Play when metadata loads
+                avatarVideo.onloadedmetadata = () => {
+                    avatarVideo.play().catch(e => {
+                        console.error('Error playing avatar video:', e);
+                    });
+                };
+                
+                // Force sizing for perfect fit in mount
+                avatarVideo.style.width = '100%';
+                avatarVideo.style.height = '100%';
+                avatarVideo.style.objectFit = 'cover';
+                avatarVideo.style.position = 'absolute';
+                avatarVideo.style.top = '0';
+                avatarVideo.style.left = '0';
+            }
         }
         
         function detachVideoTrack() {
@@ -475,6 +536,103 @@
                 updateStatus(`Failed to disconnect: ${error.message}`);
                 console.error('Disconnect error:', error);
             }
+        }
+        
+        // Latency/thinking message system (Step 4)
+        let currentPersona = null;
+        let thinkingInterval = null;
+        let isUserSpeaking = false;
+        let lastSpeechEnd = 0;
+        
+        const thinkingMessages = {
+            bigfoot: [
+                'Bigfoot is mulling it over',
+                'Bigfoot is pondering in the woods',
+                'Bigfoot is considering the question'
+            ],
+            indiana: [
+                'Hoosier is hatching an idea',
+                'Oracle is consulting the corn fields',
+                'Hoosier is gathering wisdom'
+            ],
+            vonnegut: [
+                'Kurt is cooking up a thought',
+                'Kurt is considering the absurdity',
+                'Vonnegut is crafting a response'
+            ],
+            larrybird: [
+                'Larry is lining up a shot',
+                'Bird is sizing up the play',
+                'Larry is reading the court'
+            ]
+        };
+        
+        function showThinkingMessage(personaId) {
+            if (!thinkingMessages[personaId]) return;
+            
+            const messages = thinkingMessages[personaId];
+            let messageIndex = 0;
+            
+            function cycleMessage() {
+                updateStatus(messages[messageIndex]);
+                messageIndex = (messageIndex + 1) % messages.length;
+            }
+            
+            // Start with first message
+            cycleMessage();
+            
+            // Cycle through messages every 2 seconds
+            thinkingInterval = setInterval(cycleMessage, 2000);
+            
+            console.log(`[Daily SDK] Showing thinking messages: ${personaId}`);
+        }
+        
+        function hideThinkingMessage() {
+            if (thinkingInterval) {
+                clearInterval(thinkingInterval);
+                thinkingInterval = null;
+            }
+            console.log('[Daily SDK] Hiding thinking messages');
+        }
+        
+        function handleActiveSpeakerChange(event) {
+            console.log('Active speaker changed:', event);
+            
+            const localParticipant = callObject.localParticipant();
+            
+            if (event.activeSpeaker === localParticipant?.session_id) {
+                // User is speaking
+                isUserSpeaking = true;
+                hideThinkingMessage();
+                updateStatus('You are speaking...');
+            } else if (isUserSpeaking && !event.activeSpeaker) {
+                // User stopped speaking, show thinking
+                isUserSpeaking = false;
+                lastSpeechEnd = Date.now();
+                
+                if (currentPersona) {
+                    setTimeout(() => {
+                        // Only show thinking if AI hasn't started responding yet
+                        if (Date.now() - lastSpeechEnd > 500) {
+                            showThinkingMessage(currentPersona);
+                        }
+                    }, 500);
+                }
+            } else if (event.activeSpeaker && event.activeSpeaker !== localParticipant?.session_id) {
+                // AI is speaking
+                hideThinkingMessage();
+                updateStatus('AI is responding...');
+            }
+        }
+        
+        function handleRecordingStarted(event) {
+            console.log('Recording started:', event);
+            // This might indicate AI processing started
+        }
+        
+        function handleRecordingStopped(event) {
+            console.log('Recording stopped:', event);
+            // This might indicate AI processing ended
         }
         
         // Event listeners

@@ -15,6 +15,8 @@
         --target-top: 24.86%;
         --target-size: 24.53%;
         --ui-scale: 1; /* global typography scale */
+			/* center of the square mount (percent of stage width) */
+			--mount-center-x: calc(var(--target-left) + (var(--target-size) / 2));
       }
 
       /* 16:9 stage that COVERS the viewport (no borders). dvh fixes Safari toolbars. */
@@ -58,14 +60,45 @@
       }
 
       /* Example UI elements that scale with the stage height */
-      .ui {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-      }
-      .title { position: absolute; left: 6cqw; top: 9cqh; font-weight: 700; font-size: calc(4.2cqh * var(--ui-scale)); letter-spacing: 0.02em; }
-      .subtitle { position: absolute; left: 6cqw; top: 14.5cqh; font-size: calc(2.6cqh * var(--ui-scale)); color: #cfefff; opacity: 0.95; }
-      .buttons { position: absolute; left: 6cqw; bottom: 10cqh; display: flex; gap: 2cqw; }
+		.ui {
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			z-index: 10;
+		}
+		/* horizontally center UI on the mount's center */
+		.title {
+			position: absolute;
+			left: var(--mount-center-x);
+			top: 9cqh;
+			transform: translateX(-50%);
+			text-align: center;
+			max-width: calc(var(--target-size) * 1.25);
+			font-weight: 700;
+			font-size: calc(4.2cqh * var(--ui-scale));
+			letter-spacing: 0.02em;
+		}
+		.subtitle {
+			position: absolute;
+			left: var(--mount-center-x);
+			top: 14.5cqh;
+			transform: translateX(-50%);
+			text-align: center;
+			max-width: calc(var(--target-size) * 1.25);
+			font-size: calc(2.6cqh * var(--ui-scale));
+			color: #cfefff;
+			opacity: 0.95;
+		}
+		.buttons {
+			position: absolute;
+			left: var(--mount-center-x);
+			bottom: 10cqh;
+			transform: translateX(-50%);
+			display: flex;
+			gap: 2cqw;
+			pointer-events: auto;
+			z-index: 20;
+		}
       .buttons button { pointer-events: auto; font-size: calc(2.1cqh * var(--ui-scale)); padding: 1.4cqh 2.2cqw; border-radius: 0.9cqh; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.45); color: #fff; cursor: pointer; }
 
       /* Compact control panel */

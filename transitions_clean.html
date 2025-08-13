@@ -28,7 +28,8 @@
       .stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100svh*16/9));aspect-ratio:16/9;overflow:hidden;}
       .stage>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 
-      .mount{position:absolute;left:var(--target-left);top:var(--target-top);width:var(--target-size);aspect-ratio:1/1;outline:2px solid rgba(0,200,255,.7)}
+      .mount{position:absolute;left:var(--target-left);top:var(--target-top);width:var(--target-size);aspect-ratio:1/1;outline:2px solid rgba(0,200,255,.7);overflow:hidden}
+      .mount video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
       .ui{position:absolute;inset:0;pointer-events:none}
       .title{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--title-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-weight:700;font-family:'Michroma','Courier New',monospace;letter-spacing:.08em;text-transform:uppercase;font-size:4.2cqh;text-shadow:0 0 20px #00ffff,0 0 40px #7e6bff}
       .subtitle{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--subtitle-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-size:2.6cqh;color:#ff4df3;letter-spacing:.15em;text-transform:uppercase;text-shadow:0 0 10px #ff4df3}
@@ -41,7 +42,11 @@
   <body>
     <div class="stage">
       <img class="bg" src="assets/new-back.png" alt="Background" />
-      <div class="mount"></div>
+      <div class="mount">
+        <video class="base" autoplay loop muted playsinline>
+          <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4" />
+        </video>
+      </div>
       <div class="ui">
         <div class="title">Echoes of Indiana</div>
         <div class="subtitle">Holographic Conversations Powered by Research</div>

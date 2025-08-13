@@ -300,16 +300,22 @@
         
         /* Simli widget must follow mount size - NO independent sizing */
         simli-widget {
-            position: absolute !important;
+            position: relative !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100% !important; /* Follows mount size exactly */
-            height: 100% !important; /* Follows mount size exactly */
+            width: 363px !important; /* EXACT mount size */
+            height: 363px !important; /* EXACT mount size */
+            max-width: 363px !important;
+            max-height: 363px !important;
+            min-width: 363px !important;
+            min-height: 363px !important;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             display: block !important;
             overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         
         /* Hide Simli's built-in start button and preloader */
@@ -684,6 +690,22 @@
             widget.setAttribute('hidetrigger', 'true');  // Should hide trigger
             widget.setAttribute('autostart', 'true');  // Try autostarting to skip button
             
+            // FORCE sizing with inline styles to override Simli defaults
+            widget.style.cssText = `
+                position: relative !important;
+                width: 363px !important;
+                height: 363px !important;
+                max-width: 363px !important;
+                max-height: 363px !important;
+                min-width: 363px !important;
+                min-height: 363px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                overflow: hidden !important;
+                background: transparent !important;
+            `;
+            
             // Use custom image if specified (for particle videos)
             if (persona.customImage) {
                 // For local files, need full URL
@@ -701,6 +723,14 @@
                 console.log(`[Main Kiosk] Widget loaded: ${personaId}`);
                 updateStatus(`${persona.name} Ready - Click to Talk`);
                 endSessionBtn.classList.add('active');
+                
+                // FORCE sizing after widget loads
+                setTimeout(() => {
+                    widget.style.width = '363px';
+                    widget.style.height = '363px';
+                    widget.style.position = 'relative';
+                    console.log(`[Main Kiosk] Forced widget sizing: ${personaId}`);
+                }, 100);
             });
             
             widget.addEventListener('error', (e) => {

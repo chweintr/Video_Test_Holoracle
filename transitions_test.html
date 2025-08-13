@@ -21,10 +21,11 @@
         --ui-scale: 1;
         /* Mount center for horizontal alignment */
         --mount-center-x: calc(var(--target-left) + (var(--target-size) / 2));
-        /* Vertical spacing relative to stage height */
-        --title-top: 9cqh;
-        --subtitle-top: 14.5cqh;
-        --buttons-bottom: 10cqh;
+        /* Vertical spacing derived from original 1080px reference (percent of stage height) */
+        --title-top: 4.17cqh;      /* 45 / 1080 × 100 */
+        --subtitle-top: 9.72cqh;   /* 105 / 1080 × 100 */
+        --buttons-top: 66.67cqh;   /* 720 / 1080 × 100 */
+        --select-top: 71.30cqh;    /* 770 / 1080 × 100 */
       }
 
       /* 16:9 stage that covers viewport; crops edges as needed */
@@ -93,13 +94,13 @@
       }
 
       .strap { position: absolute; left: var(--mount-center-x); transform: translateX(-50%); text-align: center; max-width: 80cqw; color: rgba(255,255,255,0.75); font-family: 'Courier New', monospace; font-size: calc(1.3cqh * var(--ui-scale)); letter-spacing: 0.14em; text-transform: uppercase; }
-      .strap.s1 { top: calc(var(--subtitle-top) + 3cqh); }
-      .strap.s2 { top: calc(var(--subtitle-top) + 5cqh); }
+      .strap.s1 { top: calc(var(--subtitle-top) + 2.3cqh); }
+      .strap.s2 { top: calc(var(--subtitle-top) + 4.0cqh); }
 
       .persona-controls {
         position: absolute;
         left: var(--mount-center-x);
-        bottom: var(--buttons-bottom);
+        top: var(--buttons-top);
         transform: translateX(-50%);
         display: flex; gap: clamp(6px, 1vw, 12px); flex-wrap: nowrap; justify-content: center;
         z-index: 20; padding: 0 2cqw; pointer-events: auto;
@@ -134,6 +135,7 @@
           <button class="persona-btn" data-persona="vonnegut">Kurt Vonnegut</button>
           <button class="persona-btn" data-persona="larrybird">Larry Bird</button>
         </div>
+        <div style="position:absolute; left:var(--mount-center-x); transform:translateX(-50%); top: var(--select-top); text-align:center; font-size: 18px; color: rgba(0,255,255,0.8); text-shadow: 0 0 10px rgba(0,255,255,0.8);">Select Oracle</div>
       </div>
     </div>
 

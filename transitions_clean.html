@@ -21,20 +21,21 @@
         --mount-center-x: calc(var(--target-left) + var(--target-size)/2);
         --title-up: 14.91cqh;    /* 161/1080 */
         --subtitle-up: 9.35cqh;  /* 101/1080 */
-        --buttons-gap: 7.0cqh;   /* moved lower per feedback */
-        --select-gap: 9.0cqh;
-        --title-size: 4.0cqh;    /* tune here */
-        --subtitle-size: 1.6cqh; /* smaller to leave room for strap lines */
+        --buttons-gap: 8.0cqh;   /* moved lower per feedback */
+        --select-gap: 10.0cqh;
+        --title-size: 3.4cqh;    /* smaller for iOS/Mac overlap */
+        --subtitle-size: 1.3cqh; /* smaller to leave room for strap lines */
       }
 
       .stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100svh*16/9));aspect-ratio:16/9;overflow:hidden;}
+      .parallax-layer{position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(77,227,255,0.15), transparent 40%);mix-blend-mode:screen;pointer-events:none;z-index:1}
       .stage>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 
-      .mount{position:absolute;left:var(--target-left);top:var(--target-top);width:var(--target-size);aspect-ratio:1/1;outline:2px solid rgba(0,200,255,.7);overflow:hidden}
+      .mount{position:absolute;left:var(--target-left);top:var(--target-top);width:var(--target-size);aspect-ratio:1/1;outline:2px solid rgba(0,200,255,.7);overflow:hidden;z-index:2}
       .mount video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
-      .ui{position:absolute;inset:0;pointer-events:none}
-      .title{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--title-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-weight:700;font-family:'Michroma','Courier New',monospace;letter-spacing:.08em;text-transform:uppercase;font-size:var(--title-size);color:#00ffff;text-shadow:0 0 20px #00ffff,0 0 40px #7e6bff}
-      .subtitle{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--subtitle-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-size:var(--subtitle-size);color:#ff4df3;letter-spacing:.15em;text-transform:uppercase;text-shadow:0 0 10px #ff4df3}
+      .ui{position:absolute;inset:0;pointer-events:none;z-index:3}
+      .title{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--title-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-weight:700;font-family:'Michroma','Courier New',monospace;letter-spacing:.08em;text-transform:uppercase;font-size:var(--title-size);line-height:1.05;color:#00ffff;text-shadow:0 0 20px #00ffff,0 0 40px #7e6bff}
+      .subtitle{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) - var(--subtitle-up));transform:translateX(-50%);text-align:center;max-width:calc(var(--target-size)*1.25);font-size:var(--subtitle-size);line-height:1.05;color:#ff4df3;letter-spacing:.15em;text-transform:uppercase;text-shadow:0 0 10px #ff4df3}
       .strap{position:absolute;left:var(--mount-center-x);transform:translateX(-50%);text-align:center;font-family:'Courier New',monospace;letter-spacing:.10em;text-transform:uppercase;color:rgba(255,255,255,.80);font-size:1.2cqh;text-shadow:0 0 8px rgba(255,255,255,.35)}
       .strap.s1{top:calc(var(--target-top) - var(--subtitle-up) + 2.4cqh)}
       .strap.s2{top:calc(var(--target-top) - var(--subtitle-up) + 4.2cqh)}
@@ -47,6 +48,7 @@
   <body>
     <div class="stage">
       <img class="bg" src="assets/new-back.png" alt="Background" />
+      <div class="parallax-layer" id="parallaxLayer"></div>
       <div class="mount">
         <video class="base" autoplay loop muted playsinline>
           <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4" />
@@ -66,6 +68,24 @@
         <div class="select">Select Oracle</div>
       </div>
     </div>
+    <script>
+      // Parallax mouse effect (subtle), desktop only
+      (function(){
+        const layer = document.getElementById('parallaxLayer');
+        if (!layer) return;
+        let mx = 50, my = 50, ticking = false;
+        function update(){
+          layer.style.setProperty('--mx', mx + '%');
+          layer.style.setProperty('--my', my + '%');
+          ticking = false;
+        }
+        window.addEventListener('mousemove', (e) => {
+          mx = (e.clientX / window.innerWidth) * 100;
+          my = (e.clientY / window.innerHeight) * 100;
+          if (!ticking){ requestAnimationFrame(update); ticking = true; }
+        }, {passive:true});
+      })();
+    </script>
   </body>
   </html>
 

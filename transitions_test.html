@@ -143,13 +143,56 @@
     </div>
 
     <script>
-      // Visual-only active state for buttons; no Simli wiring on transitions test
+      // 1) Keep persona buttons visual-only
       (function(){
         const btns = document.querySelectorAll('.persona-btn');
         btns.forEach(b => b.addEventListener('click', () => {
           btns.forEach(x => x.classList.remove('active'));
           b.classList.add('active');
         }));
+      })();
+
+      // 2) Cover-crop compensator: keeps mount anchored to the glowing cube
+      //    across aspect ratios when using object-fit: cover
+      (function(){
+        const root = document.documentElement;
+        const stage = document.querySelector('.stage');
+        // Design aspect (new-back.png assumed 16:9)
+        const AR = 16/9;
+        // Original image-space anchors (0..1)
+        const anchors = { left: 0.3766, top: 0.2486, size: 0.2453 };
+        const clamp01 = v => Math.max(0, Math.min(1, v));
+
+        function applyAnchors() {
+          const w = stage.clientWidth || window.innerWidth;
+          const h = stage.clientHeight || window.innerHeight;
+          const Rc = w / h;
+          let L = anchors.left;
+          let T = anchors.top;
+          let S = anchors.size;
+
+          if (Rc >= AR) {
+            // Wider than design: vertical crop
+            const k = Rc / AR;          // vertical scale factor relative to design
+            T = (anchors.top * k) - (k - 1) / 2;   // shift to compensate top/bottom crop
+            // left and width-based size unchanged in this branch
+          } else {
+            // Taller than design: horizontal crop
+            const k = AR / Rc;          // horizontal scale factor relative to design
+            L = (anchors.left * k) - (k - 1) / 2;  // shift to compensate left/right crop
+            S = anchors.size * k;                  // width fraction expands with k
+          }
+
+          root.style.setProperty('--target-left',  (clamp01(L) * 100).toFixed(4) + '%');
+          root.style.setProperty('--target-top',   (clamp01(T) * 100).toFixed(4) + '%');
+          root.style.setProperty('--target-size',  (clamp01(S) * 100).toFixed(4) + '%');
+        }
+
+        const ro = new ResizeObserver(applyAnchors);
+        ro.observe(stage);
+        window.addEventListener('orientationchange', applyAnchors);
+        window.addEventListener('load', applyAnchors);
+        applyAnchors();
       })();
     </script>
   </body>

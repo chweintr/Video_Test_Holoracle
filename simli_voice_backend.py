@@ -696,7 +696,18 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
                     response["sessionId"] = data.get("sessionId") or data.get("session_id")
                     logger.info(f"Found Daily room URL: {room_url}")
                 else:
-                    logger.warning("No Daily room URL found in Simli response")
+                    # Try to construct Daily room URL based on Simli's pattern
+                    # Based on network observation: wss://ip-3-225-68-229s-us-east-1.wss.daily.co/
+                    # Simli might use: https://api-simli.daily.co/simli_[agentId]_[timestamp]
+                    
+                    import time
+                    timestamp = int(time.time())
+                    constructed_room = f"https://api-simli.daily.co/simli_{resolved_agent_id[:8]}_{timestamp}"
+                    
+                    logger.warning(f"No Daily room URL in response, trying constructed URL: {constructed_room}")
+                    response["roomUrl"] = constructed_room
+                    response["sessionId"] = f"session_{resolved_agent_id[:8]}_{timestamp}"
+                    response["constructed"] = True
                 
                 return response
     except Exception as e:

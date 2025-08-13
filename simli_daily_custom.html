@@ -304,39 +304,60 @@
                 // Add widget to DOM
                 document.body.appendChild(inspectionWidget);
                 
+                // Monitor for Daily connection attempts
+                const originalFetch = window.fetch;
+                const interceptedRequests = [];
+                
+                window.fetch = function(...args) {
+                    if (args[0] && (args[0].includes('daily') || args[0].includes('simli'))) {
+                        console.log('Intercepted request:', args);
+                        interceptedRequests.push(args);
+                    }
+                    return originalFetch.apply(this, args);
+                };
+                
                 // Try to intercept network requests or inspect widget properties
                 setTimeout(() => {
                     // Look for Daily-related properties or methods
                     console.log('Inspecting widget:', inspectionWidget);
+                    console.log('Intercepted requests:', interceptedRequests);
                     
                     // Check for Daily call object
                     if (inspectionWidget.callObject) {
                         console.log('Found callObject:', inspectionWidget.callObject);
+                        console.log('Call object properties:', Object.keys(inspectionWidget.callObject));
                         updateStatus('Found Daily call object in widget!');
                     }
                     
-                    // Check for any Daily-related properties
+                    // Check for any Daily-related properties  
                     for (let prop in inspectionWidget) {
                         if (prop.toLowerCase().includes('daily') || prop.toLowerCase().includes('room')) {
                             console.log(`Found property: ${prop} =`, inspectionWidget[prop]);
                         }
                     }
                     
+                    // Deep inspection of all properties
+                    console.log('All widget properties:', Object.getOwnPropertyNames(inspectionWidget));
+                    
                     // Check shadow DOM
                     if (inspectionWidget.shadowRoot) {
                         const shadowElements = inspectionWidget.shadowRoot.querySelectorAll('*');
+                        console.log('Shadow DOM elements:', shadowElements);
                         shadowElements.forEach(el => {
-                            if (el.src && el.src.includes('daily')) {
-                                console.log('Found Daily element:', el);
+                            if (el.src && (el.src.includes('daily') || el.src.includes('simli'))) {
+                                console.log('Found connection element:', el.src);
                             }
                         });
                     }
+                    
+                    // Restore original fetch
+                    window.fetch = originalFetch;
                     
                     // Clean up
                     document.body.removeChild(inspectionWidget);
                     updateStatus('Widget inspection complete - check console for details');
                     
-                }, 3000);
+                }, 5000);
                 
             } catch (error) {
                 updateStatus(`Widget inspection failed: ${error.message}`);

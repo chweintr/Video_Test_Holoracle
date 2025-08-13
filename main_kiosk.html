@@ -389,19 +389,20 @@
             border-color: #ff0000;
         }
 
-        /* Thinking indicator - shows during latency */
+        /* Thinking indicator - shows between mount and buttons */
         .thinking-indicator {
             position: absolute;
-            bottom: 20px;
+            top: calc(var(--mount-top) + var(--mount-size) + 20px); /* 20px below mount */
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: #00ffff;
+            background: rgba(0,0,0,0.8);
+            color: #ffff00;  /* Yellow for visibility */
             padding: 8px 15px;
-            border: 1px solid rgba(0,255,255,0.5);
+            border: 1px solid rgba(255,255,0,0.5);
             border-radius: 15px;
-            font-size: 12px;
+            font-size: 14px;
             font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px #ffff00;
             display: none;
             z-index: 30;
             white-space: nowrap;
@@ -814,10 +815,10 @@
             }
             
             widget.setAttribute('position', 'absolute');
-            widget.setAttribute('customtext', ' ');  // Single space instead of empty
+            widget.setAttribute('customtext', 'SUMMON');  // Clear button text
             widget.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-            widget.setAttribute('hidetrigger', 'true');  // Should hide trigger
-            widget.setAttribute('autostart', 'true');  // Try autostarting to skip button
+            widget.setAttribute('hidetrigger', 'false');  // Show the button clearly
+            widget.setAttribute('autostart', 'false');  // Don't auto-start, let user click
             
             // FORCE sizing with particle video approach
             widget.style.cssText = `
@@ -850,8 +851,11 @@
             // Add event listeners
             widget.addEventListener('load', () => {
                 console.log(`[Main Kiosk] Widget loaded: ${personaId}`);
-                updateStatus(`${persona.name} Ready - Click to Talk`);
+                updateStatus(`${persona.name} Ready - Click SUMMON to Talk`);
                 endSessionBtn.classList.add('active');
+                
+                // Show thinking message immediately - user needs to know something is happening
+                showThinkingIndicator(personaId);
                 
                 // FORCE sizing after widget loads - AGGRESSIVE approach
                 setTimeout(() => {
@@ -914,27 +918,16 @@
                 }
             });
             
-            // Listen for user speech events to show thinking indicator
-            widget.addEventListener('speechstart', () => {
-                console.log(`[Main Kiosk] User started speaking to ${personaId}`);
-                // Don't show thinking yet, wait for speech end
-            });
-            
-            widget.addEventListener('speechend', () => {
-                console.log(`[Main Kiosk] User stopped speaking to ${personaId}`);
-                // Show thinking indicator when user finishes speaking
-                showThinkingIndicator(personaId);
-            });
-            
+            // Simple approach: Hide thinking when AI starts responding
             widget.addEventListener('audiostart', () => {
                 console.log(`[Main Kiosk] AI started speaking: ${personaId}`);
-                // Hide thinking when AI starts responding
                 hideThinkingIndicator();
             });
             
             widget.addEventListener('audioend', () => {
                 console.log(`[Main Kiosk] AI stopped speaking: ${personaId}`);
-                // AI finished, back to ready state
+                // Show thinking again for next interaction
+                showThinkingIndicator(personaId);
             });
             
             // Add to container

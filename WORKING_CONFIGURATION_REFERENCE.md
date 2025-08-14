@@ -3,20 +3,16 @@
 
 ## 📍 PROJECT LOCATION & SETUP
 - **Git Repository**: `E:\Interactive\interactive_project\indiana-oracle-grpc-face\Video_Test_Holoracle`
-- **Main Working File**: `main_kiosk.html` (stable, all 4 personas work)
-- **PITCH-READY File**: `transitions_clean.html` at `/transitions` (GPT-5 working on UI)
+- **Main Working File**: `main_kiosk.html` (THIS IS THE ACTIVE FILE - NOT index.html)
 - **Branch**: `main` 
 - **Remote**: `https://github.com/chweintr/Video_Test_Holoracle.git`
 - **Deployment**: Railway auto-deploys from main branch
 
-## Current Working State (Updated Aug 13, 2025)
-- **STABLE URL**: https://videotestholoracle-production.up.railway.app/main  
-- **PITCH URL**: https://videotestholoracle-production.up.railway.app/transitions (most up-to-date for pitch)
-- **Status**: All 4 personas work ✅, Clean UI ✅
-- **Known Issue**: Widget sizing doesn't match particle video sizing (GPT-5 working on fix)
-- **Particle videos**: Size correctly to mount ✅
-- **Simli widgets**: Still have sizing/cropping issues ❌
-- **Last Updated**: transitions page wired to backend Aug 13
+## Current Working State (Updated Aug 12, 2025 - 4 Personas)
+- **URL**: https://videotestholoracle-production.up.railway.app/main  
+- **Status**: Perfect cube positioning ✅, All 4 personas ✅, Clean mount ✅, Simli sizing fixed ✅
+- **Widget Sizing**: Fixed to fill 363x363 mount box (not native size) ✅
+- **Last Updated**: Widget position/sizing fixes deployed Aug 12 22:15
 
 ## 🔥 WORKING SIMLI CONFIGURATION
 
@@ -119,19 +115,7 @@ function updateStatus(msg) {
 - **Current approach**: Using particle video methodology with 100% fill + object-fit
 - **Fallback**: May need to accept current state if too complex
 
-### 5. Loading & Latency Messages - IMPLEMENTATION NOTES
-
-#### LOADING MESSAGES (Widget Launch)
-- **Trigger**: When user presses persona button and widget is initializing
-- **Position**: Yellow text below mount with pulsing animation
-- **Custom Messages**:
-  - **Kurt Vonnegut**: "Kurt is calibrating consciousness." / "Kurt is collecting his thoughts…"
-  - **Larry Bird**: "Larry is lacing up." / "Larry is scanning the court."
-  - **Hoosier Oracle**: "The Oracle is aligning the stars." / "Hoosier wisdom is syncing in…"
-  - **Bigfoot**: "Bigfoot is coming to his senses." / "Bigfoot is brushing off the fog."
-  - **Generic fallback**: "Hold tight… a presence is forming." / "Injecting brains… please stand by."
-
-#### LATENCY MESSAGES (Conversation Gaps)
+### 5. Latency Messages - IMPLEMENTATION NOTES
 - **Ideal Trigger**: Between user stops talking and agent starts reply
 - **Current**: Shows when speechend event fires, hides on audiostart
 - **Custom Messages**:

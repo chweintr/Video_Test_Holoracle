@@ -73,24 +73,38 @@
         border-radius: 0 !important;
       }
       
-      /* Force trigger to fill entire mount */
-      .widget-layer simli-widget::part(trigger),
-      .widget-layer simli-widget [data-testid="trigger"],
-      .widget-layer simli-widget button {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        border-radius: 0 !important;
-        border: none !important;
+      /* Attempt to style Bigfoot trigger specifically */
+      .widget-layer simli-widget[position="center"] {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
       
-      /* Force trigger image to fill */
-      .widget-layer simli-widget::part(trigger) img,
-      .widget-layer simli-widget button img {
+      /* Force trigger image to fill mount area, button below */
+      .widget-layer simli-widget[position="center"] img {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
         height: 100% !important;
         object-fit: cover !important;
+        z-index: 1 !important;
+      }
+      
+      /* Position button below mount */
+      .widget-layer simli-widget[position="center"] button,
+      .widget-layer simli-widget[position="center"] [role="button"] {
+        position: absolute !important;
+        bottom: -60px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 2 !important;
+        background: rgba(0,0,0,0.8) !important;
+        color: #00ffff !important;
+        border: 2px solid #00ffff !important;
+        padding: 10px 20px !important;
+        border-radius: 6px !important;
       }
       
       /* Removed transform scaling to avoid interfering with widget init */
@@ -222,10 +236,7 @@
         // Hide select text
         document.getElementById('selectText').style.display = 'none';
         
-        // Show particles-to-persona transition overlay immediately for Bigfoot
-        if (personaId === 'bigfoot') {
-          playTransitionOverlay(personaId);
-        }
+        // Remove overlay transition - using trigger image instead
 
         // End current session if active
         if (currentWidget) {
@@ -316,7 +327,12 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Keep default trigger for Bigfoot since we use overlay transition instead
+        // Customize Bigfoot trigger with full-scale image and repositioned button
+        if (currentPersona === 'bigfoot') {
+          w.setAttribute('customimage', 'assets/particles-to-bigfoot.gif');
+          w.setAttribute('customtext', 'Summon');
+          w.setAttribute('position', 'center'); // Try center positioning
+        }
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';

@@ -222,7 +222,10 @@
         // Hide select text
         document.getElementById('selectText').style.display = 'none';
         
-        // TEMP: disable transition overlay during layering debug
+        // Show particles-to-persona transition overlay immediately for Bigfoot
+        if (personaId === 'bigfoot') {
+          playTransitionOverlay(personaId);
+        }
 
         // End current session if active
         if (currentWidget) {
@@ -313,12 +316,7 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Safe: only customize Bigfoot trigger, keep others default
-        if (currentPersona === 'bigfoot') {
-          w.setAttribute('customimage', 'assets/particles-to-bigfoot.gif');
-          w.setAttribute('customtext', 'Summon');
-          w.setAttribute('position', 'absolute'); // Make trigger fill mount
-        }
+        // Keep default trigger for Bigfoot since we use overlay transition instead
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';
@@ -369,11 +367,24 @@
         };
         const cfg = map[personaId];
         if (!cfg) { el.style.display = 'none'; el.src = ''; return; }
+        
+        // Show full-scale transition overlay
         el.style.display = 'block';
+        el.style.zIndex = '10'; // Above widget layer during transition
         el.src = cfg.src; // GIF will autoplay visually when shown
-        // For GIFs, there's no ended event. Hide after duration; if it's a video, also listen for ended
-        const t = window.setTimeout(()=>{ el.style.display = 'none'; el.removeAttribute('src'); }, cfg.durationMs || 1500);
-        el.onended = () => { window.clearTimeout(t); el.style.display = 'none'; el.removeAttribute('src'); };
+        
+        // Hide after duration to reveal widget underneath
+        const t = window.setTimeout(()=>{ 
+          el.style.display = 'none'; 
+          el.style.zIndex = '7'; // Reset z-index
+          el.removeAttribute('src'); 
+        }, cfg.durationMs || 1500);
+        el.onended = () => { 
+          window.clearTimeout(t); 
+          el.style.display = 'none'; 
+          el.style.zIndex = '7'; // Reset z-index
+          el.removeAttribute('src'); 
+        };
         try { el.play && el.play().catch(()=>{}); } catch(_){}
       }
       

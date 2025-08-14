@@ -220,6 +220,10 @@
           console.error(`Unknown persona: ${personaId}`);
           return;
         }
+
+        // Show base video to verify mount alignment before widget loads
+        const baseVideo2 = document.querySelector('video.base');
+        if (baseVideo2) baseVideo2.style.display = 'block';
         
         // Loading message will be shown when widget starts initializing
         
@@ -293,6 +297,15 @@
         w.style.height = '100%';
         w.style.borderRadius = '0';
         w.style.background = 'transparent';
+        // Persona-specific gentle scale to hide gutters for non-square renderers
+        try {
+          if (currentPersona === 'vonnegut' || currentPersona === 'larrybird') {
+            w.style.transform = 'scale(1.06)';
+            w.style.transformOrigin = '50% 50%';
+          } else {
+            w.style.transform = '';
+          }
+        } catch(_){}
         
           // Show loading message when widget starts initializing
           if (currentPersona) { showLoadingMessage(currentPersona); }

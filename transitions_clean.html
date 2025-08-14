@@ -182,7 +182,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14: feather ON (85/99), overlay loop ON, thinking messages ON');
+      console.log('Transitions build v2025-08-14: feather ON (85/99), overlay loop OFF (debug), thinking messages ON');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -327,7 +327,11 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Keep default trigger for all personas (no customization to avoid breakage)
+        // Test: minimal Bigfoot trigger customization (no listeners, just attributes)
+        if (currentPersona === 'bigfoot') {
+          w.setAttribute('customtext', 'Summon');
+          console.log('[Debug] Applied minimal Bigfoot customization');
+        }
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';
@@ -351,19 +355,13 @@
         currentWidget = w; // Store reference for cleanup
       }
 
-      // Overlay setup: enable loop only when it can play
+      // Overlay setup: DISABLE loop temporarily to test widget conflicts
       (function(){
-        // Re-enable overlay loop: only show when playable, screen blend, non-blocking
         const loopVid = document.getElementById('overlayLoop');
-        if (!loopVid) return;
-        const show = () => {
-          loopVid.style.display = 'block';
-          loopVid.style.mixBlendMode = 'screen';
-          try { loopVid.play().catch(()=>{}); } catch(_){}
-        };
-        const hide = () => { loopVid.style.display = 'none'; };
-        loopVid.addEventListener('canplay', show, { once: true });
-        loopVid.addEventListener('error', hide, { once: true });
+        if (loopVid) { 
+          loopVid.style.display = 'none'; 
+          console.log('[Debug] Alpha overlay loop disabled for testing');
+        }
       })();
 
       // Persona transition overlay (GIF/MP4/WebM). Pointer-events: none so it never blocks Simli.

@@ -64,14 +64,12 @@
       /* Generic fallback - gentle scale to hide any residual gutters */
       .widget-layer simli-widget { transform: scale(1.05); transform-origin: center; }
       
-      /* Loading message styling - outside left of mount */
+      /* Loading message styling */
       .loading-message {
         position: absolute;
-        left: calc(var(--target-left) - 2cqw);
-        top: calc(var(--target-top) + (var(--target-size) * (16/9) * 0.5));
-        transform: translate(-100%, -50%);
-        text-align: right;
-        max-width: 28cqw;
+        left: var(--mount-center-x);
+        top: calc(var(--target-top) + (var(--target-size) * (16/9)) + 3cqh);
+        transform: translateX(-50%);
         color: #ffff00;
         font-family: 'Courier New', monospace;
         font-size: 2.0cqh;
@@ -79,7 +77,6 @@
         letter-spacing: 0.1em;
         text-shadow: 0 0 10px #ffff00;
         z-index: 8;
-        pointer-events: none;
         animation: pulse 1.5s ease-in-out infinite;
       }
       
@@ -211,8 +208,8 @@
           // Create widget in mount
           await createSimliWidget(personaId, data.token, persona.agentId, persona.faceId);
           
-          // Auto-hide loading message after a short delay regardless of widget internals
-          setTimeout(hideLoadingMessage, 1800);
+          // Hide loading message after widget is created
+          hideLoadingMessage();
           
         } catch (error) {
           console.error(`[Transitions] Error for ${personaId}:`, error);

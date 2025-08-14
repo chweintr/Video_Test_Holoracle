@@ -327,11 +327,7 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Customize Bigfoot trigger with subtle soul/light image (not particles)
-        if (currentPersona === 'bigfoot') {
-          w.setAttribute('customimage', 'assets/soul-arriving.gif'); // You'll create this - subtle distant light
-          w.setAttribute('customtext', 'Summon');
-        }
+        // Keep default trigger for all personas (no customization to avoid breakage)
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';
@@ -353,23 +349,6 @@
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
-        
-        // Listen for Bigfoot summon click to trigger particles-to-bigfoot transition
-        if (currentPersona === 'bigfoot') {
-          // Use mutation observer to detect when Simli button appears and add listener
-          const observer = new MutationObserver(() => {
-            const triggerBtn = w.querySelector('button') || w.querySelector('[role="button"]');
-            if (triggerBtn && !triggerBtn._hasTransitionListener) {
-              triggerBtn._hasTransitionListener = true;
-              triggerBtn.addEventListener('click', () => {
-                // Launch full particles-to-bigfoot MP4 overlay
-                setTimeout(() => playBigfootTransition(), 100); // Small delay to ensure click processes
-              });
-              observer.disconnect();
-            }
-          });
-          observer.observe(w, { childList: true, subtree: true });
-        }
       }
 
       // Overlay setup: enable loop only when it can play
@@ -418,40 +397,6 @@
           el.removeAttribute('src'); 
         };
         try { el.play && el.play().catch(()=>{}); } catch(_){}
-      }
-      
-      // Special Bigfoot transition triggered by summon click
-      function playBigfootTransition() {
-        const el = document.getElementById('overlayTransition');
-        if (!el) return;
-        
-        // Use MP4 for non-looping, longer duration option
-        const videoSrc = 'assets/particles-to-bigfoot.mp4'; // You can create this from the GIF
-        
-        console.log('[Bigfoot] Playing summon transition overlay');
-        el.style.display = 'block';
-        el.style.zIndex = '10'; // Above widget during transition
-        el.src = videoSrc;
-        
-        // Hide after video ends or fallback timeout
-        el.onended = () => {
-          console.log('[Bigfoot] Transition ended, revealing widget');
-          el.style.display = 'none';
-          el.style.zIndex = '7';
-          el.removeAttribute('src');
-        };
-        
-        // Fallback timeout in case onended doesn't fire
-        setTimeout(() => {
-          if (el.style.display === 'block') {
-            console.log('[Bigfoot] Transition timeout, revealing widget');
-            el.style.display = 'none';
-            el.style.zIndex = '7';
-            el.removeAttribute('src');
-          }
-        }, 5000); // 5s max duration
-        
-        try { el.play().catch(()=>{}); } catch(_){}
       }
       
       // Loading message functions

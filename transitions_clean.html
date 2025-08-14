@@ -42,9 +42,9 @@
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
       /* Soft feather to hide any hard widget edges without blocking clicks */
       .widget-layer {
-        /* Stronger crop + wider feather (persona-tunable via CSS vars) */
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
-        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
+        /* TEMP: disable mask to avoid perceived cropping/offset issues */
+        -webkit-mask-image: none;
+        mask-image: none;
         border-radius: 0;
         overflow: hidden;
       }
@@ -148,7 +148,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14-1 + overlays + persona feathers + trigger images');
+      console.log('Transitions build v2025-08-14-rollback: masks OFF, overlay transition OFF, default triggers');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -202,8 +202,7 @@
         // Hide select text
         document.getElementById('selectText').style.display = 'none';
         
-        // Kick off a visual transition overlay (non-blocking)
-        try { playTransitionOverlay(personaId); } catch (e) { console.warn('Transition overlay error', e); }
+        // TEMP: disable transition overlay during layering debug
 
         // End current session if active
         if (currentWidget) {
@@ -211,17 +210,10 @@
         }
         
         currentPersona = personaId;
-        // Persona-specific feather/overlay tuning (can be adjusted)
-        const featherByPersona = {
-          bigfoot: { inner: '70%', outer: '96%', overlay: 0.65 },
-          indiana: { inner: '70%', outer: '96%', overlay: 0.65 },
-          vonnegut: { inner: '70%', outer: '96%', overlay: 0.65 },
-          larrybird: { inner: '70%', outer: '96%', overlay: 0.65 },
-        };
-        const f = featherByPersona[personaId] || featherByPersona.bigfoot;
-        document.documentElement.style.setProperty('--mask-inner', f.inner);
-        document.documentElement.style.setProperty('--mask-outer', f.outer);
-        document.documentElement.style.setProperty('--overlay-opacity', String(f.overlay));
+        // TEMP: neutralize feathering globally (overlay opacity only)
+        document.documentElement.style.setProperty('--mask-inner', '100%');
+        document.documentElement.style.setProperty('--mask-outer', '100%');
+        document.documentElement.style.setProperty('--overlay-opacity', '0.6');
         const persona = CONFIG.personas[personaId];
         
         if (!persona) {
@@ -293,10 +285,7 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        const img = TRIGGER_IMAGES[currentPersona];
-        const txt = TRIGGER_TEXT[currentPersona];
-        if (img) w.setAttribute('customimage', img);
-        if (txt) w.setAttribute('customtext', txt);
+        // Keep default trigger visuals stable while we debug layering
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';

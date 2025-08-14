@@ -68,15 +68,15 @@
       .loading-message {
         position: absolute;
         left: var(--mount-center-x);
-        top: calc(var(--target-top) + var(--target-size) + 3cqh);
+        top: calc(var(--target-top) + (var(--target-size) * (16/9)) + 3cqh);
         transform: translateX(-50%);
         color: #ffff00;
         font-family: 'Courier New', monospace;
-        font-size: 1.8cqh;
+        font-size: 2.0cqh;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         text-shadow: 0 0 10px #ffff00;
-        z-index: 4;
+        z-index: 8;
         animation: pulse 1.5s ease-in-out infinite;
       }
       
@@ -192,8 +192,7 @@
           return;
         }
         
-        // Show loading message
-        showLoadingMessage(personaId);
+        // Loading message will be shown when widget starts initializing
         
         try {
           // Get token from backend
@@ -235,7 +234,7 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
-      // GPT-5's minimal attach function
+      // GPT-5's minimal attach function with event listeners
       function attachSimliWidget({ token, agentId, faceId }) {
         const host = document.getElementById('widgetLayer');
         host.innerHTML = ''; // remove prior
@@ -252,6 +251,10 @@
         w.style.height = '100%';
         w.style.borderRadius = '0';
         w.style.background = 'transparent';
+        
+         // Show loading message when widget starts initializing (persist until manual hide)
+         if (currentPersona) { showLoadingMessage(currentPersona); }
+        
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
       }
@@ -259,16 +262,19 @@
       // Loading message functions
       function showLoadingMessage(personaId) {
         const messages = {
-          bigfoot: 'Bigfoot is coming to his senses...',
-          indiana: 'The Oracle is aligning the stars...',
-          vonnegut: 'Kurt is calibrating consciousness...',
-          larrybird: 'Larry is lacing up...'
+          bigfoot: ['Bigfoot is coming to his senses...', 'Bigfoot is brushing off the fog...'],
+          indiana: ['The Oracle is aligning the stars...', 'Hoosier wisdom is syncing in…'],
+          vonnegut: ['Kurt is calibrating consciousness...', 'Kurt is collecting his thoughts…'],
+          larrybird: ['Larry is lacing up...', 'Larry is scanning the court...']
         };
+        
+        const personaMessages = messages[personaId] || ['Hold tight… a presence is forming...', 'Injecting brains… please stand by...'];
+        const randomMessage = personaMessages[Math.floor(Math.random() * personaMessages.length)];
         
         const loadingDiv = document.createElement('div');
         loadingDiv.id = 'loadingMessage';
         loadingDiv.className = 'loading-message';
-        loadingDiv.textContent = messages[personaId] || 'Summoning...';
+        loadingDiv.textContent = randomMessage;
         
         // Remove any existing loading message
         hideLoadingMessage();
@@ -300,6 +306,7 @@
         
         // Hide end session button
         document.getElementById('endSession').style.display = 'none';
+        hideLoadingMessage();
         
         // Hide any loading message
         hideLoadingMessage();

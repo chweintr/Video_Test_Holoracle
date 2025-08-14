@@ -182,7 +182,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14: feather ON (85/99), overlay loop OFF (debug), thinking messages ON');
+      console.log('Transitions build v2025-08-14: feather ON (85/99), overlay loop ON (essential), thinking messages ON');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -355,13 +355,18 @@
         currentWidget = w; // Store reference for cleanup
       }
 
-      // Overlay setup: DISABLE loop temporarily to test widget conflicts
+      // Overlay setup: re-enable alpha overlay (non-negotiable for floating head effect)
       (function(){
         const loopVid = document.getElementById('overlayLoop');
-        if (loopVid) { 
-          loopVid.style.display = 'none'; 
-          console.log('[Debug] Alpha overlay loop disabled for testing');
-        }
+        if (!loopVid) return;
+        const show = () => {
+          loopVid.style.display = 'block';
+          loopVid.style.mixBlendMode = 'screen';
+          try { loopVid.play().catch(()=>{}); } catch(_){}
+        };
+        const hide = () => { loopVid.style.display = 'none'; };
+        loopVid.addEventListener('canplay', show, { once: true });
+        loopVid.addEventListener('error', hide, { once: true });
       })();
 
       // Persona transition overlay (GIF/MP4/WebM). Pointer-events: none so it never blocks Simli.

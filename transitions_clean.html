@@ -225,7 +225,7 @@
         const baseVideo2 = document.querySelector('video.base');
         if (baseVideo2) baseVideo2.style.display = 'block';
         
-        // Show thinking message when starting to load widget
+        // Show thinking message when starting to summon widget
         showLoadingMessage(personaId);
         
         try {
@@ -290,7 +290,11 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Keep default trigger visuals (no custom image/text)
+        // Safe: only customize Bigfoot trigger, keep others default
+        if (currentPersona === 'bigfoot') {
+          w.setAttribute('customimage', 'assets/particles-to-bigfoot.gif');
+          w.setAttribute('customtext', 'Start to Summon');
+        }
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';
@@ -384,7 +388,45 @@
         }
       }
       
+      // Dismissal message functions
+      function showDismissalMessage(personaId) {
+        const messages = {
+          bigfoot: ['Bigfoot fades back into the mist...', 'Bigfoot retreats to the forest...'],
+          indiana: ['The Oracle returns to the ether...', 'Hoosier wisdom disperses...'],
+          vonnegut: ['Kurt dissolves into stardust...', 'Kurt vanishes with a knowing smile...'],
+          larrybird: ['Larry heads back to the locker room...', 'Larry takes his final bow...']
+        };
+        
+        const personaMessages = messages[personaId] || ['The presence fades away...', 'Returning to the void...'];
+        const randomMessage = personaMessages[Math.floor(Math.random() * personaMessages.length)];
+        
+        const dismissDiv = document.createElement('div');
+        dismissDiv.id = 'dismissalMessage';
+        dismissDiv.className = 'loading-message';
+        dismissDiv.textContent = randomMessage;
+        dismissDiv.style.color = '#ff6b6b'; // Different color for dismissal
+        
+        // Remove any existing messages
+        hideLoadingMessage();
+        const existing = document.getElementById('dismissalMessage');
+        if (existing) existing.remove();
+        
+        // Add to UI layer
+        document.querySelector('.ui').appendChild(dismissDiv);
+        // Auto-hide after 2s
+        setTimeout(() => {
+          if (dismissDiv && dismissDiv.parentNode) {
+            dismissDiv.remove();
+          }
+        }, 2000);
+      }
+      
       async function endCurrentSession() {
+        // Show dismissal message
+        if (currentPersona) {
+          showDismissalMessage(currentPersona);
+        }
+        
         // Clear widget layer (GPT-5's approach)
         const host = document.getElementById('widgetLayer');
         if (host) {

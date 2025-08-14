@@ -289,23 +289,7 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Persona-specific trigger visuals (image + short message)
-        const TRIGGER_IMAGES = {
-          bigfoot: 'assets/particles-to-bigfoot.gif',
-          indiana: 'assets/new-back.png',
-          vonnegut: 'assets/new-back.png',
-          larrybird: 'assets/new-back.png'
-        };
-        const TRIGGER_TEXT = {
-          bigfoot: 'Bigfoot is shaking off the cobwebs…',
-          indiana: 'The Oracle is aligning the stars…',
-          vonnegut: 'Kurt is collecting his thoughts…',
-          larrybird: 'Larry is lacing up…'
-        };
-        const trigImg = TRIGGER_IMAGES[currentPersona];
-        const trigTxt = TRIGGER_TEXT[currentPersona];
-        if (trigImg) w.setAttribute('customimage', trigImg);
-        if (trigTxt) w.setAttribute('customtext', trigTxt);
+        // Keep default trigger visuals (no custom image/text)
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';

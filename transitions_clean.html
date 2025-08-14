@@ -242,8 +242,7 @@
           // Create widget in mount
           await createSimliWidget(personaId, data.token, persona.agentId, persona.faceId);
           
-          // Hide loading message after widget is created
-          hideLoadingMessage();
+          // Keep loading message visible; it will auto-hide or be cleared by widget events
           
         } catch (error) {
           console.error(`[Transitions] Error for ${personaId}:`, error);
@@ -312,8 +311,7 @@
           }
         } catch(_){}
         
-          // Show loading message when widget starts initializing
-          if (currentPersona) { showLoadingMessage(currentPersona); }
+          // Don't show duplicate loading message here; already shown in switchPersona
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
@@ -376,9 +374,9 @@
         
         // Add to UI layer
         document.querySelector('.ui').appendChild(loadingDiv);
-        // Fallback auto-hide after ~2s so it never lingers
+        // Extended auto-hide after ~6s so it stays through widget loading
         window.clearTimeout(window.__loadingHideT);
-        window.__loadingHideT = window.setTimeout(hideLoadingMessage, 2000);
+        window.__loadingHideT = window.setTimeout(hideLoadingMessage, 6000);
       }
       
       function hideLoadingMessage() {

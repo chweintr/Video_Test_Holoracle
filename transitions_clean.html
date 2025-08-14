@@ -26,8 +26,8 @@
         --title-size: 3.8cqh;    /* larger title */
         --subtitle-size: 1.3cqh; /* smaller to leave room for strap lines */
         /* Feather control (applies to all personas; can be tuned per persona in JS) */
-        --mask-inner: 72%;  /* solid center radius */
-        --mask-outer: 95%;  /* start of full fade-out */
+        --mask-inner: 80%;  /* solid center radius (safe) */
+        --mask-outer: 97%;  /* start of full fade-out (gentle feather) */
         --overlay-opacity: 0.6; /* default overlay strength */
       }
 
@@ -42,9 +42,9 @@
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
       /* Soft feather to hide any hard widget edges without blocking clicks */
       .widget-layer {
-        /* TEMP: disable mask to avoid perceived cropping/offset issues */
-        -webkit-mask-image: none;
-        mask-image: none;
+        /* Re-enable gentle feather mask */
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
+        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
         border-radius: 0;
         overflow: hidden;
       }
@@ -148,7 +148,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14-rollback: masks OFF, overlay transition OFF, default triggers');
+      console.log('Transitions build v2025-08-14-feather-only: mask ON (80/97), overlays OFF, default triggers');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -210,9 +210,9 @@
         }
         
         currentPersona = personaId;
-        // TEMP: neutralize feathering globally (overlay opacity only)
-        document.documentElement.style.setProperty('--mask-inner', '100%');
-        document.documentElement.style.setProperty('--mask-outer', '100%');
+        // Feather only: apply gentle global values (no persona variance)
+        document.documentElement.style.setProperty('--mask-inner', '80%');
+        document.documentElement.style.setProperty('--mask-outer', '97%');
         document.documentElement.style.setProperty('--overlay-opacity', '0.6');
         const persona = CONFIG.personas[personaId];
         
@@ -316,12 +316,9 @@
 
       // Overlay setup: enable loop only when it can play
       (function(){
+        // Overlays OFF for now: ensure loop stays hidden
         const loopVid = document.getElementById('overlayLoop');
-        if (!loopVid) return;
-        const show = () => { loopVid.style.display = 'block'; loopVid.style.mixBlendMode = 'screen'; try { loopVid.play().catch(()=>{}); } catch(_){} };
-        const hide = () => { loopVid.style.display = 'none'; };
-        loopVid.addEventListener('canplay', show, { once: true });
-        loopVid.addEventListener('error', hide, { once: true });
+        if (loopVid) { loopVid.style.display = 'none'; }
       })();
 
       // Persona transition overlay (GIF/MP4/WebM). Pointer-events: none so it never blocks Simli.

@@ -40,13 +40,12 @@
       /* Outer web component - force exact fill and remove rounded corners */
       .widget-layer simli-widget {
         position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
+        left: 50% !important; top: 50% !important;
         background: transparent !important;
         border: 0 !important;
         border-radius: 0 !important;   /* kill rounded frame */
         overflow: hidden !important;    /* crop anything inside */
+        transform-origin: center !important;
       }
       
       /* Try to reach inner surfaces (if Simli exposes parts) */
@@ -61,15 +60,17 @@
         border-radius: 0 !important;
       }
       
-      /* Generic fallback - gentle scale to hide any residual gutters */
-      .widget-layer simli-widget { transform: scale(1.05); transform-origin: center; }
+      /* Center+cover via JS; keep origin centered */
+      .widget-layer simli-widget { transform-origin: center; display:block; }
       
-      /* Loading message styling */
+      /* Loading message styling (outside, left of mount) */
       .loading-message {
         position: absolute;
-        left: var(--mount-center-x);
-        top: calc(var(--target-top) + (var(--target-size) * (16/9)) + 3cqh);
-        transform: translateX(-50%);
+        left: calc(var(--target-left) - 2cqw);
+        top: calc(var(--target-top) + (var(--target-size) * (16/9) * 0.5));
+        transform: translate(-100%, -50%);
+        text-align: right;
+        max-width: 28cqw;
         color: #ffff00;
         font-family: 'Courier New', monospace;
         font-size: 2.0cqh;
@@ -234,7 +235,7 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
-      // GPT-5's minimal attach function with event listeners
+      // GPT-5's minimal attach function with center+cover
       function attachSimliWidget({ token, agentId, faceId }) {
         const host = document.getElementById('widgetLayer');
         host.innerHTML = ''; // remove prior
@@ -244,11 +245,11 @@
         if (faceId) w.setAttribute('faceid', faceId);
         w.setAttribute('hidetrigger', 'true');
         w.setAttribute('autostart', 'true');
-        // Ensure absolute glue regardless of component defaults
+        // Center anchor; JS will scale to cover
         w.style.position = 'absolute';
-        w.style.inset = '0';
-        w.style.width = '100%';
-        w.style.height = '100%';
+        w.style.left = '50%';
+        w.style.top = '50%';
+        w.style.transformOrigin = 'center';
         w.style.borderRadius = '0';
         w.style.background = 'transparent';
         
@@ -257,6 +258,9 @@
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
+
+        // Center and scale widget to cover mount
+        centerAndCoverWidget(host, w);
       }
       
       // Loading message functions

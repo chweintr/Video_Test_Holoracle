@@ -332,13 +332,35 @@
           w.setAttribute('customtext', 'Summon');
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
-        // Ensure absolute glue regardless of component defaults
-        w.style.position = 'absolute';
-        w.style.inset = '0';
-        w.style.width = '100%';
-        w.style.height = '100%';
-        w.style.borderRadius = '0';
-        w.style.background = 'transparent';
+        // Calculate actual mount dimensions for proper widget sizing
+        const mountElement = document.querySelector('.mount');
+        let actualWidth = 300; // Fallback size
+        let actualHeight = 300;
+        
+        if (mountElement) {
+          const rect = mountElement.getBoundingClientRect();
+          actualWidth = Math.round(rect.width);
+          actualHeight = Math.round(rect.height);
+          console.log(`[Widget Sizing] Mount dimensions: ${actualWidth}x${actualHeight}px`);
+        }
+        
+        // Force exact pixel sizing (working pattern adapted for responsive)
+        w.style.cssText = `
+          position: absolute !important;
+          inset: 0 !important;
+          width: ${actualWidth}px !important;
+          height: ${actualHeight}px !important;
+          max-width: ${actualWidth}px !important;
+          max-height: ${actualHeight}px !important;
+          min-width: ${actualWidth}px !important;
+          min-height: ${actualHeight}px !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          border-radius: 0 !important;
+          overflow: hidden !important;
+          background: transparent !important;
+        `;
         // Persona-specific gentle scale to hide gutters for non-square renderers
         try {
           if (currentPersona === 'vonnegut' || currentPersona === 'larrybird') {

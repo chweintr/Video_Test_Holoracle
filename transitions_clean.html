@@ -73,6 +73,26 @@
         border-radius: 0 !important;
       }
       
+      /* Force trigger to fill entire mount */
+      .widget-layer simli-widget::part(trigger),
+      .widget-layer simli-widget [data-testid="trigger"],
+      .widget-layer simli-widget button {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+      }
+      
+      /* Force trigger image to fill */
+      .widget-layer simli-widget::part(trigger) img,
+      .widget-layer simli-widget button img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+      }
+      
       /* Removed transform scaling to avoid interfering with widget init */
       
       /* Loading message styling */
@@ -297,6 +317,7 @@
         if (currentPersona === 'bigfoot') {
           w.setAttribute('customimage', 'assets/particles-to-bigfoot.gif');
           w.setAttribute('customtext', 'Summon');
+          w.setAttribute('position', 'absolute'); // Make trigger fill mount
         }
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';

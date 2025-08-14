@@ -332,28 +332,12 @@
           w.setAttribute('customtext', 'Summon');
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
-        // Calculate actual mount dimensions for proper widget sizing
-        const mountElement = document.querySelector('.mount');
-        let actualWidth = 300; // Fallback size
-        let actualHeight = 300;
-        
-        if (mountElement) {
-          const rect = mountElement.getBoundingClientRect();
-          actualWidth = Math.round(rect.width);
-          actualHeight = Math.round(rect.height);
-          console.log(`[Widget Sizing] Mount dimensions: ${actualWidth}x${actualHeight}px`);
-        }
-        
-        // Force exact pixel sizing (working pattern adapted for responsive)
+        // FIXED: Widget should fill the responsive mount (24.53% width, aspect-ratio 1:1)
         w.style.cssText = `
           position: absolute !important;
           inset: 0 !important;
-          width: ${actualWidth}px !important;
-          height: ${actualHeight}px !important;
-          max-width: ${actualWidth}px !important;
-          max-height: ${actualHeight}px !important;
-          min-width: ${actualWidth}px !important;
-          min-height: ${actualHeight}px !important;
+          width: 100% !important;
+          height: 100% !important;
           margin: 0 !important;
           padding: 0 !important;
           border: none !important;
@@ -361,6 +345,8 @@
           overflow: hidden !important;
           background: transparent !important;
         `;
+        
+        console.log(`[Widget Sizing] Applied responsive fill to mount (24.53% of stage)`);
         // Persona-specific gentle scale to hide gutters for non-square renderers
         try {
           if (currentPersona === 'vonnegut' || currentPersona === 'larrybird') {

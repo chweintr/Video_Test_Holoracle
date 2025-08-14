@@ -302,3 +302,45 @@ Open items to integrate later
 - Port holographic styles (fonts, buttons, glow) are partially applied; finish tightening to match `/main`
 - Wire persona buttons to real actions (current UI route has no widget logic)
 - Unify background assets (ensure 16:9 variants to avoid extra math)
+
+---
+
+## Triggers & Overlays Integration Notes (Aug 14, 2025)
+
+- Context: `/transitions` route is the sandbox. `/main` must remain untouched for pitch.
+- Stable baseline:
+  - 16:9 stage with background image using object-fit: cover
+  - Square mount anchored via percentages to the background image
+  - Simli widget fills the mount (absolute positioning)
+  - Default Simli launcher/flow preserved
+  - Gentle feather mask only on the widget container (radial 80%/97%)
+  - Overlays (loop/transition) and custom messages currently disabled
+
+- Problems observed when pushing further:
+  - Suppressing or auto-starting the widget (hidetrigger/autostart/customimage/customtext) can break initialization due to user-gesture/mic policies and Shadow DOM encapsulation.
+  - Overlay layers (loop/transition) can obscure the widget if alpha/blend/z-index aren’t perfect.
+  - Aggressive masks (small inner radius) appear as cropping/offset on certain personas.
+  - Persona variance: Vonnegut/Larry sometimes show gutters due to internal aspect/padding; mild scale(1.04–1.06) can hide gutters if needed.
+
+- Working constraints:
+  - Keep default Simli trigger to satisfy browser gesture requirements
+  - Avoid synthetic clicks; no documented start() API
+  - Avoid relying on ::part for internal styling
+  - Introduce effects incrementally with guardrails
+
+- Safe reintroduction plan:
+  1) Feather only: mask inner 80%, outer 97% (no visible cropping). Verify all personas.
+  2) Overlay loop: show only after canplay; mix-blend-mode: screen; low opacity (0.3–0.4); pointer-events: none.
+  3) Transition overlay: enable after step 2 is stable; preflight asset; hide by timeout/ended; pointer-events: none.
+  4) Persona-specific tuning: optional scale(1.04–1.06) for Vonnegut/Larry if gutters seen.
+  5) Trigger customization: if desired, set customimage/customtext without suppression; test per persona.
+
+- Current state on `/transitions`:
+  - Feather-only mode ON
+  - Overlays/messages OFF
+  - Default triggers ON
+
+- Action items for coders:
+  - If exposing a reliable public start() API or event hooks from the widget is possible, it would simplify choreography.
+  - Consider exposing an internal container size/aspect to reduce the need for external scale hacks.
+  - Provide guidance on safe use of customimage/customtext with default trigger (timing/ordering).

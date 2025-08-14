@@ -344,3 +344,62 @@ Open items to integrate later
   - If exposing a reliable public start() API or event hooks from the widget is possible, it would simplify choreography.
   - Consider exposing an internal container size/aspect to reduce the need for external scale hacks.
   - Provide guidance on safe use of customimage/customtext with default trigger (timing/ordering).
+
+---
+
+## 🎭 Two-Stage Mystical Flow - PLANNED IMPLEMENTATION (Aug 14, 2025)
+
+**Current Status**: Tagged as `working-proof-of-concept` (stable baseline) before attempting mystical flow
+
+### Concept Overview
+Transform the technical limitation of two required clicks into an intentional mystical ritual:
+
+**Stage 1: Summoning Ritual** (when clicking persona button e.g. "Bigfoot")
+- ✨ Plays `particles-to-bigfoot.gif` transition overlay 
+- 🔮 Shows "Summoning Bigfoot from the ancient forest..." (orange text)
+- 🌫️ Base particles fade to 40% opacity during ritual
+- ⏱️ Lasts ~2 seconds
+
+**Stage 2: Communion Ready** (after transition)
+- 🎯 Simli widget appears with custom trigger: **"Enter Trance"**
+- 🌟 Custom trigger image: `distant_light.mp4` (if Simli supports MP4)
+- 💫 Shows "Bigfoot awaits... Touch to enter trance" (cyan text, persistent)
+- 👆 User clicks the mystical trigger to begin communion
+
+**Stage 3: Thinking Phase** (when widget activates)
+- 🧠 Auto-detects when widget starts (experimental polling for video element)
+- 💭 Shows "Bigfoot is coming to his senses..." (yellow text)
+- 🎭 Alpha overlay provides floating head illusion
+
+### Implementation Notes
+- **Benefits**: Makes technical limitation feel like intentional mystical process
+- **Failed Attempt**: Undefined `TRANSITIONS` variable caused errors, rolled back
+- **Assets Available**: `distant_light.mp4`, `particles-to-bigfoot.gif`, etc. in `/assets`
+- **Strategy**: Implement incrementally, test each piece, avoid breaking stable functionality
+
+### Persona-Specific Communion Text
+```javascript
+const COMMUNION_TEXT = {
+  bigfoot: 'Enter Trance',
+  indiana: 'Begin Communion', 
+  vonnegut: 'Connect Soul',
+  larrybird: 'Touch Oracle'
+};
+```
+
+### Problems Solved vs Outstanding
+- ✅ **Mount Alignment**: Square mount perfectly aligned to background target
+- ✅ **Alpha Overlay**: Floating head illusion working
+- ✅ **Basic Functionality**: Default Simli triggers stable  
+- ❌ **Transition Videos**: Need to define `TRANSITIONS` variable properly
+- ❌ **Event Detection**: Polling for widget activation needs testing
+- ❌ **MP4 Support**: Unknown if Simli `customimage` supports MP4 files
+
+### Next Steps
+1. **Define `TRANSITIONS` variable** mapping personas to asset paths
+2. **Test minimal mystical trigger text** without transition videos first  
+3. **Verify `distant_light.mp4`** works as custom trigger image
+4. **Implement incremental pieces** to avoid breaking stable baseline
+5. **Document working configuration** for future reference
+
+**Priority**: Keep `/main` untouched for pitch, experiment only on `/transitions` route

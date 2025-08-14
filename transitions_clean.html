@@ -36,6 +36,13 @@
       
       /* Widget layer - GPT-5's AGGRESSIVE solution for perfect sizing */
       .widget-layer { position: absolute; inset: 0; }
+      /* Soft feather to hide any hard widget edges without blocking clicks */
+      .widget-layer {
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 84%, rgba(0,0,0,0) 100%);
+        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 84%, rgba(0,0,0,0) 100%);
+        border-radius: 1.0cqh;
+        overflow: hidden;
+      }
       
       /* Outer web component - force exact fill and remove rounded corners */
       .widget-layer simli-widget {
@@ -93,6 +100,10 @@
       .persona button{background:linear-gradient(135deg,rgba(0,0,0,.6),rgba(77,227,255,.1));border:2px solid rgba(77,227,255,.5);color:#00ffff;padding:.9cqh 1.8cqw;font-size:1.9cqh;font-family:'Courier New', monospace;text-transform:uppercase;letter-spacing:.03em;border-radius:6px;cursor:pointer}
       .persona button:hover{border-color:#00ffff;box-shadow:0 0 20px rgba(0,255,255,.4);transform:translateY(-2px)}
       .select{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) + var(--target-size)*(16/9) + var(--select-gap));transform:translateX(-50%);font-size:2.0cqh;color:rgba(0,255,255,.85);text-shadow:0 0 10px rgba(0,255,255,.85)}
+
+      /* Visual overlays inside mount */
+      .overlay-loop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:6;display:none}
+      .overlay-transition{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:7;display:none}
     </style>
   </head>
   <body>
@@ -104,6 +115,13 @@
           <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4" />
         </video>
         <div class="widget-layer" id="widgetLayer"></div>
+        <!-- Optional alpha overlay (loop). WebM with alpha preferred; MP4 fallback is visually additive only. -->
+        <video class="overlay-loop" id="overlayLoop" autoplay loop muted playsinline>
+          <source src="assets/overlay_floaties.webm" type="video/webm" />
+          <source src="assets/overlay_floaties.mp4" type="video/mp4" />
+        </video>
+        <!-- Persona transition (one-shot) shown on persona select, then hides -->
+        <video class="overlay-transition" id="overlayTransition" muted playsinline></video>
       </div>
       <div class="ui">
         <div class="title">Echoes of Indiana</div>
@@ -125,7 +143,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14-1');
+      console.log('Transitions build v2025-08-14-1 + overlays');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -179,6 +197,9 @@
         // Hide select text
         document.getElementById('selectText').style.display = 'none';
         
+        // Kick off a visual transition overlay (non-blocking)
+        try { playTransitionOverlay(personaId); } catch (e) { console.warn('Transition overlay error', e); }
+
         // End current session if active
         if (currentWidget) {
           await endCurrentSession();
@@ -256,6 +277,36 @@
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
+      }
+
+      // Overlay setup: enable loop only when it can play
+      (function(){
+        const loopVid = document.getElementById('overlayLoop');
+        if (!loopVid) return;
+        const show = () => { loopVid.style.display = 'block'; try { loopVid.play().catch(()=>{}); } catch(_){} };
+        const hide = () => { loopVid.style.display = 'none'; };
+        loopVid.addEventListener('canplay', show, { once: true });
+        loopVid.addEventListener('error', hide, { once: true });
+      })();
+
+      // Persona transition overlay (GIF/MP4/WebM). Pointer-events: none so it never blocks Simli.
+      function playTransitionOverlay(personaId){
+        const el = document.getElementById('overlayTransition');
+        if (!el) return;
+        const map = {
+          bigfoot: { src: 'assets/particles-to-bigfoot.gif', durationMs: 1800 },
+          indiana: null,
+          vonnegut: null,
+          larrybird: null
+        };
+        const cfg = map[personaId];
+        if (!cfg) { el.style.display = 'none'; el.src = ''; return; }
+        el.style.display = 'block';
+        el.src = cfg.src; // GIF will autoplay visually when shown
+        // For GIFs, there's no ended event. Hide after duration; if it's a video, also listen for ended
+        const t = window.setTimeout(()=>{ el.style.display = 'none'; el.removeAttribute('src'); }, cfg.durationMs || 1500);
+        el.onended = () => { window.clearTimeout(t); el.style.display = 'none'; el.removeAttribute('src'); };
+        try { el.play && el.play().catch(()=>{}); } catch(_){}
       }
       
       // Loading message functions

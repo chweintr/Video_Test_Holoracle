@@ -61,8 +61,7 @@
         border-radius: 0 !important;
       }
       
-      /* Generic fallback - gentle scale to hide any residual gutters */
-      .widget-layer simli-widget { transform: scale(1.05); transform-origin: center; }
+      /* Removed transform scaling to avoid interfering with widget init */
       
       /* Loading message styling */
       .loading-message {
@@ -244,6 +243,9 @@
         if (faceId) w.setAttribute('faceid', faceId);
         w.setAttribute('hidetrigger', 'true');
         w.setAttribute('autostart', 'true');
+        // Hide any fallback launcher visuals just in case autostart shows them
+        w.setAttribute('customtext', ' ');
+        w.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';
@@ -252,8 +254,8 @@
         w.style.borderRadius = '0';
         w.style.background = 'transparent';
         
-         // Show loading message when widget starts initializing (persist until manual hide)
-         if (currentPersona) { showLoadingMessage(currentPersona); }
+          // Show loading message when widget starts initializing
+          if (currentPersona) { showLoadingMessage(currentPersona); }
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
@@ -281,6 +283,9 @@
         
         // Add to UI layer
         document.querySelector('.ui').appendChild(loadingDiv);
+        // Fallback auto-hide after ~2s so it never lingers
+        window.clearTimeout(window.__loadingHideT);
+        window.__loadingHideT = window.setTimeout(hideLoadingMessage, 2000);
       }
       
       function hideLoadingMessage() {

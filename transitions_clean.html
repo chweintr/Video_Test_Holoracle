@@ -25,6 +25,10 @@
         --select-gap: 24.0cqh;   /* raised slightly per feedback */
         --title-size: 3.8cqh;    /* larger title */
         --subtitle-size: 1.3cqh; /* smaller to leave room for strap lines */
+        /* Feather control (applies to all personas; can be tuned per persona in JS) */
+        --mask-inner: 72%;  /* solid center radius */
+        --mask-outer: 95%;  /* start of full fade-out */
+        --overlay-opacity: 0.6; /* default overlay strength */
       }
 
       .stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100svh*16/9));aspect-ratio:16/9;overflow:hidden;}
@@ -38,9 +42,9 @@
       .widget-layer { position: absolute; inset: 0; }
       /* Soft feather to hide any hard widget edges without blocking clicks */
       .widget-layer {
-        /* Stronger crop + wider feather */
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 95%);
-        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 95%);
+        /* Stronger crop + wider feather (persona-tunable via CSS vars) */
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
+        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
         border-radius: 0;
         overflow: hidden;
       }
@@ -144,7 +148,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14-1 + overlays + stronger feather');
+      console.log('Transitions build v2025-08-14-1 + overlays + persona feathers + trigger images');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -207,6 +211,17 @@
         }
         
         currentPersona = personaId;
+        // Persona-specific feather/overlay tuning (can be adjusted)
+        const featherByPersona = {
+          bigfoot: { inner: '70%', outer: '96%', overlay: 0.65 },
+          indiana: { inner: '70%', outer: '96%', overlay: 0.65 },
+          vonnegut: { inner: '70%', outer: '96%', overlay: 0.65 },
+          larrybird: { inner: '70%', outer: '96%', overlay: 0.65 },
+        };
+        const f = featherByPersona[personaId] || featherByPersona.bigfoot;
+        document.documentElement.style.setProperty('--mask-inner', f.inner);
+        document.documentElement.style.setProperty('--mask-outer', f.outer);
+        document.documentElement.style.setProperty('--overlay-opacity', String(f.overlay));
         const persona = CONFIG.personas[personaId];
         
         if (!persona) {
@@ -264,7 +279,24 @@
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
-        // Rollback: let Simli show its default launcher/flow
+        // Rollback preserved: let Simli show its default launcher/flow
+        // Persona-specific trigger images/text (safe; no suppression)
+        const TRIGGER_IMAGES = {
+          bigfoot: 'assets/particles-to-bigfoot.gif',
+          indiana: 'assets/particles-to-indiana.gif',
+          vonnegut: 'assets/particles-to-vonnegut.gif',
+          larrybird: 'assets/particles-to-larry.gif'
+        };
+        const TRIGGER_TEXT = {
+          bigfoot: 'Summon Bigfoot',
+          indiana: 'Summon Oracle',
+          vonnegut: 'Summon Kurt',
+          larrybird: 'Summon Larry'
+        };
+        const img = TRIGGER_IMAGES[currentPersona];
+        const txt = TRIGGER_TEXT[currentPersona];
+        if (img) w.setAttribute('customimage', img);
+        if (txt) w.setAttribute('customtext', txt);
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';
@@ -296,9 +328,9 @@
         if (!el) return;
         const map = {
           bigfoot: { src: 'assets/particles-to-bigfoot.gif', durationMs: 1800 },
-          indiana: null,
-          vonnegut: null,
-          larrybird: null
+          indiana: { src: 'assets/particles-to-indiana.gif', durationMs: 1800 },
+          vonnegut: { src: 'assets/particles-to-vonnegut.gif', durationMs: 1800 },
+          larrybird: { src: 'assets/particles-to-larry.gif', durationMs: 1800 }
         };
         const cfg = map[personaId];
         if (!cfg) { el.style.display = 'none'; el.src = ''; return; }

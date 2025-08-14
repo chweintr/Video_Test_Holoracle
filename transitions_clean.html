@@ -242,11 +242,7 @@
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
-        w.setAttribute('hidetrigger', 'true');
-        w.setAttribute('autostart', 'true');
-        // Hide any fallback launcher visuals just in case autostart shows them
-        w.setAttribute('customtext', ' ');
-        w.setAttribute('customimage', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+        // Rollback: let Simli show its default launcher/flow
         // Ensure absolute glue regardless of component defaults
         w.style.position = 'absolute';
         w.style.inset = '0';

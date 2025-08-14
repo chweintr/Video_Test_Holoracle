@@ -26,8 +26,8 @@
         --title-size: 3.8cqh;    /* larger title */
         --subtitle-size: 1.3cqh; /* smaller to leave room for strap lines */
         /* Feather control (applies to all personas; can be tuned per persona in JS) */
-        --mask-inner: 80%;  /* solid center radius (safe) */
-        --mask-outer: 97%;  /* start of full fade-out (gentle feather) */
+        --mask-inner: 85%;  /* solid center radius (feather all around border) */
+        --mask-outer: 99%;  /* start of full fade-out (thin, uniform feather) */
         --overlay-opacity: 0.6; /* default overlay strength */
       }
 
@@ -316,9 +316,17 @@
 
       // Overlay setup: enable loop only when it can play
       (function(){
-        // Overlays OFF for now: ensure loop stays hidden
+        // Re-enable overlay loop: only show when playable, screen blend, non-blocking
         const loopVid = document.getElementById('overlayLoop');
-        if (loopVid) { loopVid.style.display = 'none'; }
+        if (!loopVid) return;
+        const show = () => {
+          loopVid.style.display = 'block';
+          loopVid.style.mixBlendMode = 'screen';
+          try { loopVid.play().catch(()=>{}); } catch(_){}
+        };
+        const hide = () => { loopVid.style.display = 'none'; };
+        loopVid.addEventListener('canplay', show, { once: true });
+        loopVid.addEventListener('error', hide, { once: true });
       })();
 
       // Persona transition overlay (GIF/MP4/WebM). Pointer-events: none so it never blocks Simli.

@@ -38,9 +38,10 @@
       .widget-layer { position: absolute; inset: 0; }
       /* Soft feather to hide any hard widget edges without blocking clicks */
       .widget-layer {
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 84%, rgba(0,0,0,0) 100%);
-        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 84%, rgba(0,0,0,0) 100%);
-        border-radius: 1.0cqh;
+        /* Stronger crop + wider feather */
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 95%);
+        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 95%);
+        border-radius: 0;
         overflow: hidden;
       }
       
@@ -102,7 +103,7 @@
       .select{position:absolute;left:var(--mount-center-x);top:calc(var(--target-top) + var(--target-size)*(16/9) + var(--select-gap));transform:translateX(-50%);font-size:2.0cqh;color:rgba(0,255,255,.85);text-shadow:0 0 10px rgba(0,255,255,.85)}
 
       /* Visual overlays inside mount */
-      .overlay-loop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:6;display:none;mix-blend-mode:screen}
+      .overlay-loop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:6;display:block;mix-blend-mode:screen;opacity:var(--overlay-opacity,0.6)}
       .overlay-transition{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:7;display:none}
     </style>
   </head>
@@ -118,6 +119,7 @@
         <!-- Optional alpha overlay (loop). WebM with alpha preferred; MP4 fallback is visually additive only. -->
         <video class="overlay-loop" id="overlayLoop" autoplay loop muted playsinline>
           <source src="assets/cube_generation.webm?v=1" type="video/webm" />
+          <source src="assets/Cube_generation.mov?v=1" type="video/quicktime" />
         </video>
         <!-- Persona transition (one-shot) shown on persona select, then hides -->
         <video class="overlay-transition" id="overlayTransition" muted playsinline></video>
@@ -142,7 +144,7 @@
     <script src="https://app.simli.com/simli-widget/index.js" async></script>
     
      <script>
-      console.log('Transitions build v2025-08-14-1 + overlays');
+      console.log('Transitions build v2025-08-14-1 + overlays + stronger feather');
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {

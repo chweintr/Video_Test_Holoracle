@@ -257,6 +257,34 @@
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup
+        
+        // Center and scale widget to cover mount
+        centerAndCoverWidget(host, w);
+      }
+      
+      // Center and upscale widget to fill mount
+      function centerAndCoverWidget(host, widget) {
+        widget.style.position = 'absolute';
+        widget.style.left = '50%';
+        widget.style.top = '50%';
+        widget.style.transformOrigin = 'center';
+
+        const fit = () => {
+          const r = host.getBoundingClientRect();
+          // Fallback native size if offsetWidth/Height are 0 initially
+          const baseW = widget.offsetWidth || 720;
+          const baseH = widget.offsetHeight || 720;
+          const s = Math.max(r.width / baseW, r.height / baseH);
+          widget.style.transform = `translate(-50%, -50%) scale(${s})`;
+          console.log(`[Transitions] Widget scaled: ${s.toFixed(2)}x (${baseW}x${baseH} -> ${r.width}x${r.height})`);
+        };
+
+        // First pass + on resize
+        requestAnimationFrame(fit);
+        new ResizeObserver(fit).observe(host);
+        // Retry shortly in case native size appears later
+        setTimeout(fit, 300);
+        setTimeout(fit, 800);
       }
       
       // Loading message functions

@@ -225,8 +225,12 @@
         const baseVideo2 = document.querySelector('video.base');
         if (baseVideo2) baseVideo2.style.display = 'block';
         
-        // Show thinking message when starting to summon widget
-        showLoadingMessage(personaId);
+        // Show thinking message after 3s delay (simulates post-summon timing)
+        setTimeout(() => {
+          if (currentPersona === personaId) { // Only show if still same persona
+            showLoadingMessage(personaId);
+          }
+        }, 3000);
         
         try {
           // Get token from backend
@@ -374,9 +378,9 @@
         
         // Add to UI layer
         document.querySelector('.ui').appendChild(loadingDiv);
-        // Extended auto-hide after ~6s so it stays through widget loading
+        // Extended auto-hide after ~8s so messages linger longer on screen
         window.clearTimeout(window.__loadingHideT);
-        window.__loadingHideT = window.setTimeout(hideLoadingMessage, 6000);
+        window.__loadingHideT = window.setTimeout(hideLoadingMessage, 8000);
       }
       
       function hideLoadingMessage() {

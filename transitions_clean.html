@@ -26,8 +26,8 @@
         --title-size: 3.8cqh;    /* larger title */
         --subtitle-size: 1.3cqh; /* smaller to leave room for strap lines */
         /* Feather control (applies to all personas; can be tuned per persona in JS) */
-        --mask-inner: 85%;  /* solid center radius (feather all around border) */
-        --mask-outer: 99%;  /* start of full fade-out (thin, uniform feather) */
+        --mask-inner: 70%;  /* smaller solid center for more aggressive feathering */
+        --mask-outer: 95%;  /* earlier fade-out for floating circle effect */
         --overlay-opacity: 0.6; /* default overlay strength */
       }
 
@@ -447,10 +447,10 @@
       // Dismissal message functions
       function showDismissalMessage(personaId) {
         const messages = {
-          bigfoot: ['Bigfoot fades back into the mist...', 'Bigfoot retreats to the forest...'],
-          indiana: ['The Oracle returns to the ether...', 'Hoosier wisdom disperses...'],
-          vonnegut: ['Kurt dissolves into stardust...', 'Kurt vanishes with a knowing smile...'],
-          larrybird: ['Larry heads back to the locker room...', 'Larry takes his final bow...']
+          bigfoot: ['Bigfoot is shambling back to his conspiracy cave...', 'Bigfoot is returning to photoshop...'],
+          indiana: ['The Oracle is dissolving into corn dust...', 'The Oracle is returning to the limestone...'],
+          vonnegut: ['Kurt is becoming unstuck in time...', 'Kurt is ice-nining out of here...'],
+          larrybird: ['Larry is heading to the bench...', 'Larry is taking his talents to French Lick...']
         };
         
         const personaMessages = messages[personaId] || ['The presence fades away...', 'Returning to the void...'];

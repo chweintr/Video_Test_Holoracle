@@ -19,6 +19,9 @@
         --target-top: 24.86%;
         --target-size: 24.53%;
         --mount-center-x: calc(var(--target-left) + var(--target-size)/2);
+        /* Feathering variables for floating head effect */
+        --mask-inner: 70%;  /* smaller solid center for more feathering */
+        --mask-outer: 95%;  /* more aggressive fade-out */
         --title-up: 14.91cqh;    /* 161/1080 */
         --subtitle-up: 9.35cqh;  /* 101/1080 */
         --buttons-gap: 16.0cqh;  /* lower buttons more */
@@ -40,6 +43,34 @@
       
       /* Widget layer - GPT-5's AGGRESSIVE solution for perfect sizing */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
+      
+      /* FIXED: Force Simli widget to fill mount exactly like base video */
+      .widget-layer simli-widget {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;   /* kill rounded frame */
+        overflow: hidden !important;    /* crop anything inside */
+        transform: translate(-50%, -50%) scale(1.04);
+        left: 50%; top: 50%;
+        transform-origin: center;
+      }
+
+      /* Try to reach inner surfaces (if Simli exposes parts) */
+      simli-widget::part(container),
+      simli-widget::part(surface),
+      simli-widget::part(video),
+      simli-widget::part(canvas) {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+      }
+      
       /* Soft feather to hide any hard widget edges without blocking clicks */
       .widget-layer {
         /* Re-enable gentle feather mask */
@@ -47,6 +78,16 @@
         mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
         border-radius: 0;
         overflow: hidden;
+      }
+      
+      /* Center the trigger button in the mount */
+      simli-widget::part(trigger),
+      .widget-layer simli-widget button {
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 10 !important;
       }
       
       /* Outer web component - force exact fill and remove rounded corners */
@@ -173,7 +214,7 @@
           <button data-persona="vonnegut">Kurt Vonnegut</button>
           <button data-persona="larrybird">Larry Bird</button>
         </div>
-        <div class="select" id="selectText">Select Oracle</div>
+        <div class="select" id="selectText">Select an Oracle</div>
         <button id="endSession" style="display:none; position:absolute; top:20px; right:20px; background:red; color:white; padding:10px; cursor:pointer; z-index:10; pointer-events:auto;">End Session</button>
       </div>
     </div>
@@ -327,35 +368,13 @@
           vonnegut: 'Summon Kurt',
           larrybird: 'Summon Larry'
         };
-        // Test: minimal Bigfoot trigger customization (no listeners, just attributes)
-        if (currentPersona === 'bigfoot') {
-          w.setAttribute('customtext', 'Summon');
-          console.log('[Debug] Applied minimal Bigfoot customization');
-        }
-        // FIXED: Widget should fill the responsive mount (24.53% width, aspect-ratio 1:1)
-        w.style.cssText = `
-          position: absolute !important;
-          inset: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          border: none !important;
-          border-radius: 0 !important;
-          overflow: hidden !important;
-          background: transparent !important;
-        `;
-        
-        console.log(`[Widget Sizing] Applied responsive fill to mount (24.53% of stage)`);
-        // Persona-specific gentle scale to hide gutters for non-square renderers
-        try {
-          if (currentPersona === 'vonnegut' || currentPersona === 'larrybird') {
-            w.style.transform = 'scale(1.06)';
-            w.style.transformOrigin = '50% 50%';
-          } else {
-            w.style.transform = '';
-          }
-        } catch(_){}
+        // Set distant_light.mp4 as custom trigger image for all widgets
+        w.setAttribute('customimage', 'assets/distant_light.mp4');
+        w.setAttribute('customtext', 'Begin Communion');
+        console.log('[Trigger] Applied distant_light.mp4 trigger image');
+        // Widget sizing now handled by CSS - no inline styles needed
+        console.log(`[Widget Sizing] CSS handles fill + scale(1.04) for perfect coverage`);
+        // Scale handled by CSS globally now (scale(1.04) with proper centering)
         
           // Don't show duplicate loading message here; already shown in switchPersona
         

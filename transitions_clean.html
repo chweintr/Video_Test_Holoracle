@@ -49,17 +49,7 @@
         overflow: hidden;
       }
       
-      /* Outer web component - force exact fill and remove rounded corners */
-      .widget-layer simli-widget {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: transparent !important;
-        border: 0 !important;
-        border-radius: 0 !important;   /* kill rounded frame */
-        overflow: hidden !important;    /* crop anything inside */
-      }
+      /* Remove duplicate CSS - handled by JS */
       
       /* Try to reach inner surfaces (if Simli exposes parts) */
       simli-widget::part(container),
@@ -332,10 +322,11 @@
           w.setAttribute('customtext', 'Summon');
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
-        // FIXED: Widget should fill the responsive mount (24.53% width, aspect-ratio 1:1)
+        // FIXED: Center widget and scale to fill mount properly
         w.style.cssText = `
           position: absolute !important;
-          inset: 0 !important;
+          left: 50% !important;
+          top: 50% !important;
           width: 100% !important;
           height: 100% !important;
           margin: 0 !important;
@@ -344,18 +335,11 @@
           border-radius: 0 !important;
           overflow: hidden !important;
           background: transparent !important;
+          transform: translate(-50%, -50%) scale(0.95) !important;
+          transform-origin: center !important;
         `;
         
-        console.log(`[Widget Sizing] Applied responsive fill to mount (24.53% of stage)`);
-        // Persona-specific gentle scale to hide gutters for non-square renderers
-        try {
-          if (currentPersona === 'vonnegut' || currentPersona === 'larrybird') {
-            w.style.transform = 'scale(1.06)';
-            w.style.transformOrigin = '50% 50%';
-          } else {
-            w.style.transform = '';
-          }
-        } catch(_){}
+        console.log(`[Widget Sizing] Centered widget with scale(0.95) to fit mount fully`);
         
           // Don't show duplicate loading message here; already shown in switchPersona
         

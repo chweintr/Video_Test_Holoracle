@@ -37,16 +37,24 @@
 
       .mount{position:absolute;left:var(--target-left);top:var(--target-top);width:var(--target-size);aspect-ratio:1/1;outline:2px solid rgba(0,200,255,.7);overflow:hidden;z-index:2}
       .mount video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
-      
-      /* Widget layer - GPT-5's AGGRESSIVE solution for perfect sizing */
+
+      /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
-      /* Soft feather to hide any hard widget edges without blocking clicks */
-      .widget-layer {
-        /* Re-enable gentle feather mask */
+
+      /* New: dedicated host that the Simli widget will fill 100% */
+      .widget-host { position:absolute; inset:0; overflow:hidden; border-radius:0; }
+
+      /* Feather only the widget host so other overlays are unaffected */
+      .widget-host {
         -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
         mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
-        border-radius: 0;
-        overflow: hidden;
+      }
+
+      /* Ensure Simli web component fills the host without internal rounding */
+      .widget-host simli-widget { 
+        position:absolute !important; inset:0 !important;
+        width:100% !important; height:100% !important;
+        background:transparent !important; border:0 !important; border-radius:0 !important; overflow:hidden !important;
       }
       
       /* Remove duplicate CSS - handled by JS */
@@ -143,7 +151,9 @@
         <video class="base" autoplay loop muted playsinline>
           <source src="assets/social_okdonut_Thick_volumetric_smoke_plumes_and_millions_of_micro_p_4123dadd-5c4c-412d-aa5a-49b4e72a7929_2.mp4" type="video/mp4" />
         </video>
-        <div class="widget-layer" id="widgetLayer"></div>
+        <div class="widget-layer" id="widgetLayer">
+          <div class="widget-host" id="widgetHost"></div>
+        </div>
         <!-- Optional alpha overlay (loop). WebM with alpha preferred; MP4 fallback is visually additive only. -->
         <video class="overlay-loop" id="overlayLoop" autoplay loop muted playsinline>
           <source src="assets/cube_generation.webm?v=1" type="video/webm" />
@@ -297,7 +307,7 @@
       
       // GPT-5's minimal attach function with event listeners
       function attachSimliWidget({ token, agentId, faceId }) {
-        const host = document.getElementById('widgetLayer');
+        const host = document.getElementById('widgetHost');
         host.innerHTML = ''; // remove prior
         const w = document.createElement('simli-widget');
         w.setAttribute('token', token);
@@ -467,8 +477,8 @@
           showDismissalMessage(currentPersona);
         }
         
-        // Clear widget layer (GPT-5's approach)
-        const host = document.getElementById('widgetLayer');
+        // Clear widget host
+        const host = document.getElementById('widgetHost');
         if (host) {
           host.innerHTML = '';
         }

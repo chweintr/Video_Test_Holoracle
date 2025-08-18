@@ -25,9 +25,9 @@
         --select-gap: 24.0cqh;   /* raised slightly per feedback */
         --title-size: 3.8cqh;    /* larger title */
         --subtitle-size: 1.3cqh; /* smaller to leave room for strap lines */
-        /* Feather control - aggressive floating effect for ALL personas */
-        --mask-inner: 60%;  /* smaller solid center for strong floating circle effect */
-        --mask-outer: 85%;  /* earlier fade-out for soft floating edges */
+        /* Feather control - reliable floating effect for ALL personas */
+        --mask-inner: 85%;  /* solid center radius */
+        --mask-outer: 99%;  /* gentle fade-out for floating effect */
         --overlay-opacity: 0.6; /* default overlay strength */
       }
 
@@ -41,17 +41,24 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* Widget host - just container, no feathering */
-      .widget-host{ position:absolute; inset:0; overflow:hidden; border-radius:0; }
+      /* Widget host - dedicated wrapper with feathering mask */
+      .widget-host{
+        position: absolute; inset: 0; overflow: hidden; border-radius: 0;
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
+                mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
+      }
 
-      /* Apply feathering directly to the Simli widget for floating effect */
+      /* Force widget to fill host exactly - no styling of internals */
       .widget-host simli-widget{
-        position:absolute !important; inset:0 !important;
-        width:100% !important; height:100% !important;
-        background:transparent !important; border:0 !important; border-radius:0 !important; overflow:hidden !important;
-        transform:none !important;                      /* critical: no translate/scale */
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer)) !important;
-                mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer)) !important;
+        position: absolute !important; inset: 0 !important;
+        width: 100% !important; height: 100% !important;
+        background: transparent !important; border: 0 !important; border-radius: 0 !important; overflow: hidden !important;
+        transform: none !important; /* critical */
+      }
+
+      /* If tiny gutters remain, opt-in with class and tune scale */
+      .widget-host.simli-scale simli-widget{
+        transform: scale(1.02) !important; transform-origin: 50% 50%;
       }
 
       /* If gutters persist, opt-in: add class 'simli-scale' on host and tune 1.02–1.04 */

@@ -41,29 +41,22 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* New: dedicated host that the Simli widget will fill 100% */
-      .widget-host { position:absolute; inset:0; overflow:hidden; border-radius:0; }
-
-      /* Feather only the widget host so other overlays are unaffected */
-      .widget-host {
+      /* GPT-5: Widget host fills mount and gets feathering */
+      .widget-host{ position:absolute; inset:0; overflow:hidden; border-radius:0;
         -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
-        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
+                mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
       }
 
-      /* GPT-5: Force Simli widget to fill host exactly - NO transforms */
-      .widget-host simli-widget { 
+      /* Force widget to behave like base video - absolute fill */
+      .widget-host simli-widget{
         position:absolute !important; inset:0 !important;
         width:100% !important; height:100% !important;
         background:transparent !important; border:0 !important; border-radius:0 !important; overflow:hidden !important;
-        transform:none !important;  /* CRITICAL: no translate/scale */
+        transform:none !important;                      /* critical: no translate/scale */
       }
-      
-      /* Optional gutter scaling if needed */
-      :root { --simli-scale: 1; }  /* adjust to 1.02 if gutters appear */
-      .widget-host.simli-scale simli-widget { 
-        transform:scale(var(--simli-scale)) !important; 
-        transform-origin:50% 50%; 
-      }
+
+      /* If gutters persist, opt-in: add class 'simli-scale' on host and tune 1.02–1.04 */
+      .widget-host.simli-scale simli-widget{ transform:scale(var(--simli-scale,1.02)) !important; transform-origin:50% 50% }
       
       /* Remove duplicate CSS - handled by JS */
       
@@ -313,51 +306,41 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
-      // GPT-5's minimal attach function with event listeners
+      // GPT-5: Defensive widget mounting with re-assertion
       function attachSimliWidget({ token, agentId, faceId }) {
         const host = document.getElementById('widgetHost');
         host.innerHTML = ''; // remove prior
+        
         const w = document.createElement('simli-widget');
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
-        // Rollback preserved: let Simli show its default launcher/flow
-        // Persona-specific trigger images/text (safe; no suppression)
-        const TRIGGER_IMAGES = {
-          bigfoot: 'assets/particles-to-bigfoot.gif',
-          indiana: 'assets/particles-to-indiana.gif',
-          vonnegut: 'assets/particles-to-vonnegut.gif',
-          larrybird: 'assets/particles-to-larry.gif'
-        };
-        const TRIGGER_TEXT = {
-          bigfoot: 'Summon Bigfoot',
-          indiana: 'Summon Oracle',
-          vonnegut: 'Summon Kurt',
-          larrybird: 'Summon Larry'
-        };
+        
         // Test: minimal Bigfoot trigger customization (no listeners, just attributes)
         if (currentPersona === 'bigfoot') {
           w.setAttribute('customtext', 'Summon');
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
-        // GPT-5: Force fill with NO translate/scale
-        w.style.position = 'absolute';
-        w.style.inset = '0';
-        w.style.width = '100%';
-        w.style.height = '100%';
-        w.style.background = 'transparent';
-        w.style.border = '0';
-        w.style.borderRadius = '0';
-        w.style.overflow = 'hidden';
-        w.style.transform = 'none';  // CRITICAL: no transforms
         
-        // Force override if Simli injects fixed px later
-        w.style.setProperty('width','100%','important');
-        w.style.setProperty('height','100%','important');
+        // Force fill and prevent internal px sizing from sticking
+        const forceFill = () => {
+          w.style.setProperty('position','absolute','important');
+          w.style.setProperty('inset','0','important');
+          w.style.setProperty('width','100%','important');
+          w.style.setProperty('height','100%','important');
+          w.style.setProperty('background','transparent','important');
+          w.style.setProperty('border','0','important');
+          w.style.setProperty('border-radius','0','important');
+          w.style.setProperty('overflow','hidden','important');
+          w.style.setProperty('transform','none','important');
+        };
+        forceFill();
+        // Re-assert after Simli initializes (it may rewrite its style)
+        requestAnimationFrame(forceFill); 
+        setTimeout(forceFill, 300); 
+        setTimeout(forceFill, 1200);
         
-        console.log(`[Widget Sizing] Applied 100% fill with no transforms`);
-        
-          // Don't show duplicate loading message here; already shown in switchPersona
+        console.log(`[Widget Sizing] Applied defensive 100% fill with re-assertion`);
         
         host.appendChild(w);
         currentWidget = w; // Store reference for cleanup

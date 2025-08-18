@@ -41,28 +41,31 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* Widget host - dedicated wrapper with feathering mask */
+      /* Widget host - just a container, NO feathering here */
       .widget-host{
         position: absolute; inset: 0; overflow: hidden; border-radius: 0;
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
-                mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
       }
 
-      /* Force widget to fill host exactly - no styling of internals */
-      .widget-host simli-widget{
-        position: absolute !important; inset: 0 !important;
-        width: 100% !important; height: 100% !important;
-        background: transparent !important; border: 0 !important; border-radius: 0 !important; overflow: hidden !important;
-        transform: none !important; /* critical */
+      /* GPT-5: ONE RULE - Force widget to fill and apply feather DIRECTLY on widget */
+      .widget-layer simli-widget {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        overflow: hidden !important;
+        transform: none !important;                 /* critical: NO translate/scale */
+        -webkit-mask-image: radial-gradient(circle at 50% 50%,
+          rgba(0,0,0,1) var(--mask-inner),
+          rgba(0,0,0,0) var(--mask-outer)) !important;
+        mask-image: radial-gradient(circle at 50% 50%,
+          rgba(0,0,0,1) var(--mask-inner),
+          rgba(0,0,0,0) var(--mask-outer)) !important;
       }
 
-      /* If tiny gutters remain, opt-in with class and tune scale */
-      .widget-host.simli-scale simli-widget{
-        transform: scale(1.02) !important; transform-origin: 50% 50%;
-      }
-
-      /* If gutters persist, opt-in: add class 'simli-scale' on host and tune 1.02–1.04 */
-      .widget-host.simli-scale simli-widget{ transform:scale(var(--simli-scale,1.02)) !important; transform-origin:50% 50% }
+      /* REMOVED: No scaling - conflicts with transform: none */
       
       /* Remove duplicate CSS - handled by JS */
       
@@ -280,9 +283,9 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
-      // GPT-5: Defensive widget mounting with re-assertion
+      // GPT-5: Clean widget mounting - append to widgetHost or widgetLayer
       function attachSimliWidget({ token, agentId, faceId }) {
-        const host = document.getElementById('widgetHost');
+        const host = document.getElementById('widgetHost') || document.getElementById('widgetLayer');
         host.innerHTML = ''; // remove prior
         
         const w = document.createElement('simli-widget');
@@ -296,27 +299,20 @@
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
         
-        // Force fill and prevent internal px sizing from sticking
-        const forceFill = () => {
-          w.style.setProperty('position','absolute','important');
-          w.style.setProperty('inset','0','important');
-          w.style.setProperty('width','100%','important');
-          w.style.setProperty('height','100%','important');
-          w.style.setProperty('background','transparent','important');
-          w.style.setProperty('border','0','important');
-          w.style.setProperty('border-radius','0','important');
-          w.style.setProperty('overflow','hidden','important');
-          w.style.setProperty('transform','none','important');
+        // Defensive re-assert (Simli sometimes writes its own inline styles)
+        const force = () => {
+          w.style.setProperty('position', 'absolute', 'important');
+          w.style.setProperty('inset', '0', 'important');
+          w.style.setProperty('width', '100%', 'important');
+          w.style.setProperty('height', '100%', 'important');
+          w.style.setProperty('transform', 'none', 'important');
         };
-        forceFill();
-        // Re-assert after Simli initializes (it may rewrite its style)
-        requestAnimationFrame(forceFill); 
-        setTimeout(forceFill, 300); 
-        setTimeout(forceFill, 1200);
-        
-        console.log(`[Widget Sizing] Applied defensive 100% fill with re-assertion`);
-        
         host.appendChild(w);
+        requestAnimationFrame(force); 
+        setTimeout(force, 200); 
+        setTimeout(force, 1000);
+        
+        console.log(`[Widget Sizing] Clean mounting with defensive re-assertion`);
         currentWidget = w; // Store reference for cleanup
       }
 

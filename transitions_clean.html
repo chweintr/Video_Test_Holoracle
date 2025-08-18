@@ -50,11 +50,19 @@
         mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
       }
 
-      /* Ensure Simli web component fills the host without internal rounding */
+      /* GPT-5: Force Simli widget to fill host exactly - NO transforms */
       .widget-host simli-widget { 
         position:absolute !important; inset:0 !important;
         width:100% !important; height:100% !important;
         background:transparent !important; border:0 !important; border-radius:0 !important; overflow:hidden !important;
+        transform:none !important;  /* CRITICAL: no translate/scale */
+      }
+      
+      /* Optional gutter scaling if needed */
+      :root { --simli-scale: 1; }  /* adjust to 1.02 if gutters appear */
+      .widget-host.simli-scale simli-widget { 
+        transform:scale(var(--simli-scale)) !important; 
+        transform-origin:50% 50%; 
       }
       
       /* Remove duplicate CSS - handled by JS */
@@ -332,24 +340,22 @@
           w.setAttribute('customtext', 'Summon');
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
-        // FIXED: Center widget and scale to fill mount properly
-        w.style.cssText = `
-          position: absolute !important;
-          left: 50% !important;
-          top: 50% !important;
-          width: 100% !important;
-          height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          border: none !important;
-          border-radius: 0 !important;
-          overflow: hidden !important;
-          background: transparent !important;
-          transform: translate(-50%, -50%) scale(0.95) !important;
-          transform-origin: center !important;
-        `;
+        // GPT-5: Force fill with NO translate/scale
+        w.style.position = 'absolute';
+        w.style.inset = '0';
+        w.style.width = '100%';
+        w.style.height = '100%';
+        w.style.background = 'transparent';
+        w.style.border = '0';
+        w.style.borderRadius = '0';
+        w.style.overflow = 'hidden';
+        w.style.transform = 'none';  // CRITICAL: no transforms
         
-        console.log(`[Widget Sizing] Centered widget with scale(0.95) to fit mount fully`);
+        // Force override if Simli injects fixed px later
+        w.style.setProperty('width','100%','important');
+        w.style.setProperty('height','100%','important');
+        
+        console.log(`[Widget Sizing] Applied 100% fill with no transforms`);
         
           // Don't show duplicate loading message here; already shown in switchPersona
         

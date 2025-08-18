@@ -41,18 +41,17 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* GPT-5: Widget host fills mount and gets feathering */
-      .widget-host{ position:absolute; inset:0; overflow:hidden; border-radius:0;
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
-                mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer));
-      }
+      /* Widget host - just container, no feathering */
+      .widget-host{ position:absolute; inset:0; overflow:hidden; border-radius:0; }
 
-      /* Force widget to behave like base video - absolute fill */
+      /* Apply feathering directly to the Simli widget for floating effect */
       .widget-host simli-widget{
         position:absolute !important; inset:0 !important;
         width:100% !important; height:100% !important;
         background:transparent !important; border:0 !important; border-radius:0 !important; overflow:hidden !important;
         transform:none !important;                      /* critical: no translate/scale */
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer)) !important;
+                mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) var(--mask-inner), rgba(0,0,0,0) var(--mask-outer)) !important;
       }
 
       /* If gutters persist, opt-in: add class 'simli-scale' on host and tune 1.02–1.04 */

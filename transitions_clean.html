@@ -72,39 +72,7 @@
         border-radius: 0 !important;
       }
       
-      /* Attempt to style Bigfoot trigger specifically */
-      .widget-layer simli-widget[position="center"] {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      
-      /* Force trigger image to fill mount area, button below */
-      .widget-layer simli-widget[position="center"] img {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        z-index: 1 !important;
-      }
-      
-      /* Position button below mount */
-      .widget-layer simli-widget[position="center"] button,
-      .widget-layer simli-widget[position="center"] [role="button"] {
-        position: absolute !important;
-        bottom: -60px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 2 !important;
-        background: rgba(0,0,0,0.8) !important;
-        color: #00ffff !important;
-        border: 2px solid #00ffff !important;
-        padding: 10px 20px !important;
-        border-radius: 6px !important;
-      }
+      /* REMOVED: Conflicting CSS that was forcing display:flex and overriding absolute positioning */
       
       /* Removed transform scaling to avoid interfering with widget init */
       

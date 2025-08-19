@@ -48,14 +48,15 @@
 
       /* GPT-5 Option A: Launcher outside mount, then snap into mount after start */
       
-      /* Starting state: launcher positioned below the square */
+      /* Starting state: launcher positioned below the square - ONLY position, no size constraints */
       #simliLauncher {
-        position: absolute; 
-        z-index: 20; /* above bg/UI */
+        position: absolute !important; 
+        z-index: 20 !important; /* above bg/UI */
         /* place just below the square */
-        left: var(--mount-center-x);
-        top: calc(var(--target-top) + var(--target-size) + 4cqh);
-        transform: translateX(-50%);
+        left: var(--mount-center-x) !important;
+        top: calc(var(--target-top) + var(--target-size) + 4cqh) !important;
+        transform: translateX(-50%) !important;
+        /* NO width/height constraints - let Simli render naturally */
       }
       
       /* Running state: fill the square + feather */
@@ -308,6 +309,7 @@
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
+        // REMOVED autostart - we WANT the trigger button
         
         // Test: minimal Bigfoot trigger customization
         if (currentPersona === 'bigfoot') {
@@ -315,11 +317,8 @@
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
         
-        // Ensure no forced sizing at start - let Simli render naturally
-        w.style.position = 'absolute';
-        w.style.width = '';
-        w.style.height = '';
-        w.style.transform = 'none';
+        // CRITICAL: Let Simli render at natural size with NO constraints
+        // Don't even set position - let it be completely natural
         
         stage.appendChild(w);
         console.log('[Widget] Created launcher outside mount - trigger should be visible');

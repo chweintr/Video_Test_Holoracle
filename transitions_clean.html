@@ -309,15 +309,28 @@
           left: var(--target-left) !important;
           top: var(--target-top) !important;
           z-index: 10 !important;
-          background: transparent !important;
-          border: none !important;
+          background: rgba(0,255,255,0.1) !important;
+          border: 1px dashed rgba(0,255,255,0.3) !important;
+          border-radius: 8px !important;
+          padding: 10px !important;
         `;
         
         stage.appendChild(w);
         console.log('[Stage 1] Widget positioned over mount - trigger should be visible');
         
-        // STAGE 2: Detect activation and apply constraints
+        // STAGE 2: Detect activation and apply constraints (ONLY after user clicks trigger)
+        let userHasClicked = false;
+        
+        // Listen for clicks on the widget to know when user activates it
+        w.addEventListener('click', () => {
+          userHasClicked = true;
+          console.log('[Stage 1.5] User clicked trigger - waiting for activation');
+        });
+        
         const detectActivation = setInterval(() => {
+          // Only check for video AFTER user has clicked the trigger
+          if (!userHasClicked) return;
+          
           // Look for video element (indicates widget is active)
           const hasVideo = w.shadowRoot?.querySelector('video') || w.querySelector('video');
           if (hasVideo) {

@@ -71,22 +71,15 @@
         min-height: 100% !important;
       }
       
-      /* Force internal containers to fill too */
-      .widget-layer simli-widget > * {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-      }
+      /* Removed generic > * selector that was conflicting with button centering */
       
-      /* AGGRESSIVE BUTTON CENTERING - try everything */
+      /* BUTTON CENTERING ONLY - not video */
       simli-widget button,
       simli-widget [role="button"],
       simli-widget .trigger,
       simli-widget .simli-trigger,
       simli-widget .start-button,
-      simli-widget div[onclick],
-      simli-widget > * {
+      simli-widget div[onclick] {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
@@ -95,6 +88,16 @@
         margin: 0 !important;
         bottom: auto !important;
         right: auto !important;
+      }
+      
+      /* VIDEO FILLING - use object-fit contain for square mount */
+      simli-widget video {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;  /* Per your note: contain in square mount */
+        object-position: center !important;
       }
       
       /* Try Shadow DOM if exposed */

@@ -301,6 +301,7 @@
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
+        w.setAttribute('autostart', 'true'); // BYPASS missing trigger
         
         // Test: minimal Bigfoot trigger customization (no listeners, just attributes)
         if (currentPersona === 'bigfoot') {

@@ -564,12 +564,21 @@
               console.log('[Feather] Adding feather class to widget only');
               w.classList.add('feathered');
               
+              // DEBUG: Check size BEFORE forcing 100%
+              console.log('[Size] BEFORE forcing - Size:', w.offsetWidth + 'x' + w.offsetHeight);
+              console.log('[Size] BEFORE forcing - Parent size:', w.parentElement.offsetWidth + 'x' + w.parentElement.offsetHeight);
+              
               // Also ensure size stays at 100%
               console.log('[Size] Ensuring widget stays at 100% size');
               w.style.width = '100%';
               w.style.height = '100%';
               w.style.minWidth = '100%';
               w.style.minHeight = '100%';
+              
+              // DEBUG: Check size AFTER forcing 100%
+              setTimeout(() => {
+                console.log('[Size] AFTER forcing - Size:', w.offsetWidth + 'x' + w.offsetHeight);
+              }, 100);
             }, 500);
             
             // FORCE VIDEO TO START - fix the 0x0 video issue

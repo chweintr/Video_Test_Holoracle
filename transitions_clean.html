@@ -365,16 +365,12 @@
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // SIMPLE POSITIONING: Just use the target variables directly
+        // MINIMAL POSITIONING: Just position, no size constraints that might trigger resize
         w.style.cssText = `
           position: absolute !important;
           left: var(--target-left) !important;
           top: var(--target-top) !important;
           z-index: 9999 !important;
-          background: transparent !important;
-          border: none !important;
-          max-width: 400px !important;
-          max-height: 400px !important;
         `;
         
         stage.appendChild(w);

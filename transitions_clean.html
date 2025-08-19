@@ -365,12 +365,11 @@
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // CENTER IN MOUNT AREA: Use calc to center widget in the target box
+        // SIMPLE POSITIONING: Just use the target variables directly
         w.style.cssText = `
           position: absolute !important;
-          left: calc(var(--target-left) + var(--target-size)/2) !important;
-          top: calc(var(--target-top) + var(--target-size)/2) !important;
-          transform: translate(-50%, -50%) !important;
+          left: var(--target-left) !important;
+          top: var(--target-top) !important;
           z-index: 9999 !important;
           background: transparent !important;
           border: none !important;

@@ -66,6 +66,22 @@
         width: 100% !important;
         height: 100% !important;
         object-fit: cover !important;  /* KEY: same as particles video */
+        
+        /* CENTER THE TRIGGER BUTTON */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      /* Try to position trigger button in center */
+      .widget-layer simli-widget button,
+      .widget-layer simli-widget [role="button"],
+      .widget-layer simli-widget .trigger {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 100 !important;
       }
       
       /* FEATHERING ON WIDGET LAYER - not individual widget */

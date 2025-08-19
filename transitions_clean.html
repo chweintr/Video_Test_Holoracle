@@ -59,16 +59,24 @@
         overflow: hidden !important;
       }
       
-      /* FILL MOUNT LIKE PARTICLES VIDEO - but don't shrink after activation */
+      /* FILL MOUNT - force widget to fill properly after trigger click */
       .widget-layer simli-widget {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        transform: none !important;  /* Remove any centering transforms */
+        min-width: 100% !important;
+        min-height: 100% !important;
+      }
+      
+      /* Force internal containers to fill too */
+      .widget-layer simli-widget > * {
         position: absolute !important;
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        min-width: 100% !important;
-        min-height: 100% !important;
-        /* Remove object-fit as it might cause shrinking */
-        /* Remove flexbox as it might interfere with video */
       }
       
       /* AGGRESSIVE BUTTON CENTERING - try everything */

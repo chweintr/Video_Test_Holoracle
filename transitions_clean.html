@@ -41,13 +41,20 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* CRITICAL FIX: Let Simli render naturally with no constraints */
-      .widget-layer simli-widget {
-        position: static !important;
-        inset: auto !important;
-        width: auto !important;
-        height: auto !important;
-        transform: none !important;
+      /* GENTLE THEME STYLING for trigger button - avoid breaking connection */
+      simli-widget {
+        filter: hue-rotate(180deg) saturate(0.8) !important;
+      }
+      
+      /* Try to reach trigger button if Simli exposes it */
+      simli-widget::part(button),
+      simli-widget button {
+        background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(77,227,255,0.4)) !important;
+        border: 2px solid rgba(0,255,255,0.6) !important;
+        color: #00ffff !important;
+        font-family: 'Courier New', monospace !important;
+        text-transform: uppercase !important;
+        border-radius: 6px !important;
       }
 
       /* Overlays must never block the trigger */
@@ -355,14 +362,15 @@
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
         
-        // EMERGENCY: Completely natural rendering - no custom attributes at all
-        // Remove all potential trigger-breaking attributes
-        w.removeAttribute('customtext');
+        // GENTLE CUSTOMIZATION: Only safe attributes that don't break connection
+        w.setAttribute('customtext', 'Summon');  // Change button text to "Summon"
+        
+        // Remove potentially problematic attributes
         w.removeAttribute('customimage');
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // BACK TO BASICS: Position like the working red border version (but clean)
+        // GENTLE STYLING: Position and basic theming without breaking connection
         w.style.cssText = `
           position: fixed !important;
           top: 50% !important;
@@ -371,6 +379,9 @@
           z-index: 9999 !important;
           background: transparent !important;
           border: none !important;
+          border-radius: 8px !important;
+          max-width: 400px !important;
+          max-height: 400px !important;
         `;
         
         stage.appendChild(w);

@@ -303,35 +303,60 @@
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // Position widget prominently in center to see if ANY button exists
+        // STAGE 1: Position widget naturally over mount area (no size constraints)
         w.style.cssText = `
-          position: fixed !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          z-index: 9999 !important;
-          background: rgba(255,0,0,0.9) !important;
-          border: 5px solid #ffff00 !important;
-          border-radius: 12px !important;
-          padding: 20px !important;
-          min-width: 300px !important;
-          min-height: 200px !important;
+          position: absolute !important;
+          left: var(--target-left) !important;
+          top: var(--target-top) !important;
+          z-index: 10 !important;
+          background: transparent !important;
+          border: none !important;
         `;
         
         stage.appendChild(w);
-        console.log('[EMERGENCY] Widget created prominently - checking for ANY content');
+        console.log('[Stage 1] Widget positioned over mount - trigger should be visible');
         
-        // Debug: Check what's actually inside the widget after a moment
-        setTimeout(() => {
-          console.log('[DEBUG] Widget innerHTML:', w.innerHTML);
-          console.log('[DEBUG] Widget shadowRoot:', w.shadowRoot);
-          console.log('[DEBUG] Widget attributes:', Array.from(w.attributes).map(a => `${a.name}="${a.value}"`));
-          
-          // Check if there's any content at all
-          if (w.shadowRoot) {
-            console.log('[DEBUG] Shadow DOM content:', w.shadowRoot.innerHTML);
+        // STAGE 2: Detect activation and apply constraints
+        const detectActivation = setInterval(() => {
+          // Look for video element (indicates widget is active)
+          const hasVideo = w.shadowRoot?.querySelector('video') || w.querySelector('video');
+          if (hasVideo) {
+            clearInterval(detectActivation);
+            console.log('[Stage 2] Widget activated - applying mount constraints');
+            
+            // Move to mount and apply exact sizing
+            const mount = document.querySelector('.mount');
+            mount.appendChild(w);
+            
+            // Apply mount constraints
+            w.style.cssText = `
+              position: absolute !important;
+              inset: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+              background: transparent !important;
+              border: none !important;
+              object-fit: cover !important;
+            `;
+            
+            // Enable feathering
+            w.style.setProperty('-webkit-mask-image', 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%)', 'important');
+            w.style.setProperty('mask-image', 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%)', 'important');
+            
+            // Show overlay video
+            const overlayLoop = document.getElementById('overlayLoop');
+            if (overlayLoop) {
+              overlayLoop.style.display = 'block';
+              overlayLoop.style.opacity = '0.6';
+              try { overlayLoop.play().catch(() => {}); } catch(e) {}
+            }
+            
+            console.log('[Stage 2] Widget fully integrated with effects');
           }
-        }, 3000);
+        }, 200);
+        
+        // Clear detection after 30 seconds
+        setTimeout(() => clearInterval(detectActivation), 30000);
         
         currentWidget = w; // Store reference for cleanup
       }

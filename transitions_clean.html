@@ -41,36 +41,29 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* Widget host - just a container, NO feathering here */
-      .widget-host{
-        position: absolute; inset: 0; overflow: hidden; border-radius: 0;
+      /* CRITICAL FIX: Ensure Simli trigger is always visible and clickable */
+      .widget-layer simli-widget {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        overflow: visible !important;  /* CRITICAL: visible so trigger shows */
+        transform: none !important;    /* CRITICAL: no transforms that could hide trigger */
       }
 
-      /* GPT-5 Option A: Launcher outside mount, then snap into mount after start */
-      
-      /* Starting state: launcher positioned below the square - ONLY position, no size constraints */
-      #simliLauncher {
-        position: absolute !important; 
-        z-index: 20 !important; /* above bg/UI */
-        /* place just below the square */
-        left: var(--mount-center-x) !important;
-        top: calc(var(--target-top) + var(--target-size) + 4cqh) !important;
-        transform: translateX(-50%) !important;
-        /* NO width/height constraints - let Simli render naturally */
+      /* Overlays must never block the trigger */
+      .overlay-loop, .overlay-transition { 
+        pointer-events: none !important; 
       }
-      
-      /* Running state: fill the square + feather */
-      .mount .running {
-        position: absolute !important; 
-        inset: 0 !important;
-        width: 100% !important; 
-        height: 100% !important;
-        background: transparent !important; 
-        border: 0 !important; 
-        border-radius: 0 !important; 
+
+      /* Optional feathering - ONLY after widget is active */
+      .widget-layer.simli-active simli-widget {
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%);
+        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%);
         overflow: hidden !important;
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 95%);
-        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 95%);
       }
       
       /* Ensure overlays never block clicks */
@@ -294,22 +287,16 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
-      // GPT-5 Option A: Create launcher outside mount, snap into mount after activation
+      // SIMPLIFIED FIX: Keep widget in mount, ensure trigger is always visible
       function attachSimliWidget({ token, agentId, faceId }) {
-        const stage = document.querySelector('.stage');
-        const mount = document.querySelector('.mount');
+        const layer = document.getElementById('widgetLayer');
+        layer.classList.remove('simli-active'); // Start without feathering
+        layer.innerHTML = ''; // Clear any existing widget
         
-        // Remove any existing launcher
-        const existing = document.getElementById('simliLauncher');
-        if (existing) existing.remove();
-        
-        // 1) Create launcher outside the square at natural size
         const w = document.createElement('simli-widget');
-        w.id = 'simliLauncher';
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
-        // REMOVED autostart - we WANT the trigger button
         
         // Test: minimal Bigfoot trigger customization
         if (currentPersona === 'bigfoot') {
@@ -317,26 +304,39 @@
           console.log('[Debug] Applied minimal Bigfoot customization');
         }
         
-        // CRITICAL: Let Simli render at natural size with NO constraints
-        // Don't even set position - let it be completely natural
+        // CRITICAL: Remove any customimage that might break the trigger
+        w.removeAttribute('customimage');
         
-        stage.appendChild(w);
-        console.log('[Widget] Created launcher outside mount - trigger should be visible');
+        // Force styles to ensure trigger visibility
+        const ensureVisible = () => {
+          w.style.setProperty('position', 'absolute', 'important');
+          w.style.setProperty('inset', '0', 'important');
+          w.style.setProperty('width', '100%', 'important');
+          w.style.setProperty('height', '100%', 'important');
+          w.style.setProperty('background', 'transparent', 'important');
+          w.style.setProperty('border', '0', 'important');
+          w.style.setProperty('border-radius', '0', 'important');
+          w.style.setProperty('overflow', 'visible', 'important');
+          w.style.setProperty('transform', 'none', 'important');
+        };
         
-        // 2) Detect "active" state and then snap into the square
-        const activate = setInterval(() => {
+        ensureVisible();
+        requestAnimationFrame(ensureVisible);
+        setTimeout(ensureVisible, 250);
+        
+        layer.appendChild(w);
+        console.log('[Widget] Created in mount with trigger-safe styling');
+        
+        // Optional: Enable feathering after widget becomes active
+        const detectActive = setInterval(() => {
           const hasVideo = w.shadowRoot?.querySelector('video') || w.querySelector('video');
           if (hasVideo) {
-            clearInterval(activate);
-            console.log('[Widget] Video detected - moving into mount with feathering');
-            
-            // Move into mount and apply full styling
-            mount.appendChild(w);
-            w.classList.add('running');
-            w.id = ''; // Remove launcher ID
+            clearInterval(detectActive);
+            layer.classList.add('simli-active'); // Enable feathering
+            console.log('[Widget] Video active - feathering enabled');
           }
         }, 200);
-        setTimeout(() => clearInterval(activate), 30000);
+        setTimeout(() => clearInterval(detectActive), 30000);
         
         currentWidget = w; // Store reference for cleanup
       }
@@ -461,10 +461,11 @@
           showDismissalMessage(currentPersona);
         }
         
-        // Clear widget host
-        const host = document.getElementById('widgetHost');
-        if (host) {
-          host.innerHTML = '';
+        // Clear widget layer and remove active state
+        const layer = document.getElementById('widgetLayer');
+        if (layer) {
+          layer.classList.remove('simli-active');
+          layer.innerHTML = '';
         }
         currentWidget = null;
         

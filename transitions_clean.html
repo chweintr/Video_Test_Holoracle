@@ -214,6 +214,45 @@
       let currentWidget = null;
       let currentPersona = null;
       
+      // NUCLEAR DAILY CLEANUP - force destroy all Daily instances
+      async function forceCleanupDaily() {
+        console.log('[Nuclear] Starting Daily.co cleanup');
+        
+        // Destroy any Daily instances that might exist
+        if (window.Daily) {
+          try {
+            const instances = window.Daily.getCallInstances();
+            console.log(`[Nuclear] Found ${instances.length} Daily instances`);
+            for (const instance of instances) {
+              await instance.destroy();
+              console.log('[Nuclear] Destroyed Daily instance');
+            }
+          } catch (e) {
+            console.log('[Nuclear] Daily cleanup error:', e);
+          }
+        }
+        
+        // Remove all iframes that might be Daily-related
+        const iframes = document.querySelectorAll('iframe');
+        console.log(`[Nuclear] Checking ${iframes.length} iframes`);
+        iframes.forEach(iframe => {
+          if (iframe.src && (iframe.src.includes('daily.co') || iframe.src.includes('simli') || iframe.src.includes('daily'))) {
+            console.log('[Nuclear] Removing Daily/Simli iframe:', iframe.src);
+            iframe.remove();
+          }
+        });
+        
+        // Clear any Daily-related globals
+        ['DailyIframe', 'Daily', 'DailyCall', 'CallManager'].forEach(name => {
+          if (window[name]) {
+            console.log(`[Nuclear] Clearing global ${name}`);
+            delete window[name];
+          }
+        });
+        
+        console.log('[Nuclear] Daily.co cleanup complete');
+      }
+      
       // Wire up persona buttons with proper cleanup delay
       document.querySelectorAll('.persona button').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -240,11 +279,15 @@
       async function switchPersona(personaId) {
         console.log(`[Transitions] Switching to: ${personaId}`);
         
+        // CRITICAL: Nuclear Daily cleanup BEFORE any new widget
+        await forceCleanupDaily();
+        
+        // Wait for cleanup to complete  
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         // Hide select text
         document.getElementById('selectText').style.display = 'none';
         
-        // Remove overlay transition - using trigger image instead
-
         // End current session if active
         if (currentWidget) {
           await endCurrentSession();
@@ -572,10 +615,15 @@
       }
       
       async function endCurrentSession() {
+        console.log('[Cleanup] Starting enhanced session cleanup');
+        
         // Show dismissal message
         if (currentPersona) {
           showDismissalMessage(currentPersona);
         }
+        
+        // NUCLEAR: Force Daily cleanup first
+        await forceCleanupDaily();
         
         // PROPER WIDGET CLEANUP - prevent Daily iframe conflicts
         if (currentWidget) {

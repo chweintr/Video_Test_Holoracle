@@ -40,10 +40,6 @@
 
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
-      
-      /* FIX Z-INDEX LAYERS for overlay to appear on top */
-      .overlay-loop { z-index: 10 !important; }  /* Above widget layer */
-      .overlay-transition { z-index: 11 !important; }  /* Above loop */
 
       /* MINIMAL STYLING - just try to theme the button without breaking colors */
       simli-widget::part(button),
@@ -56,25 +52,17 @@
         border-radius: 6px !important;
       }
       
-      /* UNIVERSAL FEATHERING - apply to ALL widgets for floating head effect */
-      simli-widget {
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, 
-          rgba(0,0,0,1) 70%,    /* Solid center */
-          rgba(0,0,0,0) 100%    /* Fade to transparent */
-        ) !important;
-        mask-image: radial-gradient(circle at 50% 50%, 
-          rgba(0,0,0,1) 70%, 
-          rgba(0,0,0,0) 100%
-        ) !important;
+      /* FEATHERING CLASS - apply mask when widget is active */
+      simli-widget.feathered {
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 95%) !important;
+        mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 95%) !important;
+        overflow: hidden !important;
       }
       
-      /* PREVENT SHRINKING - force size to stay consistent, no transforms */
+      /* PREVENT SHRINKING - force size to stay consistent */
       simli-widget {
         min-width: 363px !important;
         min-height: 363px !important;
-        width: 363px !important;
-        height: 363px !important;
-        transform: none !important;  /* Prevent any scale transforms */
       }
 
       /* Overlays must never block the trigger */
@@ -460,7 +448,11 @@
               try { overlayLoop.play().catch(() => {}); } catch(e) {}
             }
             
-            // Feathering now applied universally via CSS - no need to add class
+            // TRY CAREFULLY: Apply feathering with CSS class instead of direct manipulation
+            setTimeout(() => {
+              console.log('[Feather] Attempting to add feather class');
+              w.classList.add('feathered');
+            }, 500);
             
             // FORCE VIDEO TO START - fix the 0x0 video issue
             setTimeout(() => {

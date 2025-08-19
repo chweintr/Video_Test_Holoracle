@@ -59,18 +59,16 @@
         overflow: hidden !important;
       }
       
-      /* FILL MOUNT LIKE PARTICLES VIDEO - 100% fill with object-fit */
+      /* FILL MOUNT LIKE PARTICLES VIDEO - but don't shrink after activation */
       .widget-layer simli-widget {
         position: absolute !important;
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        object-fit: cover !important;  /* KEY: same as particles video */
-        
-        /* CENTER THE TRIGGER BUTTON */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        min-width: 100% !important;
+        min-height: 100% !important;
+        /* Remove object-fit as it might cause shrinking */
+        /* Remove flexbox as it might interfere with video */
       }
       
       /* AGGRESSIVE BUTTON CENTERING - try everything */
@@ -101,8 +99,8 @@
         transform: translate(-50%, -50%) !important;
       }
       
-      /* FEATHERING ON WIDGET LAYER - not individual widget */
-      .widget-layer {
+      /* FEATHERING ON MOUNT - apply to the whole mount container */
+      .mount {
         -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
         mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
       }
@@ -521,10 +519,14 @@
               try { overlayLoop.play().catch(() => {}); } catch(e) {}
             }
             
-            // TRY CAREFULLY: Apply feathering with CSS class instead of direct manipulation
+            // Feathering now on mount - don't add class to widget
+            // Just ensure widget stays at 100% size
             setTimeout(() => {
-              console.log('[Feather] Attempting to add feather class');
-              w.classList.add('feathered');
+              console.log('[Size] Ensuring widget stays at 100% size');
+              w.style.width = '100%';
+              w.style.height = '100%';
+              w.style.minWidth = '100%';
+              w.style.minHeight = '100%';
             }, 500);
             
             // FORCE VIDEO TO START - fix the 0x0 video issue

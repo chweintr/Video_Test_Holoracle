@@ -214,43 +214,30 @@
       let currentWidget = null;
       let currentPersona = null;
       
-      // NUCLEAR DAILY CLEANUP - force destroy all Daily instances
+      // SMART DAILY CLEANUP - clean instances but preserve library for Simli
       async function forceCleanupDaily() {
-        console.log('[Nuclear] Starting Daily.co cleanup');
+        console.log('[Smart] Starting Daily.co cleanup');
         
-        // Destroy any Daily instances that might exist
-        if (window.Daily) {
-          try {
-            const instances = window.Daily.getCallInstances();
-            console.log(`[Nuclear] Found ${instances.length} Daily instances`);
-            for (const instance of instances) {
-              await instance.destroy();
-              console.log('[Nuclear] Destroyed Daily instance');
-            }
-          } catch (e) {
-            console.log('[Nuclear] Daily cleanup error:', e);
-          }
-        }
-        
-        // Remove all iframes that might be Daily-related
+        // Remove any leftover Daily iframes first
         const iframes = document.querySelectorAll('iframe');
-        console.log(`[Nuclear] Checking ${iframes.length} iframes`);
+        console.log(`[Smart] Checking ${iframes.length} iframes`);
         iframes.forEach(iframe => {
-          if (iframe.src && (iframe.src.includes('daily.co') || iframe.src.includes('simli') || iframe.src.includes('daily'))) {
-            console.log('[Nuclear] Removing Daily/Simli iframe:', iframe.src);
+          if (iframe.src && (iframe.src.includes('daily.co') || iframe.src.includes('daily') || iframe.className.includes('daily'))) {
+            console.log('[Smart] Removing Daily iframe:', iframe.src || iframe.className);
             iframe.remove();
           }
         });
         
-        // Clear any Daily-related globals
-        ['DailyIframe', 'Daily', 'DailyCall', 'CallManager'].forEach(name => {
+        // Clear call-related globals but KEEP Daily library for Simli
+        ['DailyIframe', 'DailyCall', 'CallManager'].forEach(name => {
           if (window[name]) {
-            console.log(`[Nuclear] Clearing global ${name}`);
+            console.log(`[Smart] Clearing ${name}`);
             delete window[name];
           }
         });
         
-        console.log('[Nuclear] Daily.co cleanup complete');
+        // DON'T delete window.Daily - Simli needs it!
+        console.log('[Smart] Daily.co cleanup complete (preserved Daily library)');
       }
       
       // Wire up persona buttons with proper cleanup delay
@@ -279,11 +266,11 @@
       async function switchPersona(personaId) {
         console.log(`[Transitions] Switching to: ${personaId}`);
         
-        // CRITICAL: Nuclear Daily cleanup BEFORE any new widget
+        // CRITICAL: Smart Daily cleanup BEFORE any new widget
         await forceCleanupDaily();
         
-        // Wait for cleanup to complete  
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Brief wait for cleanup to complete  
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Hide select text
         document.getElementById('selectText').style.display = 'none';

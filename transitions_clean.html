@@ -99,8 +99,16 @@
         transform: translate(-50%, -50%) !important;
       }
       
-      /* FEATHERING ON MOUNT - apply to the whole mount container */
-      .mount {
+      /* FEATHERING ONLY ON WIDGET - not mount or overlay */
+      .widget-layer simli-widget video,
+      .widget-layer simli-widget canvas,
+      simli-widget.active {
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
+        mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
+      }
+      
+      /* Alternative: Apply feathering AFTER activation */
+      simli-widget.feathered {
         -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
         mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
       }
@@ -519,9 +527,12 @@
               try { overlayLoop.play().catch(() => {}); } catch(e) {}
             }
             
-            // Feathering now on mount - don't add class to widget
-            // Just ensure widget stays at 100% size
+            // Apply feathering class to widget ONLY (not mount)
             setTimeout(() => {
+              console.log('[Feather] Adding feather class to widget only');
+              w.classList.add('feathered');
+              
+              // Also ensure size stays at 100%
               console.log('[Size] Ensuring widget stays at 100% size');
               w.style.width = '100%';
               w.style.height = '100%';

@@ -393,36 +393,37 @@
           const hasVideo = w.shadowRoot?.querySelector('video') || w.querySelector('video');
           if (hasVideo) {
             clearInterval(detectActivation);
-            console.log('[Stage 2] Widget activated - applying mount constraints');
+            console.log('[Stage 2] Widget activated - SKIPPING manipulation to prevent call disconnect');
             
-            // Move to mount and apply exact sizing
-            const mount = document.querySelector('.mount');
-            mount.appendChild(w);
+            // COMMENTED OUT - THIS WAS KILLING THE CONNECTION!
+            // // Move to mount and apply exact sizing
+            // const mount = document.querySelector('.mount');
+            // mount.appendChild(w);
+            // 
+            // // Apply mount constraints
+            // w.style.cssText = `
+            //   position: absolute !important;
+            //   inset: 0 !important;
+            //   width: 100% !important;
+            //   height: 100% !important;
+            //   background: transparent !important;
+            //   border: none !important;
+            //   object-fit: cover !important;
+            // `;
+            // 
+            // // Enable feathering
+            // w.style.setProperty('-webkit-mask-image', 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%)', 'important');
+            // w.style.setProperty('mask-image', 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%)', 'important');
+            // 
+            // // Show overlay video
+            // const overlayLoop = document.getElementById('overlayLoop');
+            // if (overlayLoop) {
+            //   overlayLoop.style.display = 'block';
+            //   overlayLoop.style.opacity = '0.6';
+            //   try { overlayLoop.play().catch(() => {}); } catch(e) {}
+            // }
             
-            // Apply mount constraints
-            w.style.cssText = `
-              position: absolute !important;
-              inset: 0 !important;
-              width: 100% !important;
-              height: 100% !important;
-              background: transparent !important;
-              border: none !important;
-              object-fit: cover !important;
-            `;
-            
-            // Enable feathering
-            w.style.setProperty('-webkit-mask-image', 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%)', 'important');
-            w.style.setProperty('mask-image', 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 98%)', 'important');
-            
-            // Show overlay video
-            const overlayLoop = document.getElementById('overlayLoop');
-            if (overlayLoop) {
-              overlayLoop.style.display = 'block';
-              overlayLoop.style.opacity = '0.6';
-              try { overlayLoop.play().catch(() => {}); } catch(e) {}
-            }
-            
-            console.log('[Stage 2] Widget fully integrated with effects');
+            console.log('[Stage 2] Widget left untouched - connection should stay active');
             
             // FORCE VIDEO TO START - fix the 0x0 video issue
             setTimeout(() => {

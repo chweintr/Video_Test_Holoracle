@@ -370,12 +370,11 @@
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // GENTLE STYLING: Position and basic theming without breaking connection
+        // POSITION NEAR MOUNT: Use CSS variables to get close to the target area
         w.style.cssText = `
-          position: fixed !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
+          position: absolute !important;
+          left: var(--target-left) !important;
+          top: var(--target-top) !important;
           z-index: 9999 !important;
           background: transparent !important;
           border: none !important;

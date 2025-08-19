@@ -41,17 +41,13 @@
       /* Widget layer (positioning context) */
       .widget-layer { position: absolute; inset: 0; z-index: 5; }
 
-      /* CRITICAL FIX: Ensure Simli trigger is always visible and clickable */
+      /* CRITICAL FIX: Let Simli render naturally with no constraints */
       .widget-layer simli-widget {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: transparent !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        overflow: visible !important;  /* CRITICAL: visible so trigger shows */
-        transform: none !important;    /* CRITICAL: no transforms that could hide trigger */
+        position: static !important;
+        inset: auto !important;
+        width: auto !important;
+        height: auto !important;
+        transform: none !important;
       }
 
       /* Overlays must never block the trigger */

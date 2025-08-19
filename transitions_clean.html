@@ -55,8 +55,8 @@
         background: transparent !important;
         border: 0 !important;
         border-radius: 0 !important;
-        overflow: hidden !important;
-        transform: none !important;                 /* critical: NO translate/scale */
+        /* overflow: hidden !important; -- REMOVED: may be hiding trigger button */
+        /* transform: none !important; -- REMOVED: may be breaking trigger positioning */
         /* TEMPORARILY DISABLED to find trigger button
         -webkit-mask-image: radial-gradient(circle at 50% 50%,
           rgba(0,0,0,1) 70%,
@@ -306,7 +306,7 @@
           w.style.setProperty('inset', '0', 'important');
           w.style.setProperty('width', '100%', 'important');
           w.style.setProperty('height', '100%', 'important');
-          w.style.setProperty('transform', 'none', 'important');
+          // REMOVED: transform none - may be breaking trigger positioning
         };
         host.appendChild(w);
         requestAnimationFrame(force); 

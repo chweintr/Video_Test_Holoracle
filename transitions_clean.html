@@ -59,10 +59,19 @@
         overflow: hidden !important;
       }
       
-      /* PREVENT SHRINKING - force size to stay consistent */
-      simli-widget {
-        min-width: 363px !important;
-        min-height: 363px !important;
+      /* FILL MOUNT LIKE PARTICLES VIDEO - 100% fill with object-fit */
+      .widget-layer simli-widget {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;  /* KEY: same as particles video */
+      }
+      
+      /* FEATHERING ON WIDGET LAYER - not individual widget */
+      .widget-layer {
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
+        mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
       }
 
       /* Overlays must never block the trigger */
@@ -378,16 +387,13 @@
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // MINIMAL POSITIONING: Just position, no size constraints that might trigger resize
-        w.style.cssText = `
-          position: absolute !important;
-          left: var(--target-left) !important;
-          top: var(--target-top) !important;
-          z-index: 9999 !important;
-        `;
+        // NO INLINE STYLES - let CSS handle everything like particles video
+        // Widget will fill mount automatically via CSS rules
         
-        stage.appendChild(w);
-        console.log('[Stage 1] Widget positioned over mount - trigger should be visible');
+        // Add to widget layer IN MOUNT (not stage)
+        const widgetLayer = document.getElementById('widgetLayer');
+        widgetLayer.appendChild(w);
+        console.log('[Stage 1] Widget added to mount widget-layer - should fill like particles video');
         
         // STAGE 2: Detect activation and apply constraints (ONLY after user clicks trigger)
         let userHasClicked = false;

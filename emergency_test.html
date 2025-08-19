@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>EMERGENCY: Minimal Simli Test</title>
+    <style>
+        body { 
+            background: #000; 
+            color: #fff; 
+            padding: 50px;
+            font-family: monospace;
+        }
+        .test-container {
+            border: 2px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 EMERGENCY SIMLI TEST</h1>
+    <p>Testing if Simli widgets show triggers with ZERO constraints</p>
+    
+    <div class="test-container">
+        <h2>Test 1: Completely Natural</h2>
+        <div id="test1"></div>
+        <button onclick="createTest1()">Create Natural Widget</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test 2: Different Agent</h2>
+        <div id="test2"></div>
+        <button onclick="createTest2()">Create Hoosier Widget</button>
+    </div>
+    
+    <script src="https://app.simli.com/simli-widget/index.js" async></script>
+    <script>
+        function createTest1() {
+            console.log('Creating Test 1 - Bigfoot agent');
+            const container = document.getElementById('test1');
+            container.innerHTML = '';
+            
+            const widget = document.createElement('simli-widget');
+            widget.setAttribute('token', 'temp-token-will-get-real-one');
+            widget.setAttribute('agentid', '4a857f92-feee-4b70-b973-290baec4d545');
+            
+            container.appendChild(widget);
+            console.log('Test 1 widget created - checking for trigger...');
+        }
+        
+        function createTest2() {
+            console.log('Creating Test 2 - Hoosier agent');
+            const container = document.getElementById('test2');
+            container.innerHTML = '';
+            
+            const widget = document.createElement('simli-widget');
+            widget.setAttribute('token', 'temp-token-will-get-real-one');
+            widget.setAttribute('agentid', 'cd04320d-987b-4e26-ba7f-ba4f75701ebd');
+            widget.setAttribute('faceid', 'd21a631c-28f8-4220-8da3-ea89bc4e5487');
+            
+            container.appendChild(widget);
+            console.log('Test 2 widget created - checking for trigger...');
+        }
+        
+        // Auto-create first test when script loads
+        window.addEventListener('load', () => {
+            setTimeout(createTest1, 1000);
+        });
+    </script>
+</body>
+</html>

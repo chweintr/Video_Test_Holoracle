@@ -459,6 +459,16 @@
                 z-index: 9999 !important;
                 margin: 0 !important;
               `;
+              
+              // CRITICAL: Hide button after click
+              button.addEventListener('click', () => {
+                console.log('[Button] Hiding shadow button after click');
+                setTimeout(() => {
+                  button.style.display = 'none';
+                  button.style.visibility = 'hidden';
+                  button.style.opacity = '0';
+                }, 100);
+              });
             }
           }
           
@@ -473,6 +483,17 @@
               transform: translate(-50%, -50%) !important;
               z-index: 9999 !important;
             `;
+            
+            // CRITICAL: Hide button after click
+            button.addEventListener('click', () => {
+              console.log('[Button] Hiding button after click');
+              setTimeout(() => {
+                button.style.display = 'none !important';
+                button.style.visibility = 'hidden !important';
+                button.style.opacity = '0 !important';
+                button.style.pointerEvents = 'none !important';
+              }, 100);
+            });
           }
         }, 1000);
         

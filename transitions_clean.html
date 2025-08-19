@@ -375,16 +375,15 @@
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         
-        // STAGE 1: Position widget naturally over mount area (no size constraints)
+        // BACK TO BASICS: Position like the working red border version (but clean)
         w.style.cssText = `
-          position: absolute !important;
-          left: var(--target-left) !important;
-          top: var(--target-top) !important;
-          z-index: 10 !important;
-          background: rgba(0,255,255,0.1) !important;
-          border: 1px dashed rgba(0,255,255,0.3) !important;
-          border-radius: 8px !important;
-          padding: 10px !important;
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          z-index: 9999 !important;
+          background: transparent !important;
+          border: none !important;
         `;
         
         stage.appendChild(w);

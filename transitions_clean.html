@@ -283,56 +283,40 @@
         console.log(`[Transitions] Widget created for ${personaId}`);
       }
       
-      // SIMPLIFIED FIX: Keep widget in mount, ensure trigger is always visible
+      // EMERGENCY FIX: Put widget OUTSIDE mount completely until it works
       function attachSimliWidget({ token, agentId, faceId }) {
-        const layer = document.getElementById('widgetLayer');
-        layer.classList.remove('simli-active'); // Start without feathering
-        layer.innerHTML = ''; // Clear any existing widget
+        const stage = document.querySelector('.stage');
+        
+        // Remove any existing widgets
+        const existing = stage.querySelector('simli-widget');
+        if (existing) existing.remove();
         
         const w = document.createElement('simli-widget');
         w.setAttribute('token', token);
         w.setAttribute('agentid', agentId);
         if (faceId) w.setAttribute('faceid', faceId);
         
-        // Test: minimal Bigfoot trigger customization
-        if (currentPersona === 'bigfoot') {
-          w.setAttribute('customtext', 'Summon');
-          console.log('[Debug] Applied minimal Bigfoot customization');
-        }
-        
-        // CRITICAL: Remove any customimage that might break the trigger
+        // EMERGENCY: Completely natural rendering - no custom attributes at all
+        // Remove all potential trigger-breaking attributes
+        w.removeAttribute('customtext');
         w.removeAttribute('customimage');
+        w.removeAttribute('hidetrigger');
+        w.removeAttribute('autostart');
         
-        // Force styles to ensure trigger visibility
-        const ensureVisible = () => {
-          w.style.setProperty('position', 'absolute', 'important');
-          w.style.setProperty('inset', '0', 'important');
-          w.style.setProperty('width', '100%', 'important');
-          w.style.setProperty('height', '100%', 'important');
-          w.style.setProperty('background', 'transparent', 'important');
-          w.style.setProperty('border', '0', 'important');
-          w.style.setProperty('border-radius', '0', 'important');
-          w.style.setProperty('overflow', 'visible', 'important');
-          w.style.setProperty('transform', 'none', 'important');
-        };
+        // Position widget in bottom-right corner where it can't interfere with design
+        w.style.cssText = `
+          position: fixed !important;
+          bottom: 20px !important;
+          right: 20px !important;
+          z-index: 999 !important;
+          background: rgba(0,0,0,0.8) !important;
+          border: 2px solid #00ff00 !important;
+          border-radius: 8px !important;
+          padding: 10px !important;
+        `;
         
-        ensureVisible();
-        requestAnimationFrame(ensureVisible);
-        setTimeout(ensureVisible, 250);
-        
-        layer.appendChild(w);
-        console.log('[Widget] Created in mount with trigger-safe styling');
-        
-        // Optional: Enable feathering after widget becomes active
-        const detectActive = setInterval(() => {
-          const hasVideo = w.shadowRoot?.querySelector('video') || w.querySelector('video');
-          if (hasVideo) {
-            clearInterval(detectActive);
-            layer.classList.add('simli-active'); // Enable feathering
-            console.log('[Widget] Video active - feathering enabled');
-          }
-        }, 200);
-        setTimeout(() => clearInterval(detectActive), 30000);
+        stage.appendChild(w);
+        console.log('[EMERGENCY] Widget created in corner - trigger should be visible');
         
         currentWidget = w; // Store reference for cleanup
       }

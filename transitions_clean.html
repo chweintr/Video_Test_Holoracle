@@ -162,16 +162,23 @@
      <script>
       console.log('Transitions build v2025-08-14: feather ON (85/99), overlay loop ON (essential), thinking messages ON');
       
-      // EMERGENCY: Clear any Daily.co conflicts that might break Simli
+      // EMERGENCY: Aggressively clear Daily.co conflicts that break Simli video
       try {
-        if (window.DailyIframe) {
-          console.log('[DEBUG] Found DailyIframe - attempting cleanup');
-          delete window.DailyIframe;
-        }
-        if (window.Daily) {
-          console.log('[DEBUG] Found Daily - attempting cleanup');
-          delete window.Daily;
-        }
+        // Clear all Daily-related globals
+        ['DailyIframe', 'Daily', 'DailyCall', 'CallManager'].forEach(name => {
+          if (window[name]) {
+            console.log(`[DEBUG] Clearing ${name}`);
+            delete window[name];
+          }
+        });
+        
+        // Clear any existing iframes that might be Daily
+        document.querySelectorAll('iframe').forEach(iframe => {
+          if (iframe.src && iframe.src.includes('daily')) {
+            console.log('[DEBUG] Removing Daily iframe');
+            iframe.remove();
+          }
+        });
       } catch (e) {
         console.log('[DEBUG] Daily cleanup error (probably fine):', e);
       }
@@ -380,7 +387,7 @@
             
             console.log('[Stage 2] Widget fully integrated with effects');
             
-            // DEBUG: Check if widget is actually working
+            // FORCE VIDEO TO START - fix the 0x0 video issue
             setTimeout(() => {
               console.log('[DEBUG] Widget final state:');
               console.log('- Position:', w.style.position);
@@ -392,6 +399,22 @@
                 const video = w.shadowRoot.querySelector('video');
                 console.log('- Video playing:', !video.paused);
                 console.log('- Video dimensions:', video.videoWidth + 'x' + video.videoHeight);
+                
+                // FORCE VIDEO START if it's not playing
+                if (video.paused || video.videoWidth === 0) {
+                  console.log('[FIX] Forcing video to start...');
+                  video.muted = true; // Ensure autoplay works
+                  video.play().then(() => {
+                    console.log('[FIX] Video started successfully');
+                  }).catch(e => {
+                    console.log('[FIX] Video start failed:', e);
+                    // Try clicking the widget again
+                    setTimeout(() => {
+                      w.click();
+                      console.log('[FIX] Clicked widget to retry activation');
+                    }, 1000);
+                  });
+                }
               }
             }, 2000);
           }

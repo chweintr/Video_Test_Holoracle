@@ -161,6 +161,20 @@
     
      <script>
       console.log('Transitions build v2025-08-14: feather ON (85/99), overlay loop ON (essential), thinking messages ON');
+      
+      // EMERGENCY: Clear any Daily.co conflicts that might break Simli
+      try {
+        if (window.DailyIframe) {
+          console.log('[DEBUG] Found DailyIframe - attempting cleanup');
+          delete window.DailyIframe;
+        }
+        if (window.Daily) {
+          console.log('[DEBUG] Found Daily - attempting cleanup');
+          delete window.Daily;
+        }
+      } catch (e) {
+        console.log('[DEBUG] Daily cleanup error (probably fine):', e);
+      }
       // Configuration from main_kiosk.html
       const CONFIG = {
         personas: {
@@ -365,6 +379,21 @@
             }
             
             console.log('[Stage 2] Widget fully integrated with effects');
+            
+            // DEBUG: Check if widget is actually working
+            setTimeout(() => {
+              console.log('[DEBUG] Widget final state:');
+              console.log('- Position:', w.style.position);
+              console.log('- Size:', w.offsetWidth + 'x' + w.offsetHeight);
+              console.log('- Video element:', w.shadowRoot?.querySelector('video') || 'not found');
+              console.log('- Parent:', w.parentElement?.className || 'none');
+              
+              if (w.shadowRoot?.querySelector('video')) {
+                const video = w.shadowRoot.querySelector('video');
+                console.log('- Video playing:', !video.paused);
+                console.log('- Video dimensions:', video.videoWidth + 'x' + video.videoHeight);
+              }
+            }, 2000);
           }
         }, 200);
         

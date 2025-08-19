@@ -73,15 +73,32 @@
         justify-content: center !important;
       }
       
-      /* Try to position trigger button in center */
-      .widget-layer simli-widget button,
-      .widget-layer simli-widget [role="button"],
-      .widget-layer simli-widget .trigger {
-        position: absolute !important;
+      /* AGGRESSIVE BUTTON CENTERING - try everything */
+      simli-widget button,
+      simli-widget [role="button"],
+      simli-widget .trigger,
+      simli-widget .simli-trigger,
+      simli-widget .start-button,
+      simli-widget div[onclick],
+      simli-widget > * {
+        position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
-        z-index: 100 !important;
+        z-index: 9999 !important;
+        margin: 0 !important;
+        bottom: auto !important;
+        right: auto !important;
+      }
+      
+      /* Try Shadow DOM if exposed */
+      simli-widget::part(trigger),
+      simli-widget::part(button),
+      simli-widget::part(start) {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
       }
       
       /* FEATHERING ON WIDGET LAYER - not individual widget */
@@ -410,6 +427,40 @@
         const widgetLayer = document.getElementById('widgetLayer');
         widgetLayer.appendChild(w);
         console.log('[Stage 1] Widget added to mount widget-layer - should fill like particles video');
+        
+        // FORCE BUTTON CENTERING after widget loads
+        setTimeout(() => {
+          console.log('[Button] Attempting to center trigger button');
+          // Try to reach into shadow DOM if possible
+          const shadowRoot = w.shadowRoot;
+          if (shadowRoot) {
+            const button = shadowRoot.querySelector('button, [role="button"], .trigger, div[onclick]');
+            if (button) {
+              console.log('[Button] Found button in shadow DOM, centering it');
+              button.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: 9999 !important;
+                margin: 0 !important;
+              `;
+            }
+          }
+          
+          // Also try regular DOM
+          const button = w.querySelector('button, [role="button"], .trigger');
+          if (button) {
+            console.log('[Button] Found button in regular DOM, centering it');
+            button.style.cssText = `
+              position: fixed !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 9999 !important;
+            `;
+          }
+        }, 1000);
         
         // STAGE 2: Detect activation and apply constraints (ONLY after user clicks trigger)
         let userHasClicked = false;

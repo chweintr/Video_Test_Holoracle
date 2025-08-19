@@ -214,11 +214,19 @@
       let currentWidget = null;
       let currentPersona = null;
       
-      // Wire up persona buttons
+      // Wire up persona buttons with proper cleanup delay
       document.querySelectorAll('.persona button').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const personaId = e.target.dataset.persona;
           if (!personaId) return;
+          
+          // CRITICAL: End current session first and wait for cleanup
+          if (currentWidget) {
+            console.log('[Switch] Cleaning up previous widget before switch');
+            await endCurrentSession();
+            // Wait for proper cleanup to prevent Daily conflicts
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          }
           
           await switchPersona(personaId);
         });
@@ -404,16 +412,39 @@
                 if (video.paused || video.videoWidth === 0) {
                   console.log('[FIX] Forcing video to start...');
                   video.muted = true; // Ensure autoplay works
-                  video.play().then(() => {
-                    console.log('[FIX] Video started successfully');
-                  }).catch(e => {
-                    console.log('[FIX] Video start failed:', e);
-                    // Try clicking the widget again
-                    setTimeout(() => {
-                      w.click();
-                      console.log('[FIX] Clicked widget to retry activation');
-                    }, 1000);
-                  });
+                  video.setAttribute('autoplay', '');
+                  video.setAttribute('playsinline', '');
+                  
+                  // Multiple attempts to start video
+                  const startVideo = async () => {
+                    try {
+                      await video.play();
+                      console.log('[FIX] Video started successfully');
+                      
+                      // Double-check after a moment
+                      setTimeout(() => {
+                        if (video.videoWidth > 0) {
+                          console.log('[FIX] Video confirmed playing:', video.videoWidth + 'x' + video.videoHeight);
+                        } else {
+                          console.log('[FIX] Video still 0x0, trying user interaction');
+                          // Add click handler to try again on user interaction
+                          w.addEventListener('click', () => {
+                            video.play().catch(e => console.log('[FIX] Click retry failed:', e));
+                          }, { once: true });
+                        }
+                      }, 1000);
+                      
+                    } catch (e) {
+                      console.log('[FIX] Video start failed:', e);
+                      // Try clicking the widget again
+                      setTimeout(() => {
+                        w.click();
+                        console.log('[FIX] Clicked widget to retry activation');
+                      }, 1000);
+                    }
+                  };
+                  
+                  startVideo();
                 }
               }
             }, 2000);
@@ -546,12 +577,39 @@
           showDismissalMessage(currentPersona);
         }
         
+        // PROPER WIDGET CLEANUP - prevent Daily iframe conflicts
+        if (currentWidget) {
+          try {
+            console.log('[Cleanup] Destroying widget properly');
+            // Try Simli's cleanup methods if they exist
+            if (typeof currentWidget.destroy === 'function') {
+              currentWidget.destroy();
+              console.log('[Cleanup] Called widget.destroy()');
+            }
+            if (typeof currentWidget.disconnect === 'function') {
+              currentWidget.disconnect();
+              console.log('[Cleanup] Called widget.disconnect()');
+            }
+            // Remove from DOM
+            if (currentWidget.parentNode) {
+              currentWidget.parentNode.removeChild(currentWidget);
+            }
+          } catch (e) {
+            console.log('[Cleanup] Widget cleanup error (continuing):', e);
+          }
+        }
+        
         // Clear widget layer and remove active state
         const layer = document.getElementById('widgetLayer');
         if (layer) {
           layer.classList.remove('simli-active');
           layer.innerHTML = '';
         }
+        
+        // Clear any widgets from stage too
+        const stage = document.querySelector('.stage');
+        stage.querySelectorAll('simli-widget').forEach(w => w.remove());
+        
         currentWidget = null;
         
         // Show base video again

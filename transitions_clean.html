@@ -110,16 +110,8 @@
         transform: translate(-50%, -50%) !important;
       }
       
-      /* FEATHERING ONLY ON WIDGET - not mount or overlay */
-      .widget-layer simli-widget video,
-      .widget-layer simli-widget canvas,
-      simli-widget.active {
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
-        mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
-      }
-      
-      /* Alternative: Apply feathering AFTER activation */
-      simli-widget.feathered {
+      /* SIMPLE FEATHERING - like it was working a few days ago */
+      simli-widget {
         -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
         mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 100%) !important;
       }
@@ -559,10 +551,8 @@
               try { overlayLoop.play().catch(() => {}); } catch(e) {}
             }
             
-            // Apply feathering class to widget ONLY (not mount)
+            // Feathering applied directly via CSS - no need for class
             setTimeout(() => {
-              console.log('[Feather] Adding feather class to widget only');
-              w.classList.add('feathered');
               
               // DEBUG: Check size BEFORE forcing 100%
               console.log('[Size] BEFORE forcing - Size:', w.offsetWidth + 'x' + w.offsetHeight);

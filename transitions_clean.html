@@ -424,15 +424,8 @@
         // GENTLE CUSTOMIZATION: Only safe attributes that don't break connection
         w.setAttribute('customtext', 'Summon');  // Change button text to "Summon"
         
-        // BIGFOOT SPECIAL: Use transition GIF as trigger image
-        if (personaId === 'bigfoot') {
-          w.setAttribute('customimage', 'assets/particles-to-bigfoot.gif');
-          console.log('[Bigfoot] Using transition GIF as trigger image');
-        } else {
-          w.removeAttribute('customimage');
-        }
-        
         // Remove potentially problematic attributes
+        w.removeAttribute('customimage');
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         

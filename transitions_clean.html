@@ -358,39 +358,9 @@
           return;
         }
 
-        // BIGFOOT SPECIAL: Use transition GIF instead of base particles
+        // Show base video to verify mount alignment before widget loads
         const baseVideo2 = document.querySelector('video.base');
-        if (personaId === 'bigfoot') {
-          console.log('[Bigfoot] Using transition GIF instead of base video');
-          if (baseVideo2) baseVideo2.style.display = 'none';
-          
-          // Create transition GIF element
-          const transitionGif = document.createElement('img');
-          transitionGif.src = 'assets/particles-to-bigfoot.gif';
-          transitionGif.style.cssText = `
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-          `;
-          transitionGif.id = 'bigfootTransition';
-          
-          // Add to mount
-          const mount = document.querySelector('.mount');
-          mount.appendChild(transitionGif);
-          
-          // Remove GIF after it plays once (~2 seconds)
-          setTimeout(() => {
-            if (transitionGif && transitionGif.parentNode) {
-              transitionGif.remove();
-            }
-          }, 2000);
-        } else {
-          // Other personas use base video
-          if (baseVideo2) baseVideo2.style.display = 'block';
-        }
+        if (baseVideo2) baseVideo2.style.display = 'block';
         
         // Show thinking message after 3s delay (simulates post-summon timing)
         setTimeout(() => {

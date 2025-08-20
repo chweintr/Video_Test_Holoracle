@@ -399,8 +399,8 @@
           baseVideo.style.display = 'none';
         }
         
-        // Use GPT-5's minimal attach function
-        attachSimliWidget({ token, agentId, faceId });
+        // Use GPT-5's minimal attach function - PASS personaId too
+        attachSimliWidget({ personaId, token, agentId, faceId });
         
         // Show end session button
         document.getElementById('endSession').style.display = 'block';
@@ -409,7 +409,7 @@
       }
       
       // EMERGENCY FIX: Put widget OUTSIDE mount completely until it works
-      function attachSimliWidget({ token, agentId, faceId }) {
+      function attachSimliWidget({ personaId, token, agentId, faceId }) {
         const stage = document.querySelector('.stage');
         
         // Remove any existing widgets
@@ -424,8 +424,22 @@
         // GENTLE CUSTOMIZATION: Only safe attributes that don't break connection
         w.setAttribute('customtext', 'Summon');  // Change button text to "Summon"
         
+        // TRANSITION GIFS: Use custom trigger images for each persona
+        if (personaId === 'bigfoot') {
+          w.setAttribute('customimage', 'assets/particles-to-bigfoot.gif');
+          console.log('[Trigger] Using particles-to-bigfoot.gif as trigger');
+        } else if (personaId === 'indiana') {
+          // w.setAttribute('customimage', 'assets/particles-to-indiana.gif');
+          // console.log('[Trigger] Using particles-to-indiana.gif as trigger');
+        } else if (personaId === 'vonnegut') {
+          // w.setAttribute('customimage', 'assets/particles-to-vonnegut.gif');
+          // console.log('[Trigger] Using particles-to-vonnegut.gif as trigger');
+        } else if (personaId === 'larrybird') {
+          // w.setAttribute('customimage', 'assets/particles-to-larry.gif');
+          // console.log('[Trigger] Using particles-to-larry.gif as trigger');
+        }
+        
         // Remove potentially problematic attributes
-        w.removeAttribute('customimage');
         w.removeAttribute('hidetrigger');
         w.removeAttribute('autostart');
         

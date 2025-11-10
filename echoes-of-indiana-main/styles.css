@@ -145,6 +145,51 @@ body {
 }
 
 /* ============================================
+   BORDER MASK - Anti-Cropping for LED Holograms
+   ============================================ */
+
+.border-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9; /* Above everything except UI */
+    opacity: 0;
+    transition: opacity 0.5s ease;
+
+    /* Irregular vignette effect - hides edge cropping */
+    background: radial-gradient(
+        ellipse 85% 85% at 50% 50%,
+        transparent 0%,
+        transparent 65%,
+        rgba(0,0,0,0.2) 75%,
+        rgba(0,0,0,0.5) 85%,
+        rgba(0,0,0,0.8) 92%,
+        #000000 100%
+    );
+}
+
+.border-mask.enabled {
+    opacity: 1;
+}
+
+/* Optional: More aggressive irregular edge */
+.border-mask.irregular {
+    background:
+        radial-gradient(
+            ellipse 90% 85% at 48% 52%, /* Offset slightly for irregularity */
+            transparent 0%,
+            transparent 60%,
+            rgba(0,0,0,0.3) 72%,
+            rgba(0,0,0,0.6) 83%,
+            rgba(0,0,0,0.9) 92%,
+            #000000 100%
+        );
+}
+
+/* ============================================
    PERSONA SELECTION INTERFACE
    ============================================ */
 

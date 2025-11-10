@@ -11,6 +11,7 @@ const Compositor = {
         simliMount: null,
         personaSelection: null,
         dismissBtn: null,
+        borderMask: null,
     },
 
     /**
@@ -25,6 +26,10 @@ const Compositor = {
         this.elements.simliMount = document.getElementById('simli-mount');
         this.elements.personaSelection = document.getElementById('persona-selection');
         this.elements.dismissBtn = document.getElementById('dismiss-btn');
+        this.elements.borderMask = document.getElementById('border-mask');
+
+        // Apply anti-cropping settings from config
+        this.applyAntiCroppingSettings();
 
         // Set up event listeners
         this.setupEventListeners();
@@ -348,6 +353,36 @@ const Compositor = {
     /* ============================================
        UTILITY
        ============================================ */
+
+    /**
+     * Apply anti-cropping settings from config
+     */
+    applyAntiCroppingSettings() {
+        const stage = document.getElementById('stage');
+
+        // Apply stage inset (prevents cropping at edges)
+        if (CONFIG.ui.stageInset && CONFIG.ui.stageInset !== '0%') {
+            const inset = CONFIG.ui.stageInset;
+            stage.style.width = `calc(100vw - ${inset} * 2)`;
+            stage.style.height = `calc(100vh - ${inset} * 2)`;
+            stage.style.margin = inset;
+            console.log(`[Compositor] Applied stage inset: ${inset}`);
+        }
+
+        // Enable border mask if configured
+        if (CONFIG.ui.enableBorderMask && this.elements.borderMask) {
+            this.elements.borderMask.classList.add('enabled');
+            this.elements.borderMask.style.opacity = CONFIG.ui.borderMaskOpacity;
+            console.log(`[Compositor] Border mask enabled (opacity: ${CONFIG.ui.borderMaskOpacity})`);
+        }
+
+        // Ensure videos use contain (never crop)
+        const videoLayers = document.querySelectorAll('.video-layer');
+        videoLayers.forEach(video => {
+            video.style.objectFit = 'contain';
+        });
+        console.log('[Compositor] Video layers set to object-fit: contain');
+    },
 
     /**
      * Emergency reset - force everything back to idle

@@ -141,6 +141,11 @@ const CONFIG = {
         dismissButtonText: 'Dismiss',
         summonButtonText: 'Summon',
         autoHideSelectionDelay: 500, // ms after persona selected
+
+        // Anti-Cropping Settings for LED Holograms
+        stageInset: '5%', // Inset stage from screen edges (prevents edge cropping)
+        enableBorderMask: false, // Enable irregular border to hide potential cropping
+        borderMaskOpacity: 0.8, // How dark the border mask should be (0-1)
     },
 
     // Audio Settings (if needed beyond Simli's built-in)

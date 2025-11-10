@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simli Test - No Compositing</title>
+
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" defer></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000; /* Pure black for LED hologram */
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Stage Container - PREVENTS CROPPING */
+        #stage {
+            position: relative;
+            width: 90vw; /* Inset from edges - prevents cropping */
+            height: 90vh;
+            max-width: 1200px;
+            max-height: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.1); /* Subtle guide border */
+        }
+
+        /* Simli Container - CENTERED WITH SAFE AREA */
+        #simli-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #simli-container.visible {
+            opacity: 1;
+        }
+
+        /* Simli Widget Itself */
+        #simli-container simli-widget {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        #simli-container simli-widget video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important; /* NEVER CROP - always contain */
+        }
+
+        /* Optional: Irregular Border Mask Overlay */
+        #border-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            display: none; /* Toggle to 'block' to enable */
+
+            /* Irregular vignette effect - hides edge cropping */
+            background: radial-gradient(
+                ellipse 85% 85% at 50% 50%,
+                transparent 0%,
+                transparent 70%,
+                rgba(0,0,0,0.3) 85%,
+                rgba(0,0,0,0.8) 95%,
+                #000000 100%
+            );
+        }
+
+        #border-mask.enabled {
+            display: block;
+        }
+
+        /* Loading/Status Messages */
+        #status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 20;
+            text-align: center;
+        }
+
+        #status.hidden {
+            display: none;
+        }
+
+        /* Load Button */
+        #load-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            background: rgba(0, 150, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+        #load-btn:hover {
+            background: rgba(0, 150, 255, 0.5);
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        #load-btn.hidden {
+            display: none;
+        }
+
+        /* Controls Panel */
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 20;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        #controls button {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        #controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* Debug Info */
+        #debug {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #00ff00;
+            z-index: 30;
+        }
+
+        #debug div {
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Stage with Safe Area -->
+    <div id="stage">
+
+        <!-- Simli Container (Centered, No Crop) -->
+        <div id="simli-container"></div>
+
+        <!-- Optional Border Mask (Irregular Edge) -->
+        <div id="border-mask"></div>
+
+        <!-- Load Button -->
+        <button id="load-btn">Load Simli (Mabel)</button>
+
+    </div>
+
+    <!-- Status Messages -->
+    <div id="status">
+        <div id="status-text">Ready to load...</div>
+    </div>
+
+    <!-- Controls -->
+    <div id="controls">
+        <button id="destroy-btn">Destroy Widget</button>
+        <label>
+            <input type="checkbox" id="mask-toggle">
+            Border Mask
+        </label>
+        <label>
+            Stage Size:
+            <select id="stage-size">
+                <option value="90">90% (Default)</option>
+                <option value="85">85% (More Safe Area)</option>
+                <option value="95">95% (Less Safe Area)</option>
+                <option value="100">100% (No Safe Area)</option>
+            </select>
+        </label>
+    </div>
+
+    <!-- Debug Panel -->
+    <div id="debug">
+        <div>Widget: <span id="debug-widget">not loaded</span></div>
+        <div>Stage Size: <span id="debug-size">90vw x 90vh</span></div>
+        <div>Container Size: <span id="debug-container">-</span></div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            // TODO: Add Mabel's Agent ID here
+            agentId: 'YOUR_MABEL_AGENT_ID_HERE',
+            faceId: null, // Optional
+            backendUrl: window.location.origin,
+            tokenEndpoint: '/simli-token'
+        };
+
+        // DOM Elements
+        const simliContainer = document.getElementById('simli-container');
+        const loadBtn = document.getElementById('load-btn');
+        const destroyBtn = document.getElementById('destroy-btn');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('status-text');
+        const maskToggle = document.getElementById('mask-toggle');
+        const borderMask = document.getElementById('border-mask');
+        const stageSizeSelect = document.getElementById('stage-size');
+        const stage = document.getElementById('stage');
+
+        let currentWidget = null;
+
+        // Update Status
+        function updateStatus(message) {
+            statusText.textContent = message;
+            console.log(`[Status] ${message}`);
+        }
+
+        // Update Debug Panel
+        function updateDebug(field, value) {
+            const el = document.getElementById(`debug-${field}`);
+            if (el) el.textContent = value;
+        }
+
+        // Get Simli Token
+        async function getToken() {
+            try {
+                updateStatus('Requesting token from backend...');
+                const url = `${CONFIG.backendUrl}${CONFIG.tokenEndpoint}?agentId=${CONFIG.agentId}`;
+                console.log(`[Token] Fetching from: ${url}`);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Token request failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('[Token] Received successfully');
+                return data.token;
+
+            } catch (error) {
+                console.error('[Token] Error:', error);
+                updateStatus(`Error: ${error.message}`);
+                return null;
+            }
+        }
+
+        // Create Simli Widget
+        async function createWidget() {
+            if (currentWidget) {
+                updateStatus('Widget already loaded');
+                return;
+            }
+
+            updateStatus('Loading Simli widget...');
+            loadBtn.classList.add('hidden');
+
+            try {
+                // Get token
+                const token = await getToken();
+                if (!token) {
+                    throw new Error('Failed to get token');
+                }
+
+                // Create widget element
+                const widget = document.createElement('simli-widget');
+                widget.setAttribute('token', token);
+                widget.setAttribute('agentid', CONFIG.agentId);
+
+                if (CONFIG.faceId) {
+                    widget.setAttribute('faceid', CONFIG.faceId);
+                }
+
+                widget.setAttribute('customtext', 'Summon Mabel');
+
+                // Attach to container
+                simliContainer.innerHTML = '';
+                simliContainer.appendChild(widget);
+                currentWidget = widget;
+
+                // Show container
+                simliContainer.classList.add('visible');
+
+                // Set up event listeners
+                widget.addEventListener('callstart', () => {
+                    console.log('[Simli] Call started');
+                    updateStatus('Call active - speak to Mabel!');
+                    updateDebug('widget', 'call-active');
+                });
+
+                widget.addEventListener('callend', () => {
+                    console.log('[Simli] Call ended');
+                    updateStatus('Call ended');
+                    updateDebug('widget', 'call-ended');
+                });
+
+                updateStatus('Widget loaded! Click "Summon Mabel" to start.');
+                updateDebug('widget', 'loaded');
+
+                // Update container size in debug
+                updateContainerSize();
+
+            } catch (error) {
+                console.error('[Widget] Error:', error);
+                updateStatus(`Error: ${error.message}`);
+                loadBtn.classList.remove('hidden');
+                updateDebug('widget', 'error');
+            }
+        }
+
+        // Destroy Widget
+        function destroyWidget() {
+            if (!currentWidget) {
+                updateStatus('No widget to destroy');
+                return;
+            }
+
+            console.log('[Widget] Destroying...');
+            simliContainer.classList.remove('visible');
+
+            setTimeout(() => {
+                simliContainer.innerHTML = '';
+                currentWidget = null;
+                updateStatus('Widget destroyed. Ready to reload.');
+                updateDebug('widget', 'not loaded');
+                loadBtn.classList.remove('hidden');
+            }, 500);
+        }
+
+        // Toggle Border Mask
+        function toggleMask(enabled) {
+            if (enabled) {
+                borderMask.classList.add('enabled');
+                console.log('[Mask] Border mask enabled');
+            } else {
+                borderMask.classList.remove('enabled');
+                console.log('[Mask] Border mask disabled');
+            }
+        }
+
+        // Change Stage Size
+        function changeStageSize(percentage) {
+            stage.style.width = `${percentage}vw`;
+            stage.style.height = `${percentage}vh`;
+            updateDebug('size', `${percentage}vw x ${percentage}vh`);
+            updateContainerSize();
+            console.log(`[Stage] Size changed to ${percentage}%`);
+        }
+
+        // Update Container Size Display
+        function updateContainerSize() {
+            const rect = simliContainer.getBoundingClientRect();
+            updateDebug('container', `${Math.round(rect.width)}px x ${Math.round(rect.height)}px`);
+        }
+
+        // Event Listeners
+        loadBtn.addEventListener('click', createWidget);
+        destroyBtn.addEventListener('click', destroyWidget);
+        maskToggle.addEventListener('change', (e) => toggleMask(e.target.checked));
+        stageSizeSelect.addEventListener('change', (e) => changeStageSize(e.target.value));
+
+        // Update container size on window resize
+        window.addEventListener('resize', updateContainerSize);
+
+        // Initial update
+        updateStatus('Ready! Click "Load Simli" to test.');
+        updateDebug('widget', 'not loaded');
+        updateDebug('size', '90vw x 90vh');
+    </script>
+
+</body>
+</html>

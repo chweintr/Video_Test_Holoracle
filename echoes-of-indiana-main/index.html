@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana - Trades District</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Simli Widget Script -->
+    <script src="https://app.simli.com/simli-widget/index.js" defer></script>
+</head>
+<body>
+    <!-- Main Hologram Stage -->
+    <div id="stage">
+
+        <!-- Layer 1: Background Video (Below Simli) -->
+        <div id="layer-below-container" class="video-layer-container">
+            <video id="layer-below" class="video-layer" playsinline loop muted></video>
+        </div>
+
+        <!-- Layer 2: Simli Avatar Mount (Middle) -->
+        <div id="simli-mount" class="simli-container"></div>
+
+        <!-- Layer 3: Overlay Video (Above Simli) -->
+        <div id="layer-above-container" class="video-layer-container">
+            <video id="layer-above" class="video-layer overlay" playsinline loop muted></video>
+        </div>
+
+        <!-- Processing/Status Messages -->
+        <div id="status-overlay" class="status-overlay hidden">
+            <div class="status-message"></div>
+        </div>
+
+        <!-- Persona Selection Interface -->
+        <div id="persona-selection" class="persona-selector">
+            <h1>Echoes of Indiana</h1>
+            <p class="subtitle">Trades District - Bloomington</p>
+
+            <div class="persona-grid">
+                <!-- Mabel - First persona -->
+                <button class="persona-btn" data-persona="mabel">
+                    <span class="persona-name">Mabel</span>
+                    <span class="persona-title">Showers Finishing Worker, 1917</span>
+                    <span class="persona-quote">"I sand till the grain lies flat"</span>
+                </button>
+
+                <!-- More personas to be added -->
+                <!-- Uncomment as you add them -->
+                <!--
+                <button class="persona-btn" data-persona="vonnegut">
+                    <span class="persona-name">Kurt Vonnegut</span>
+                    <span class="persona-title">Author</span>
+                </button>
+
+                <button class="persona-btn" data-persona="hoosier-oracle">
+                    <span class="persona-name">Hoosier Oracle</span>
+                    <span class="persona-title">Echoes Guide</span>
+                </button>
+                -->
+            </div>
+        </div>
+
+        <!-- Dismiss Button (shown during active session) -->
+        <button id="dismiss-btn" class="dismiss-btn hidden">Dismiss</button>
+
+    </div>
+
+    <!-- Debug Panel (remove for production) -->
+    <div id="debug-panel" class="debug-panel">
+        <div>State: <span id="debug-state">idle</span></div>
+        <div>Active Persona: <span id="debug-persona">none</span></div>
+        <div>Simli Status: <span id="debug-simli">not loaded</span></div>
+    </div>
+
+    <!-- Configuration & State Management -->
+    <script src="config.js"></script>
+    <script src="state-machine.js"></script>
+    <script src="simli-integration.js"></script>
+    <script src="compositor.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Echoes of Indiana - Git Ignore
+
+# Large video files (optional - remove if you want to track them)
+# assets/videos/*.mp4
+# assets/videos/*.webm
+
+# Audio files
+assets/audio/*.mp3
+assets/audio/*.wav
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment variables (if you add a local .env file)
+.env
+.env.local
+
+# Node modules (if you add npm later)
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp

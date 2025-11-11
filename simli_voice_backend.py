@@ -150,6 +150,10 @@ backend = SimliVoiceBackend()
 if os.path.exists("assets"):
     app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
+# Mount static files for Echoes of Indiana main project
+if os.path.exists("echoes-of-indiana-main"):
+    app.mount("/echoes-of-indiana-main", StaticFiles(directory="echoes-of-indiana-main", html=True), name="echoes-main")
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize systems on startup"""

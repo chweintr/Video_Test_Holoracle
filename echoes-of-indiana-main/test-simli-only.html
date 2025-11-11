@@ -61,12 +61,53 @@
         #simli-container simli-widget {
             width: 100% !important;
             height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+        }
+
+        /* Force center all Simli internal elements */
+        #simli-container simli-widget > * {
+            margin: 0 auto !important;
         }
 
         #simli-container simli-widget video {
             width: 100% !important;
             height: 100% !important;
             object-fit: contain !important; /* NEVER CROP - always contain */
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+        }
+
+        /* Style the Simli "Start" button */
+        #simli-container simli-widget button,
+        #simli-container simli-widget [role="button"] {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            padding: 20px 50px !important;
+            font-size: 1.8rem !important;
+            background: rgba(0, 200, 100, 0.3) !important;
+            border: 3px solid rgba(255, 255, 255, 0.6) !important;
+            border-radius: 15px !important;
+            color: #ffffff !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+            z-index: 100 !important;
+        }
+
+        #simli-container simli-widget button:hover,
+        #simli-container simli-widget [role="button"]:hover {
+            background: rgba(0, 200, 100, 0.5) !important;
+            transform: translate(-50%, -50%) scale(1.05) !important;
+            box-shadow: 0 0 30px rgba(0, 200, 100, 0.5) !important;
         }
 
         /* Optional: Irregular Border Mask Overlay */
@@ -343,9 +384,36 @@
                 });
 
                 widget.addEventListener('callend', () => {
-                    console.log('[Simli] Call ended');
-                    updateStatus('Call ended');
-                    updateDebug('widget', 'call-ended');
+                    console.log('[Simli] Call ended - session remains open');
+                    updateStatus('Call active - you can speak again!');
+                    updateDebug('widget', 'call-ready');
+
+                    // Note: Don't destroy the widget - keep it ready for next query
+                    // The mic should stay active for continuous conversation
+                });
+
+                // Monitor for any errors or disconnections
+                widget.addEventListener('error', (e) => {
+                    console.error('[Simli] Error:', e);
+                    updateStatus('Error occurred - try clicking "Summon Mabel" again');
+                    updateDebug('widget', 'error');
+                });
+
+                // Add mutation observer to watch for widget state changes
+                const observer = new MutationObserver((mutations) => {
+                    // Check if the widget is showing the "Summon" button again (inactive state)
+                    const button = widget.querySelector('button');
+                    if (button && button.textContent.includes('Summon')) {
+                        console.log('[Simli] Widget inactive - ready for new session');
+                        updateStatus('Ready - Click "Summon Mabel" to start');
+                        updateDebug('widget', 'inactive');
+                    }
+                });
+
+                observer.observe(widget, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true
                 });
 
                 updateStatus('Widget loaded! Click "Summon Mabel" to start.');

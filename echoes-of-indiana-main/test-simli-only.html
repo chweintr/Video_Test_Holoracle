@@ -57,7 +57,7 @@
             opacity: 1;
         }
 
-        /* Simli Widget Itself */
+        /* Simli Widget Itself - FIXED DIMENSIONS */
         #simli-container simli-widget {
             width: 100% !important;
             height: 100% !important;
@@ -72,6 +72,7 @@
             margin: 0 auto !important;
         }
 
+        /* STABLE VIDEO POSITION - NO JUMPING */
         #simli-container simli-widget video {
             width: 100% !important;
             height: 100% !important;
@@ -82,32 +83,42 @@
             transform: translate(-50%, -50%) !important;
         }
 
-        /* Style the Simli "Start" button */
+        /* HIDE SIMLI'S DEFAULT PARTICLE PRE-ANIMATION */
+        #simli-container simli-widget canvas,
+        #simli-container simli-widget [class*="particle"],
+        #simli-container simli-widget [class*="loading"] {
+            display: none !important; /* Hide particle dots */
+        }
+
+        /* MOVE SIMLI BUTTONS TO FAR RIGHT - OUTSIDE HOLOGRAM VIEW */
         #simli-container simli-widget button,
         #simli-container simli-widget [role="button"] {
-            position: absolute !important;
+            position: fixed !important; /* Fixed to viewport, not container */
             top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            padding: 20px 50px !important;
-            font-size: 1.8rem !important;
+            right: 20px !important; /* Far right edge */
+            left: auto !important;
+            transform: translateY(-50%) !important; /* Only vertical centering */
+            padding: 15px 30px !important;
+            font-size: 1.2rem !important;
             background: rgba(0, 200, 100, 0.3) !important;
-            border: 3px solid rgba(255, 255, 255, 0.6) !important;
-            border-radius: 15px !important;
+            border: 2px solid rgba(255, 255, 255, 0.6) !important;
+            border-radius: 10px !important;
             color: #ffffff !important;
             cursor: pointer !important;
             transition: all 0.3s ease !important;
             font-weight: bold !important;
             text-transform: uppercase !important;
-            letter-spacing: 2px !important;
-            z-index: 100 !important;
+            letter-spacing: 1px !important;
+            z-index: 1000 !important; /* Above everything */
+            min-width: 150px !important;
+            text-align: center !important;
         }
 
         #simli-container simli-widget button:hover,
         #simli-container simli-widget [role="button"]:hover {
             background: rgba(0, 200, 100, 0.5) !important;
-            transform: translate(-50%, -50%) scale(1.05) !important;
-            box-shadow: 0 0 30px rgba(0, 200, 100, 0.5) !important;
+            transform: translateY(-50%) scale(1.05) !important;
+            box-shadow: 0 0 20px rgba(0, 200, 100, 0.5) !important;
         }
 
         /* Optional: Irregular Border Mask Overlay */

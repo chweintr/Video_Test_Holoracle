@@ -1,0 +1,150 @@
+# ECHOES OF INDIANA - QUICK REFERENCE
+# Project Shortcuts & Important Locations
+
+=====================================
+LOCAL FILE PATHS
+=====================================
+
+Project Root:
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/
+
+Test Page (Simli Only):
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/test-simli-only.html
+
+Main Compositor (3-Layer System):
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/index.html
+
+Configuration File:
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/config.js
+
+Video Assets Folder (Drop videos here):
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/assets/videos/
+
+Backend File (FastAPI):
+/home/user/Video_Test_Holoracle/simli_voice_backend.py
+
+=====================================
+RAILWAY LIVE URLs
+=====================================
+
+Test Page (Testing Simli):
+https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/test-simli-only.html
+
+Main Compositor (Full Experience):
+https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/index.html
+
+Old Transitions Page (Previous version):
+https://videotestholoracle-production.up.railway.app/transitions_clean.html
+
+=====================================
+RAILWAY DASHBOARD
+=====================================
+
+Railway Project:
+https://railway.app/
+
+Deploy Branch: claude/clone-holoracle-repo-011CUzqwYQ9Y8wchMwYgtTt5
+
+=====================================
+GITHUB REPOSITORY
+=====================================
+
+Repo:
+https://github.com/chweintr/Video_Test_Holoracle
+
+Current Branch:
+https://github.com/chweintr/Video_Test_Holoracle/tree/claude/clone-holoracle-repo-011CUzqwYQ9Y8wchMwYgtTt5
+
+=====================================
+MABEL'S CREDENTIALS
+=====================================
+
+Agent ID: dba533f4-b299-41d4-9745-4c3bc3a248a2
+Face ID: 1ce9c394-89c7-45ab-b3b4-7604f6d01265
+
+(Configured in: config.js and test-simli-only.html)
+
+=====================================
+SIMLI DASHBOARD
+=====================================
+
+Simli Login:
+https://app.simli.com/
+
+=====================================
+KEY COMMANDS
+=====================================
+
+Navigate to project:
+cd /home/user/Video_Test_Holoracle/echoes-of-indiana-main/
+
+Check git status:
+cd /home/user/Video_Test_Holoracle && git status
+
+View Railway logs:
+(Go to Railway dashboard → Select project → View logs)
+
+Add videos:
+cp /path/to/your/video.mp4 /home/user/Video_Test_Holoracle/echoes-of-indiana-main/assets/videos/
+
+=====================================
+WHAT GOES WHERE
+=====================================
+
+Railway Environment Variables (Secrets):
+- SIMLI_API_KEY
+- OPENAI_API_KEY
+
+Code Configuration (Public IDs):
+- Agent ID (in config.js)
+- Face ID (in config.js)
+
+Video Files:
+- mabel-idle-to-active.mp4
+- mabel-active-to-idle.mp4
+- mabel-background.mp4 (optional)
+- mabel-overlay.mp4 (optional)
+
+=====================================
+TROUBLESHOOTING
+=====================================
+
+If test page shows 404:
+- Check Railway deployment is complete
+- Verify branch is: claude/clone-holoracle-repo-011CUzqwYQ9Y8wchMwYgtTt5
+
+If Simli doesn't load:
+- Check SIMLI_API_KEY in Railway variables
+- Check Agent ID in config.js
+- Check browser console (F12) for errors
+
+If videos don't play:
+- Check files exist in assets/videos/
+- Check file names match config.js
+- Check video format (H.264 or WebM)
+
+=====================================
+DOCUMENTATION
+=====================================
+
+Full README:
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/README.md
+
+Setup Checklist:
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/SETUP_CHECKLIST.md
+
+Video Requirements:
+/home/user/Video_Test_Holoracle/echoes-of-indiana-main/assets/videos/README.md
+
+=====================================
+PROJECT INFO
+=====================================
+
+Project Name: Echoes of Indiana
+Location: Trades District, Bloomington, Indiana
+Purpose: LED Fan Array Hologram Interactive Experience
+First Persona: Mabel (Showers Finishing Worker, 1917)
+Technology: Simli AI, 3-Layer Video Compositor
+
+Created: 2025-11-15
+Last Updated: 2025-11-15

@@ -67,6 +67,8 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            /* Make black background transparent */
+            mix-blend-mode: screen;
         }
 
         /* LAYER 2: Middle - Simli Container */
@@ -83,12 +85,16 @@
             /* START COMPLETELY HIDDEN - only show after transition video ends */
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
             transition: opacity 0.3s ease;
+            /* Make black background transparent - KEY FOR HOLOGRAM */
+            mix-blend-mode: screen;
         }
 
         #simli-container.visible {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
 
         /* LAYER 3: Transition Video (plays over everything during transition) */
@@ -102,20 +108,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            /* HIDDEN BY DEFAULT - only show when .playing class added */
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
             transition: opacity 0.2s ease;
         }
 
         #transition-layer.playing {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
 
         #transition-layer video {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            /* Make black background transparent */
+            mix-blend-mode: screen;
         }
 
         /* Simli Widget Itself - FIXED DIMENSIONS */
@@ -142,6 +153,8 @@
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
+            /* Make black background transparent - CRITICAL FOR HOLOGRAM */
+            mix-blend-mode: screen !important;
         }
 
         /* HIDE SIMLI'S DEFAULT PARTICLE PRE-ANIMATION - NUCLEAR OPTION */
@@ -458,6 +471,17 @@
             }
         }
 
+        // Reveal Simli (called when real video feed is ready)
+        function revealSimli() {
+            if (simliContainer.classList.contains('visible')) {
+                return; // Already revealed
+            }
+            console.log('[Simli] Revealing Mabel!');
+            simliContainer.classList.remove('loading');
+            simliContainer.classList.add('visible');
+            updateStatus('Mabel is ready - click "Speak to Mabel"');
+        }
+
         // Play transition video (idle -> Mabel)
         function playTransitionIn() {
             return new Promise((resolve) => {
@@ -521,20 +545,14 @@
                 simliContainer.appendChild(widget);
                 currentWidget = widget;
 
-                // Step 2: Play the transition video
-                await playTransitionIn();
-
-                // Step 3: Now show Simli (transition video just ended)
-                console.log('[Simli] Revealing Mabel...');
-                simliContainer.classList.remove('loading');
-                simliContainer.classList.add('visible');
-
-                // Set up event listeners
+                // Set up event listeners BEFORE playing transition
                 widget.addEventListener('callstart', () => {
                     console.log('[Simli] Call started');
                     updateStatus('Speaking with Mabel...');
                     updateDebug('widget', 'call-active');
                     simliReady = true;
+                    // NOW reveal Simli - real video is playing
+                    revealSimli();
                 });
 
                 widget.addEventListener('callend', () => {
@@ -550,13 +568,16 @@
                     updateDebug('widget', 'error');
                 });
 
-                // Watch for Simli's video element to appear (real face, not dots)
+                // Watch for Simli's REAL video element to appear (not dots)
                 const videoObserver = new MutationObserver((mutations) => {
                     const video = widget.querySelector('video');
-                    if (video && video.srcObject) {
+                    if (video && (video.srcObject || video.src)) {
                         console.log('[Simli] Real video feed detected!');
                         simliReady = true;
                         updateDebug('widget', 'video-active');
+                        // Reveal Simli now that real video is ready
+                        revealSimli();
+                        videoObserver.disconnect();
                     }
                 });
 
@@ -566,8 +587,22 @@
                     attributes: true
                 });
 
-                updateStatus('Mabel is ready - click "Speak to Mabel"');
+                // Step 2: Play the transition video
+                await playTransitionIn();
+
+                // Step 3: After transition, check if Simli video is ready
+                // If not ready yet, we wait for the observer to trigger revealSimli
+                console.log('[Simli] Transition ended, checking if video ready...');
                 updateDebug('widget', 'loaded');
+
+                // Fallback: if video is already there, reveal now
+                const existingVideo = widget.querySelector('video');
+                if (existingVideo && (existingVideo.srcObject || existingVideo.src)) {
+                    console.log('[Simli] Video already ready, revealing...');
+                    revealSimli();
+                } else {
+                    updateStatus('Waiting for Mabel to appear...');
+                }
 
                 // Update container size in debug
                 updateContainerSize();

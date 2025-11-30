@@ -5,6 +5,10 @@
  * The Simli agent lives in LAYER 3 of the 4-layer sandwich.
  * It appears in the same "head container" space as the transition videos
  * to ensure perfect alignment between video faces and Simli faces.
+ * 
+ * KEY: We don't reveal the Simli widget until its VIDEO STREAM is actually
+ * active, not just when the widget loads. This prevents the dotted placeholder
+ * from showing.
  */
 
 const SimliManager = {
@@ -12,6 +16,8 @@ const SimliManager = {
     currentPersona: null,
     isCallActive: false,
     widgetReady: false,
+    videoStreamActive: false, // NEW: Track if actual video is streaming
+    callStartedByUs: false,   // Track if we auto-started the call
 
     /**
      * Initialize Simli manager
@@ -58,26 +64,28 @@ const SimliManager = {
                 widget.setAttribute('faceid', persona.faceId);
             }
 
-            // Custom button text (or hide it entirely)
-            widget.setAttribute('customtext', CONFIG.ui.summonButtonText);
-            
-            // Auto-start the call (don't show the start button)
-            widget.setAttribute('autostart', 'true');
+            // Custom button text
+            widget.setAttribute('customtext', CONFIG.ui.summonButtonText || 'Start');
 
             // Step 3: Apply head position adjustments if needed
             const mount = document.getElementById('simli-mount');
             this.applyHeadPositioning(mount, persona.headPosition);
 
-            // Step 4: Attach widget to mount
+            // Step 4: Attach widget to mount (but DON'T show it yet!)
             mount.innerHTML = ''; // Clear any previous content
             mount.appendChild(widget);
 
             this.currentWidget = widget;
             this.currentPersona = personaId;
             this.widgetReady = false;
+            this.videoStreamActive = false;
+            this.callStartedByUs = false;
 
             // Step 5: Set up event listeners
             this.setupWidgetListeners(widget, personaId);
+
+            // Step 6: Try to auto-start the call after widget loads
+            this.waitForWidgetAndAutoStart(widget);
 
             console.log(`[SimliManager] Widget created for ${persona.name}`);
 
@@ -91,6 +99,51 @@ const SimliManager = {
             this.updateDebugPanel('error');
             return false;
         }
+    },
+
+    /**
+     * Wait for widget to be ready then auto-start the call
+     */
+    waitForWidgetAndAutoStart(widget) {
+        // Poll for the start button and click it
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max
+        
+        const tryAutoStart = () => {
+            attempts++;
+            
+            // Look for the start/summon button within the widget
+            const shadowRoot = widget.shadowRoot;
+            let startButton = null;
+            
+            if (shadowRoot) {
+                // Try various selectors for the start button
+                startButton = shadowRoot.querySelector('button') ||
+                              shadowRoot.querySelector('[class*="start"]') ||
+                              shadowRoot.querySelector('[class*="summon"]') ||
+                              shadowRoot.querySelector('[class*="call"]');
+            }
+            
+            // Also check for button in regular DOM (widget might not use shadow DOM)
+            if (!startButton) {
+                startButton = widget.querySelector('button') ||
+                              document.querySelector('#simli-mount button');
+            }
+            
+            if (startButton && !this.callStartedByUs) {
+                console.log('[SimliManager] Found start button, auto-clicking...');
+                this.callStartedByUs = true;
+                startButton.click();
+                this.updateDebugPanel('auto-starting');
+            } else if (attempts < maxAttempts) {
+                setTimeout(tryAutoStart, 100);
+            } else {
+                console.warn('[SimliManager] Could not find start button after 5 seconds');
+            }
+        };
+        
+        // Start polling after a brief delay for widget to initialize
+        setTimeout(tryAutoStart, 500);
     },
 
     /**
@@ -143,7 +196,7 @@ const SimliManager = {
             this.updateDebugPanel('ready');
         });
 
-        // Listen for call start (user clicks summon in widget)
+        // Listen for call start
         widget.addEventListener('callstart', (e) => {
             console.log('[SimliManager] Call started');
             this.isCallActive = true;
@@ -159,6 +212,7 @@ const SimliManager = {
         widget.addEventListener('callend', (e) => {
             console.log('[SimliManager] Call ended');
             this.isCallActive = false;
+            this.videoStreamActive = false;
             this.updateDebugPanel('call-ended');
 
             // Dispatch custom event
@@ -167,39 +221,108 @@ const SimliManager = {
             }));
         });
 
-        // Listen for user speaking (if supported by widget)
+        // Listen for user speaking
         widget.addEventListener('speaking', (e) => {
             console.log('[SimliManager] User is speaking');
-            // When user speaks, we're processing
             if (StateMachine.getState() === 'active') {
                 StateMachine.startProcessing();
             }
         });
 
-        // Listen for AI response start (if supported)
+        // Listen for AI response start
         widget.addEventListener('response-start', (e) => {
             console.log('[SimliManager] AI response starting');
-            // When AI responds, stop processing state
             StateMachine.stopProcessing();
         });
 
-        // Listen for video stream active
+        // Listen for video stream becoming active
         widget.addEventListener('videoready', (e) => {
-            console.log('[SimliManager] Video stream ready');
+            console.log('[SimliManager] Video stream ready!');
+            this.videoStreamActive = true;
             this.updateDebugPanel('streaming');
+            
+            // NOW we can reveal the widget and hide the transition video
+            this.onVideoStreamReady();
         });
 
-        // Fallback: Monitor for speech activity using a MutationObserver
+        // Monitor for video element appearing (backup detection)
+        this.setupVideoDetection(widget);
+        
+        // Monitor for speech activity
         this.setupSpeechMonitor(widget);
     },
 
     /**
+     * Monitor for actual video element with a stream
+     * This is a backup in case 'videoready' event isn't fired
+     */
+    setupVideoDetection(widget) {
+        let checkCount = 0;
+        const maxChecks = 100; // 10 seconds max
+        
+        const checkForVideo = () => {
+            checkCount++;
+            
+            // Look for video element with actual content
+            let videoEl = widget.querySelector('video');
+            
+            // Also check shadow DOM
+            if (!videoEl && widget.shadowRoot) {
+                videoEl = widget.shadowRoot.querySelector('video');
+            }
+            
+            if (videoEl) {
+                // Check if video has actual content (not just placeholder)
+                const hasSource = videoEl.src || videoEl.srcObject;
+                const isPlaying = !videoEl.paused && videoEl.readyState >= 2;
+                const hasSize = videoEl.videoWidth > 0 && videoEl.videoHeight > 0;
+                
+                if ((hasSource || isPlaying) && hasSize) {
+                    console.log('[SimliManager] Video stream detected via polling!', {
+                        src: !!videoEl.src,
+                        srcObject: !!videoEl.srcObject,
+                        playing: isPlaying,
+                        size: `${videoEl.videoWidth}x${videoEl.videoHeight}`
+                    });
+                    
+                    if (!this.videoStreamActive) {
+                        this.videoStreamActive = true;
+                        this.onVideoStreamReady();
+                    }
+                    return; // Stop polling
+                }
+            }
+            
+            if (checkCount < maxChecks) {
+                setTimeout(checkForVideo, 100);
+            }
+        };
+        
+        setTimeout(checkForVideo, 1000); // Start checking after 1 second
+    },
+
+    /**
+     * Called when video stream is actually ready
+     * This triggers the seamless swap from transition video to Simli
+     */
+    onVideoStreamReady() {
+        console.log('[SimliManager] Video stream ready - revealing Simli!');
+        this.updateDebugPanel('streaming');
+        
+        // Dispatch event for compositor to handle the swap
+        document.dispatchEvent(new CustomEvent('simli-video-ready', {
+            detail: { persona: this.currentPersona }
+        }));
+        
+        // Show the widget now that video is streaming
+        this.showWidget();
+    },
+
+    /**
      * Monitor widget for speech activity using DOM observation
-     * This is a fallback in case the widget doesn't emit proper events
      */
     setupSpeechMonitor(widget) {
         const observer = new MutationObserver((mutations) => {
-            // Check if widget is showing processing indicators
             const isProcessing = widget.querySelector('[data-processing="true"]') !== null ||
                                  widget.querySelector('.processing') !== null;
 
@@ -254,6 +377,13 @@ const SimliManager = {
     },
 
     /**
+     * Check if video stream is active
+     */
+    isVideoReady() {
+        return this.videoStreamActive;
+    },
+
+    /**
      * Destroy current widget
      */
     destroyWidget() {
@@ -274,9 +404,11 @@ const SimliManager = {
             this.currentPersona = null;
             this.isCallActive = false;
             this.widgetReady = false;
+            this.videoStreamActive = false;
+            this.callStartedByUs = false;
             this.updateDebugPanel('destroyed');
             console.log('[SimliManager] Widget destroyed');
-        }, CONFIG.timing.crossfadeDuration);
+        }, CONFIG.timing.crossfadeDuration || 500);
     },
 
     /**
@@ -297,7 +429,7 @@ const SimliManager = {
      * Update debug panel
      */
     updateDebugPanel(status) {
-        if (!CONFIG.ui.showDebugPanel) return;
+        if (!CONFIG.ui || !CONFIG.ui.showDebugPanel) return;
 
         const simliEl = document.getElementById('debug-simli');
         if (simliEl) simliEl.textContent = status;
@@ -318,6 +450,8 @@ const SimliManager = {
         this.currentPersona = null;
         this.isCallActive = false;
         this.widgetReady = false;
+        this.videoStreamActive = false;
+        this.callStartedByUs = false;
         
         this.updateDebugPanel('force-cleaned');
     }

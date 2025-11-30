@@ -14,40 +14,30 @@
     <div id="stage">
 
         <!-- ============================================
-             4-LAYER SANDWICH ARCHITECTURE
-             ============================================
-             Layer 4 (top):    Top Floaties - sparkles, particles, neon wisps
-             Layer 3 (middle): Simli Agent - Mabel's face, interactive
-             Layer 2 (middle): Abstract Loops / Transitions - the "genie smoke" layer
-             Layer 1 (bottom): Bottom Floaties - smoke, embers, subtle effects
+             4-LAYER SANDWICH - ALL BLACK = TRANSPARENT
              ============================================ -->
 
-        <!-- LAYER 1: Bottom Floaties (perpetual loop - depth enhancer) -->
+        <!-- LAYER 1: Bottom Floaties -->
         <div id="layer-bottom-floaties" class="video-layer-container" data-layer="1">
             <video id="video-bottom-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
 
-        <!-- LAYER 2: Abstract Loops / Transitions (the "genie smoke" layer) -->
-        <!-- This layer holds BOTH idle loops AND transition videos -->
+        <!-- LAYER 2: Abstract Loops / Transitions -->
         <div id="layer-abstract" class="video-layer-container" data-layer="2">
-            <!-- Head Container - ensures all heads render at same scale/position -->
             <div id="head-container-video" class="head-container">
-                <!-- Idle loop video (random abstract loops when no persona active) -->
                 <video id="video-idle-loop" class="video-layer head-video" playsinline loop muted></video>
-                <!-- Transition video (idle-to-persona / persona-to-idle) -->
                 <video id="video-transition" class="video-layer head-video" playsinline muted></video>
             </div>
         </div>
 
-        <!-- LAYER 3: Simli Agent (only visible during interaction) -->
+        <!-- LAYER 3: Simli Agent -->
         <div id="layer-simli" class="video-layer-container" data-layer="3">
-            <!-- Head Container - SAME SIZE as video head container for perfect alignment -->
             <div id="head-container-simli" class="head-container">
                 <div id="simli-mount" class="simli-wrapper"></div>
             </div>
         </div>
 
-        <!-- LAYER 4: Top Floaties (perpetual loop - sparkles, particles) -->
+        <!-- LAYER 4: Top Floaties -->
         <div id="layer-top-floaties" class="video-layer-container" data-layer="4">
             <video id="video-top-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
@@ -57,52 +47,41 @@
             <div class="status-message"></div>
         </div>
 
-        <!-- Border Mask (Irregular Edge) - Hides Potential Cropping -->
+        <!-- Border Mask -->
         <div id="border-mask" class="border-mask"></div>
 
-        <!-- Persona Selection Interface -->
+        <!-- Persona Selection - Minimal Bottom Bar -->
         <div id="persona-selection" class="persona-selector">
-            <h1>Echoes of Indiana</h1>
-            <p class="subtitle">Trades District - Bloomington</p>
-
             <div class="persona-grid">
-                <!-- Mabel - First persona -->
                 <button class="persona-btn" data-persona="mabel">
                     <span class="persona-name">Mabel</span>
-                    <span class="persona-title">Showers Finishing Worker, 1917</span>
-                    <span class="persona-quote">"I sand till the grain lies flat"</span>
                 </button>
-
-                <!-- More personas to be added -->
-                <!-- Uncomment as you add them -->
+                <!-- Add more personas here as simple buttons -->
                 <!--
                 <button class="persona-btn" data-persona="vonnegut">
-                    <span class="persona-name">Kurt Vonnegut</span>
-                    <span class="persona-title">Author</span>
+                    <span class="persona-name">Vonnegut</span>
                 </button>
-
-                <button class="persona-btn" data-persona="hoosier-oracle">
-                    <span class="persona-name">Hoosier Oracle</span>
-                    <span class="persona-title">Echoes Guide</span>
+                <button class="persona-btn" data-persona="oracle">
+                    <span class="persona-name">Oracle</span>
                 </button>
                 -->
             </div>
         </div>
 
-        <!-- Dismiss Button (shown during active session) -->
+        <!-- Dismiss Button -->
         <button id="dismiss-btn" class="dismiss-btn hidden">Dismiss</button>
 
     </div>
 
-    <!-- Debug Panel (remove for production) -->
+    <!-- Debug Panel -->
     <div id="debug-panel" class="debug-panel">
         <div>State: <span id="debug-state">idle</span></div>
-        <div>Active Persona: <span id="debug-persona">none</span></div>
-        <div>Simli Status: <span id="debug-simli">not loaded</span></div>
-        <div>Idle Loop: <span id="debug-idle">stopped</span></div>
+        <div>Persona: <span id="debug-persona">none</span></div>
+        <div>Simli: <span id="debug-simli">-</span></div>
+        <div>Idle: <span id="debug-idle">-</span></div>
     </div>
 
-    <!-- Configuration & State Management -->
+    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="state-machine.js"></script>
     <script src="simli-integration.js"></script>

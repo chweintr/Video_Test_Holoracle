@@ -147,6 +147,28 @@ const Compositor = {
                     break;
             }
         });
+
+        // Listen for Simli video stream becoming ready
+        // This triggers the seamless swap from transition video to Simli
+        document.addEventListener('simli-video-ready', (e) => {
+            console.log('[Compositor] Simli video stream ready - completing swap');
+            this.onSimliVideoReady();
+        });
+    },
+
+    /**
+     * Called when Simli's video stream is actually ready
+     * NOW we can hide the transition video
+     */
+    onSimliVideoReady() {
+        const state = StateMachine.getState();
+        
+        // Only do the swap if we're in active state waiting for Simli
+        if (state === 'active') {
+            console.log('[Compositor] Completing transition video → Simli swap');
+            // NOW hide the transition video (Simli is streaming)
+            this.clearTransitionVideo(true); // instant hide
+        }
     },
 
     /* ============================================
@@ -378,16 +400,26 @@ const Compositor = {
 
     /**
      * State: ACTIVE
-     * Show Simli widget, hide transition video, show dismiss button
+     * Keep transition video visible until Simli video stream is ready!
+     * Show dismiss button
      */
     handleActiveState(personaId) {
         console.log(`[Compositor] → ACTIVE state (${personaId})`);
 
-        // Hide transition video (instant for seamless swap)
-        this.clearTransitionVideo(true); // true = instant, no fade
-
-        // Show Simli widget
-        SimliManager.showWidget();
+        // DON'T hide transition video yet!
+        // Keep it visible as a "hold frame" while Simli loads
+        // The transition video will be hidden when simli-video-ready event fires
+        
+        // Check if Simli video is already streaming (in case event fired before state change)
+        if (SimliManager.isVideoReady && SimliManager.isVideoReady()) {
+            console.log('[Compositor] Simli already streaming - hiding transition');
+            this.clearTransitionVideo(true);
+            SimliManager.showWidget();
+        } else {
+            console.log('[Compositor] Waiting for Simli video stream before hiding transition...');
+            // Transition video stays visible - Simli widget stays hidden
+            // The swap will happen when simli-video-ready fires
+        }
 
         // Show dismiss button
         this.elements.dismissBtn.classList.remove('hidden');

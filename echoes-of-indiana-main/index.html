@@ -29,6 +29,11 @@
     ============================================
     -->
 
+    <!-- Click to Start (required for browser autoplay policy) -->
+    <div id="click-to-start" class="click-to-start">
+        <div class="start-prompt">Touch to Begin</div>
+    </div>
+
     <div id="stage">
 
         <!-- LAYER 1: Bottom Floaties -->
@@ -80,32 +85,45 @@
     <script src="simli-integration.js"></script>
     <script src="compositor.js"></script>
     
-    <!-- External Command Handler -->
+    <!-- Startup & Command Handler -->
     <script>
-        // Handle URL parameters on load
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
+        let isStarted = false;
+        const params = new URLSearchParams(window.location.search);
+        
+        // Click to start handler - unlocks autoplay
+        document.getElementById('click-to-start').addEventListener('click', () => {
+            if (isStarted) return;
+            isStarted = true;
             
-            // Show debug panel if ?debug=true
-            if (params.get('debug') === 'true') {
-                document.getElementById('debug-panel').classList.remove('hidden');
+            console.log('[Hologram] User interaction - starting...');
+            
+            // Hide the overlay
+            document.getElementById('click-to-start').classList.add('hidden');
+            
+            // Start the compositor (idle loop will play)
+            if (typeof Compositor !== 'undefined') {
+                Compositor.startIdleLoop();
             }
             
             // Auto-invoke persona if ?persona=xxx
             const persona = params.get('persona');
-            if (persona && CONFIG.personas[persona]) {
-                // Wait a moment for everything to initialize
+            if (persona && CONFIG.personas && CONFIG.personas[persona]) {
                 setTimeout(() => {
                     console.log('[Hologram] Auto-invoking persona from URL:', persona);
                     Compositor.invokePersona(persona);
-                }, 1000);
+                }, 500);
+            }
+        });
+        
+        // Handle URL debug param
+        document.addEventListener('DOMContentLoaded', () => {
+            if (params.get('debug') === 'true') {
+                document.getElementById('debug-panel').classList.remove('hidden');
             }
             
-            // Auto-dismiss if ?dismiss=true
-            if (params.get('dismiss') === 'true') {
-                setTimeout(() => {
-                    Compositor.dismissPersona();
-                }, 500);
+            // Skip click-to-start if ?autostart=true (for embedded use)
+            if (params.get('autostart') === 'true') {
+                document.getElementById('click-to-start').click();
             }
         });
         
@@ -113,9 +131,15 @@
         window.addEventListener('message', (event) => {
             const { action, persona } = event.data || {};
             
+            // Start command (from kiosk interaction)
+            if (action === 'start') {
+                document.getElementById('click-to-start').click();
+            }
+            
             if (action === 'invoke' && persona) {
                 console.log('[Hologram] Received invoke command:', persona);
-                Compositor.invokePersona(persona);
+                if (!isStarted) document.getElementById('click-to-start').click();
+                setTimeout(() => Compositor.invokePersona(persona), 100);
             }
             
             if (action === 'dismiss') {

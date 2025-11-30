@@ -75,13 +75,10 @@ const Compositor = {
         // Listen for state changes
         this.listenToStateChanges();
 
-        // Start perpetual floaties
-        this.startFloaties();
+        // DON'T auto-start videos - wait for user interaction (click-to-start)
+        // Videos will be started by Compositor.startIdleLoop() after user clicks
 
-        // Start idle loop
-        this.startIdleLoop();
-
-        console.log('[Compositor] Ready - 4 layers initialized');
+        console.log('[Compositor] Ready - 4 layers initialized (waiting for user interaction)');
     },
 
     /**
@@ -210,9 +207,12 @@ const Compositor = {
        ============================================ */
 
     /**
-     * Start playing idle loop videos
+     * PUBLIC API: Start the idle loop (called after user interaction)
      */
     startIdleLoop() {
+        // Also start floaties when idle loop starts
+        this.startFloaties();
+        
         if (!CONFIG.video.idleLoops || CONFIG.video.idleLoops.length === 0) {
             console.log('[Compositor] No idle loops configured');
             return;

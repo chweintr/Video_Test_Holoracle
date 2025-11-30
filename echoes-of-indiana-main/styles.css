@@ -258,6 +258,45 @@ body {
 }
 
 /* ============================================
+   CLICK TO START (Autoplay Policy)
+   Required for browsers to allow video/audio
+   ============================================ */
+
+.click-to-start {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.5s ease;
+}
+
+.click-to-start.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.start-prompt {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    animation: pulse-start 2s ease-in-out infinite;
+}
+
+@keyframes pulse-start {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 

@@ -3,19 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Indiana - Trades District</title>
+    <title>Echoes of Indiana - Hologram Display</title>
     <link rel="stylesheet" href="styles.css">
 
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" defer></script>
 </head>
 <body>
-    <!-- Main Hologram Stage -->
-    <div id="stage">
+    <!-- 
+    ============================================
+    HOLOGRAM OUTPUT DISPLAY
+    
+    This page is PURE VIDEO OUTPUT for the LED fan array.
+    No UI, no text, no buttons - just the hologram.
+    
+    INVOKE PERSONAS VIA:
+    - URL param: ?persona=mabel
+    - JavaScript: Compositor.invokePersona('mabel')
+    - PostMessage: window.postMessage({action: 'invoke', persona: 'mabel'}, '*')
+    
+    DISMISS VIA:
+    - URL param: ?dismiss=true  
+    - JavaScript: Compositor.dismissPersona()
+    - PostMessage: window.postMessage({action: 'dismiss'}, '*')
+    ============================================
+    -->
 
-        <!-- ============================================
-             4-LAYER SANDWICH - ALL BLACK = TRANSPARENT
-             ============================================ -->
+    <div id="stage">
 
         <!-- LAYER 1: Bottom Floaties -->
         <div id="layer-bottom-floaties" class="video-layer-container" data-layer="1">
@@ -42,39 +56,18 @@
             <video id="video-top-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
 
-        <!-- Processing/Status Messages -->
+        <!-- Processing Status (subtle, for hologram) -->
         <div id="status-overlay" class="status-overlay hidden">
             <div class="status-message"></div>
         </div>
 
-        <!-- Border Mask -->
+        <!-- Border Mask (optional vignette) -->
         <div id="border-mask" class="border-mask"></div>
-
-        <!-- Persona Selection - Minimal Bottom Bar -->
-        <div id="persona-selection" class="persona-selector">
-            <div class="persona-grid">
-                <button class="persona-btn" data-persona="mabel">
-                    <span class="persona-name">Mabel</span>
-                </button>
-                <!-- Add more personas here as simple buttons -->
-                <!--
-                <button class="persona-btn" data-persona="vonnegut">
-                    <span class="persona-name">Vonnegut</span>
-                </button>
-                <button class="persona-btn" data-persona="oracle">
-                    <span class="persona-name">Oracle</span>
-                </button>
-                -->
-            </div>
-        </div>
-
-        <!-- Dismiss Button -->
-        <button id="dismiss-btn" class="dismiss-btn hidden">Dismiss</button>
 
     </div>
 
-    <!-- Debug Panel -->
-    <div id="debug-panel" class="debug-panel">
+    <!-- Debug Panel (toggle with ?debug=true) -->
+    <div id="debug-panel" class="debug-panel hidden">
         <div>State: <span id="debug-state">idle</span></div>
         <div>Persona: <span id="debug-persona">none</span></div>
         <div>Simli: <span id="debug-simli">-</span></div>
@@ -86,5 +79,55 @@
     <script src="state-machine.js"></script>
     <script src="simli-integration.js"></script>
     <script src="compositor.js"></script>
+    
+    <!-- External Command Handler -->
+    <script>
+        // Handle URL parameters on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Show debug panel if ?debug=true
+            if (params.get('debug') === 'true') {
+                document.getElementById('debug-panel').classList.remove('hidden');
+            }
+            
+            // Auto-invoke persona if ?persona=xxx
+            const persona = params.get('persona');
+            if (persona && CONFIG.personas[persona]) {
+                // Wait a moment for everything to initialize
+                setTimeout(() => {
+                    console.log('[Hologram] Auto-invoking persona from URL:', persona);
+                    Compositor.invokePersona(persona);
+                }, 1000);
+            }
+            
+            // Auto-dismiss if ?dismiss=true
+            if (params.get('dismiss') === 'true') {
+                setTimeout(() => {
+                    Compositor.dismissPersona();
+                }, 500);
+            }
+        });
+        
+        // Handle postMessage from kiosk
+        window.addEventListener('message', (event) => {
+            const { action, persona } = event.data || {};
+            
+            if (action === 'invoke' && persona) {
+                console.log('[Hologram] Received invoke command:', persona);
+                Compositor.invokePersona(persona);
+            }
+            
+            if (action === 'dismiss') {
+                console.log('[Hologram] Received dismiss command');
+                Compositor.dismissPersona();
+            }
+            
+            if (action === 'reset') {
+                console.log('[Hologram] Received reset command');
+                Compositor.forceReset();
+            }
+        });
+    </script>
 </body>
 </html>

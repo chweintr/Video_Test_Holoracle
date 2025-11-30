@@ -43,9 +43,7 @@ const Compositor = {
         // Layer 4: Top floaties
         topFloaties: null,
         
-        // UI
-        personaSelection: null,
-        dismissBtn: null,
+        // Other
         borderMask: null,
     },
 
@@ -66,8 +64,6 @@ const Compositor = {
         this.elements.simliMount = document.getElementById('simli-mount');
         this.elements.simliWrapper = document.getElementById('simli-mount');
         this.elements.topFloaties = document.getElementById('video-top-floaties');
-        this.elements.personaSelection = document.getElementById('persona-selection');
-        this.elements.dismissBtn = document.getElementById('dismiss-btn');
         this.elements.borderMask = document.getElementById('border-mask');
 
         // Apply anti-cropping settings from config
@@ -89,23 +85,9 @@ const Compositor = {
     },
 
     /**
-     * Set up UI event listeners
+     * Set up event listeners
      */
     setupEventListeners() {
-        // Persona selection buttons
-        const personaBtns = document.querySelectorAll('.persona-btn');
-        personaBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const personaId = btn.getAttribute('data-persona');
-                this.onPersonaSelected(personaId);
-            });
-        });
-
-        // Dismiss button
-        this.elements.dismissBtn.addEventListener('click', () => {
-            this.onDismissClicked();
-        });
-
         // Idle loop ended - play next random loop
         this.elements.idleLoop.addEventListener('ended', () => {
             this.onIdleLoopEnded();
@@ -115,6 +97,23 @@ const Compositor = {
         this.elements.transition.addEventListener('ended', () => {
             this.onTransitionVideoEnded();
         });
+    },
+
+    /**
+     * PUBLIC API: Invoke a persona from external source
+     * Call this from kiosk via postMessage or URL param
+     */
+    invokePersona(personaId) {
+        console.log(`[Compositor] External invoke: ${personaId}`);
+        return this.onPersonaSelected(personaId);
+    },
+
+    /**
+     * PUBLIC API: Dismiss current persona
+     */
+    dismissPersona() {
+        console.log('[Compositor] External dismiss');
+        return this.onDismissClicked();
     },
 
     /**
@@ -305,11 +304,11 @@ const Compositor = {
     },
 
     /**
-     * Handle: User clicks dismiss button
+     * Handle: Dismiss persona (from external command)
      */
     onDismissClicked() {
-        console.log('[Compositor] Dismiss clicked');
-        StateMachine.dismissPersona();
+        console.log('[Compositor] Dismiss requested');
+        return StateMachine.dismissPersona();
     },
 
     /**
@@ -337,17 +336,10 @@ const Compositor = {
 
     /**
      * State: IDLE
-     * Show persona selection, play idle loops, hide Simli
+     * Play idle loops, hide Simli, wait for external invoke
      */
     handleIdleState() {
         console.log('[Compositor] → IDLE state');
-
-        // Show persona selection
-        this.elements.personaSelection.classList.remove('hidden');
-
-        // Hide dismiss button
-        this.elements.dismissBtn.classList.remove('visible');
-        this.elements.dismissBtn.classList.add('hidden');
 
         // Clear transition video
         this.clearTransitionVideo();
@@ -361,17 +353,12 @@ const Compositor = {
 
     /**
      * State: TRANSITIONING-IN
-     * Play transition video, create Simli widget, hide persona selection
+     * Play transition video, create Simli widget
      */
     async handleTransitionInState(personaId) {
         console.log(`[Compositor] → TRANSITIONING-IN state (${personaId})`);
 
         const persona = CONFIG.personas[personaId];
-
-        // Hide persona selection
-        setTimeout(() => {
-            this.elements.personaSelection.classList.add('hidden');
-        }, CONFIG.ui.autoHideSelectionDelay);
 
         // Stop idle loop - let it fade out while transition fades in
         this.stopIdleLoop();
@@ -394,14 +381,12 @@ const Compositor = {
             console.error('[Compositor] Failed to create Simli widget');
             // Fallback: return to idle
             StateMachine.forceReset();
-            alert('Failed to load persona. Please try again.');
         }
     },
 
     /**
      * State: ACTIVE
      * Keep transition video visible until Simli video stream is ready!
-     * Show dismiss button
      */
     handleActiveState(personaId) {
         console.log(`[Compositor] → ACTIVE state (${personaId})`);
@@ -420,10 +405,6 @@ const Compositor = {
             // Transition video stays visible - Simli widget stays hidden
             // The swap will happen when simli-video-ready fires
         }
-
-        // Show dismiss button
-        this.elements.dismissBtn.classList.remove('hidden');
-        this.elements.dismissBtn.classList.add('visible');
     },
 
     /**
@@ -444,10 +425,6 @@ const Compositor = {
         console.log(`[Compositor] → TRANSITIONING-OUT state (${personaId})`);
 
         const persona = CONFIG.personas[personaId];
-
-        // Hide dismiss button
-        this.elements.dismissBtn.classList.remove('visible');
-        this.elements.dismissBtn.classList.add('hidden');
 
         // Hide Simli widget INSTANTLY (so transition video takes over)
         SimliManager.hideWidget(true); // true = instant

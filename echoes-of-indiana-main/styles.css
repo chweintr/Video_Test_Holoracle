@@ -1,8 +1,8 @@
 /* ============================================
-   ECHOES OF INDIANA - 4-LAYER COMPOSITOR
+   ECHOES OF INDIANA - HOLOGRAM OUTPUT DISPLAY
    
+   PURE VIDEO OUTPUT - No UI, No Text
    ALL BLACK = TRANSPARENT via mix-blend-mode: screen
-   This makes black pixels invisible on all video layers
    ============================================ */
 
 * {
@@ -12,16 +12,16 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #000000; /* Pure black base - this stays solid */
-    color: #ffffff;
+    background: #000000;
     overflow: hidden;
     width: 100vw;
     height: 100vh;
+    /* No cursor needed on hologram display */
+    cursor: none;
 }
 
 /* ============================================
-   MAIN STAGE
+   MAIN STAGE - Full Screen Black
    ============================================ */
 
 #stage {
@@ -55,7 +55,11 @@ body {
 #layer-top-floaties { z-index: 4; }
 
 /* ============================================
-   HEAD CONTAINER - Unified sizing for video + Simli
+   HEAD CONTAINER - Unified sizing
+   
+   Change these values to scale ALL heads:
+   - Transition video heads
+   - Simli avatar head
    ============================================ */
 
 .head-container {
@@ -63,17 +67,16 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    
+    /* HEAD SIZE - adjust these to scale the face */
     width: 90vmin;
     height: 90vmin;
-    max-width: 1000px;
-    max-height: 1000px;
+    max-width: 1200px;
+    max-height: 1200px;
 }
 
 /* ============================================
    VIDEO LAYERS - BLACK = TRANSPARENT
-   
-   mix-blend-mode: screen makes black pixels invisible!
-   Only the bright hologram content shows through.
    ============================================ */
 
 .video-layer {
@@ -99,7 +102,7 @@ body {
     left: 0;
 }
 
-/* Head Videos - Fill the head container */
+/* Head Videos - Fill head container */
 .video-layer.head-video {
     width: 100%;
     height: 100%;
@@ -119,9 +122,9 @@ body {
     position: relative;
     opacity: 0;
     transition: opacity 0.5s ease;
-    pointer-events: auto;
+    pointer-events: none; /* No interaction on hologram display */
     
-    /* Make Simli's black background transparent too */
+    /* Make Simli's black transparent */
     mix-blend-mode: screen;
 }
 
@@ -129,14 +132,18 @@ body {
     opacity: 1;
 }
 
-/* Override Simli widget styles */
+/* Override ALL Simli widget styles */
+#simli-mount simli-widget,
+#simli-mount simli-widget * {
+    background: transparent !important;
+}
+
 #simli-mount simli-widget {
     width: 100% !important;
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background: transparent !important;
     mix-blend-mode: screen !important;
 }
 
@@ -145,153 +152,43 @@ body {
     height: 100% !important;
     object-fit: contain !important;
     object-position: center center !important;
-    background: transparent !important;
     mix-blend-mode: screen !important;
 }
 
-/* Hide Simli's placeholder/loading elements */
-#simli-mount simli-widget .loading,
+/* HIDE ALL Simli UI elements */
+#simli-mount simli-widget button,
+#simli-mount simli-widget [class*="button"],
 #simli-mount simli-widget [class*="loading"],
 #simli-mount simli-widget [class*="placeholder"],
-#simli-mount simli-widget [class*="avatar-placeholder"],
-#simli-mount simli-widget .avatar-loading {
+#simli-mount simli-widget [class*="avatar"],
+#simli-mount simli-widget svg,
+#simli-mount simli-widget img:not(video) {
     display: none !important;
     opacity: 0 !important;
-}
-
-/* Hide Simli's start button - we auto-start */
-#simli-mount simli-widget button {
-    display: none !important;
+    visibility: hidden !important;
 }
 
 /* ============================================
-   PERSONA SELECTION - MINIMAL BOTTOM BAR
-   Not blocking the hologram!
-   ============================================ */
-
-#persona-selection {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    display: flex;
-    gap: 15px;
-    padding: 15px 25px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50px;
-    backdrop-filter: blur(10px);
-    transition: opacity 0.5s ease, transform 0.3s ease;
-}
-
-#persona-selection.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(20px);
-}
-
-/* Hide the header text - just show buttons */
-#persona-selection h1,
-#persona-selection .subtitle {
-    display: none;
-}
-
-.persona-grid {
-    display: flex;
-    gap: 10px;
-}
-
-.persona-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    padding: 10px 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
-.persona-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: translateY(-3px);
-}
-
-.persona-name {
-    font-size: 1rem;
-    font-weight: bold;
-}
-
-/* Hide subtitle and quote in minimal mode */
-.persona-title,
-.persona-quote {
-    display: none;
-}
-
-/* ============================================
-   DISMISS BUTTON
-   ============================================ */
-
-.dismiss-btn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 100;
-    padding: 10px 25px;
-    font-size: 1rem;
-    background: rgba(255, 50, 50, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.dismiss-btn.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.dismiss-btn.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.dismiss-btn:hover {
-    background: rgba(255, 50, 50, 0.5);
-    transform: scale(1.05);
-}
-
-/* ============================================
-   STATUS OVERLAY - Processing Messages
+   STATUS OVERLAY - Subtle processing indicator
+   (Hidden by default, only shows during processing)
    ============================================ */
 
 #status-overlay {
     position: absolute;
-    top: 10%;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
     text-align: center;
-    padding: 15px 30px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 25px;
-    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    background: transparent;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
 }
 
 #status-overlay.visible {
-    opacity: 1;
+    opacity: 0.7;
 }
 
 #status-overlay.hidden {
@@ -299,36 +196,14 @@ body {
 }
 
 .status-message {
-    font-size: 1.2rem;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1rem;
     color: #ffffff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
 }
 
 /* ============================================
-   DEBUG PANEL
-   ============================================ */
-
-.debug-panel {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 10px 15px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 0.8rem;
-    color: #00ff00;
-    line-height: 1.4;
-}
-
-.debug-panel div {
-    margin-bottom: 3px;
-}
-
-/* ============================================
-   BORDER MASK (optional vignette)
+   BORDER MASK (optional vignette for LED array)
    ============================================ */
 
 .border-mask {
@@ -342,11 +217,10 @@ body {
     opacity: 0;
     transition: opacity 0.5s ease;
     background: radial-gradient(
-        ellipse 85% 85% at 50% 50%,
+        ellipse 90% 90% at 50% 50%,
         transparent 0%,
-        transparent 70%,
-        rgba(0,0,0,0.3) 85%,
-        rgba(0,0,0,0.7) 95%,
+        transparent 75%,
+        rgba(0,0,0,0.5) 90%,
         #000000 100%
     );
 }
@@ -356,8 +230,40 @@ body {
 }
 
 /* ============================================
+   DEBUG PANEL (hidden by default)
+   Show with ?debug=true in URL
+   ============================================ */
+
+.debug-panel {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 10px 15px;
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #00ff00;
+    line-height: 1.4;
+}
+
+.debug-panel.hidden {
+    display: none;
+}
+
+.debug-panel div {
+    margin-bottom: 3px;
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
+
+.hidden {
+    display: none !important;
+}
 
 .instant-hide {
     opacity: 0 !important;
@@ -367,23 +273,4 @@ body {
 .instant-show {
     opacity: 1 !important;
     transition: none !important;
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-
-@media (max-width: 768px) {
-    .head-container {
-        width: 95vmin;
-        height: 95vmin;
-    }
-
-    #persona-selection {
-        padding: 10px 15px;
-    }
-
-    .persona-btn {
-        padding: 8px 15px;
-    }
 }

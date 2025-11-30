@@ -179,11 +179,8 @@ const CONFIG = {
        UI SETTINGS
        ============================================ */
     ui: {
-        showDebugPanel: true, // Set to false for production
-        dismissButtonText: 'Dismiss',
-        summonButtonText: 'Summon',
-        autoHideSelectionDelay: 500, // ms after persona selected
-
+        showDebugPanel: false, // Use ?debug=true in URL to show
+        
         // Anti-Cropping Settings for LED Holograms
         stageInset: '0%', // Inset stage from screen edges (e.g., '5%')
         enableBorderMask: false, // Enable vignette border

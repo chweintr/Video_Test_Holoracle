@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simli Test - No Compositing</title>
+    <title>Simli Test - Video Sandwich</title>
 
     <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" defer></script>
@@ -41,20 +41,81 @@
             border: 2px solid rgba(255, 255, 255, 0.1); /* Subtle guide border */
         }
 
-        /* Simli Container - CENTERED WITH SAFE AREA */
+        /* ============================================
+           VIDEO LAYERS - THE SANDWICH
+           Layer order (bottom to top):
+           1. Spinning disc (z-index: 1)
+           2. Simli avatar (z-index: 2)
+           3. Transition video (z-index: 3)
+           4. Top floaties (z-index: 4) - future
+        ============================================ */
+
+        /* LAYER 1: Bottom - Spinning Disc (perpetual loop) */
+        #bottom-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #bottom-layer video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* LAYER 2: Middle - Simli Container */
         #simli-container {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 2;
+            /* START COMPLETELY HIDDEN - only show after transition video ends */
             opacity: 0;
-            transition: opacity 0.5s ease;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
         }
 
         #simli-container.visible {
             opacity: 1;
+            visibility: visible;
+        }
+
+        /* LAYER 3: Transition Video (plays over everything during transition) */
+        #transition-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease;
+        }
+
+        #transition-layer.playing {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #transition-layer video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         /* Simli Widget Itself - FIXED DIMENSIONS */
@@ -76,18 +137,30 @@
         #simli-container simli-widget video {
             width: 100% !important;
             height: 100% !important;
-            object-fit: contain !important; /* NEVER CROP - always contain */
+            object-fit: contain !important;
             position: absolute !important;
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
         }
 
-        /* HIDE SIMLI'S DEFAULT PARTICLE PRE-ANIMATION */
+        /* HIDE SIMLI'S DEFAULT PARTICLE PRE-ANIMATION - NUCLEAR OPTION */
         #simli-container simli-widget canvas,
         #simli-container simli-widget [class*="particle"],
-        #simli-container simli-widget [class*="loading"] {
-            display: none !important; /* Hide particle dots */
+        #simli-container simli-widget [class*="loading"],
+        #simli-container simli-widget [class*="dot"],
+        #simli-container simli-widget [class*="Dot"],
+        #simli-container simli-widget svg,
+        #simli-container simli-widget div[style*="animation"] {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* Hide ALL Simli content until we explicitly show it */
+        #simli-container.loading simli-widget * {
+            opacity: 0 !important;
+            visibility: hidden !important;
         }
 
         /* MOVE SIMLI BUTTONS TO FAR RIGHT - OUTSIDE HOLOGRAM VIEW */
@@ -252,14 +325,28 @@
     <!-- Main Stage with Safe Area -->
     <div id="stage">
 
-        <!-- Simli Container (Centered, No Crop) -->
+        <!-- LAYER 1: Bottom - Spinning Disc (perpetual loop) -->
+        <div id="bottom-layer">
+            <video id="bottom-video" loop muted playsinline>
+                <source src="assets/videos/spinning disc.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <!-- LAYER 2: Simli Container (hidden until transition ends) -->
         <div id="simli-container"></div>
+
+        <!-- LAYER 3: Transition Video (plays during summon/dismiss) -->
+        <div id="transition-layer">
+            <video id="transition-video" muted playsinline>
+                <source src="assets/videos/idle_to_mabel_1.MOV" type="video/mp4">
+            </video>
+        </div>
 
         <!-- Optional Border Mask (Irregular Edge) -->
         <div id="border-mask"></div>
 
         <!-- Load Button -->
-        <button id="load-btn">Load Simli (Mabel)</button>
+        <button id="load-btn">Summon Mabel</button>
 
     </div>
 
@@ -300,7 +387,13 @@
             agentId: 'dba533f4-b299-41d4-9745-4c3bc3a248a2', // Mabel's Agent ID
             faceId: '1ce9c394-89c7-45ab-b3b4-7604f6d01265', // Mabel's Face ID
             backendUrl: window.location.origin,
-            tokenEndpoint: '/simli-token'
+            tokenEndpoint: '/simli-token',
+            // Video paths
+            videos: {
+                bottom: 'assets/videos/spinning disc.mp4',
+                idleToMabel: 'assets/videos/idle_to_mabel_1.MOV',
+                mabelToIdle: null // Future: 'assets/videos/mabel_to_idle.MOV'
+            }
         };
 
         // DOM Elements
@@ -314,7 +407,13 @@
         const stageSizeSelect = document.getElementById('stage-size');
         const stage = document.getElementById('stage');
 
+        // Video layer elements
+        const bottomVideo = document.getElementById('bottom-video');
+        const transitionLayer = document.getElementById('transition-layer');
+        const transitionVideo = document.getElementById('transition-video');
+
         let currentWidget = null;
+        let simliReady = false; // Track when Simli has a real video feed
 
         // Update Status
         function updateStatus(message) {
@@ -351,24 +450,62 @@
             }
         }
 
-        // Create Simli Widget
+        // Start bottom layer video (perpetual loop)
+        function startBottomLayer() {
+            if (bottomVideo) {
+                bottomVideo.play().catch(e => console.log('[Bottom] Autoplay blocked, will play on interaction'));
+                console.log('[Bottom] Spinning disc started');
+            }
+        }
+
+        // Play transition video (idle -> Mabel)
+        function playTransitionIn() {
+            return new Promise((resolve) => {
+                console.log('[Transition] Playing idle_to_mabel...');
+                updateStatus('Summoning Mabel...');
+
+                // Show transition layer
+                transitionLayer.classList.add('playing');
+
+                // Reset and play
+                transitionVideo.currentTime = 0;
+                transitionVideo.play();
+
+                // When video ends, resolve
+                transitionVideo.onended = () => {
+                    console.log('[Transition] idle_to_mabel ended');
+                    // Hide transition layer
+                    transitionLayer.classList.remove('playing');
+                    resolve();
+                };
+            });
+        }
+
+        // Create Simli Widget with video sandwich orchestration
         async function createWidget() {
             if (currentWidget) {
                 updateStatus('Widget already loaded');
                 return;
             }
 
-            updateStatus('Loading Simli widget...');
+            // Start bottom layer if not playing
+            startBottomLayer();
+
+            // Hide load button
             loadBtn.classList.add('hidden');
 
+            // Add loading class to hide all Simli internals
+            simliContainer.classList.add('loading');
+
             try {
-                // Get token
+                // Step 1: Get token and start loading Simli in background
+                updateStatus('Preparing Mabel...');
                 const token = await getToken();
                 if (!token) {
                     throw new Error('Failed to get token');
                 }
 
-                // Create widget element
+                // Create widget element (but keep it hidden)
                 const widget = document.createElement('simli-widget');
                 widget.setAttribute('token', token);
                 widget.setAttribute('agentid', CONFIG.agentId);
@@ -377,57 +514,59 @@
                     widget.setAttribute('faceid', CONFIG.faceId);
                 }
 
-                widget.setAttribute('customtext', 'Summon Mabel');
+                widget.setAttribute('customtext', 'Speak to Mabel');
 
-                // Attach to container
+                // Attach to container (still hidden)
                 simliContainer.innerHTML = '';
                 simliContainer.appendChild(widget);
                 currentWidget = widget;
 
-                // Show container
+                // Step 2: Play the transition video
+                await playTransitionIn();
+
+                // Step 3: Now show Simli (transition video just ended)
+                console.log('[Simli] Revealing Mabel...');
+                simliContainer.classList.remove('loading');
                 simliContainer.classList.add('visible');
 
                 // Set up event listeners
                 widget.addEventListener('callstart', () => {
                     console.log('[Simli] Call started');
-                    updateStatus('Call active - speak to Mabel!');
+                    updateStatus('Speaking with Mabel...');
                     updateDebug('widget', 'call-active');
+                    simliReady = true;
                 });
 
                 widget.addEventListener('callend', () => {
                     console.log('[Simli] Call ended - session remains open');
-                    updateStatus('Call active - you can speak again!');
+                    updateStatus('Mabel is listening...');
                     updateDebug('widget', 'call-ready');
-
-                    // Note: Don't destroy the widget - keep it ready for next query
-                    // The mic should stay active for continuous conversation
                 });
 
                 // Monitor for any errors or disconnections
                 widget.addEventListener('error', (e) => {
                     console.error('[Simli] Error:', e);
-                    updateStatus('Error occurred - try clicking "Summon Mabel" again');
+                    updateStatus('Error occurred - try again');
                     updateDebug('widget', 'error');
                 });
 
-                // Add mutation observer to watch for widget state changes
-                const observer = new MutationObserver((mutations) => {
-                    // Check if the widget is showing the "Summon" button again (inactive state)
-                    const button = widget.querySelector('button');
-                    if (button && button.textContent.includes('Summon')) {
-                        console.log('[Simli] Widget inactive - ready for new session');
-                        updateStatus('Ready - Click "Summon Mabel" to start');
-                        updateDebug('widget', 'inactive');
+                // Watch for Simli's video element to appear (real face, not dots)
+                const videoObserver = new MutationObserver((mutations) => {
+                    const video = widget.querySelector('video');
+                    if (video && video.srcObject) {
+                        console.log('[Simli] Real video feed detected!');
+                        simliReady = true;
+                        updateDebug('widget', 'video-active');
                     }
                 });
 
-                observer.observe(widget, {
+                videoObserver.observe(widget, {
                     childList: true,
                     subtree: true,
                     attributes: true
                 });
 
-                updateStatus('Widget loaded! Click "Summon Mabel" to start.');
+                updateStatus('Mabel is ready - click "Speak to Mabel"');
                 updateDebug('widget', 'loaded');
 
                 // Update container size in debug
@@ -436,6 +575,7 @@
             } catch (error) {
                 console.error('[Widget] Error:', error);
                 updateStatus(`Error: ${error.message}`);
+                simliContainer.classList.remove('loading');
                 loadBtn.classList.remove('hidden');
                 updateDebug('widget', 'error');
             }
@@ -496,9 +636,21 @@
         window.addEventListener('resize', updateContainerSize);
 
         // Initial update
-        updateStatus('Ready! Click "Load Simli" to test.');
+        updateStatus('Ready! Click "Summon Mabel" to begin.');
         updateDebug('widget', 'not loaded');
         updateDebug('size', '90vw x 90vh');
+
+        // Start bottom layer immediately (spinning disc)
+        document.addEventListener('DOMContentLoaded', () => {
+            startBottomLayer();
+        });
+
+        // Also try on first user interaction (for autoplay policies)
+        document.addEventListener('click', () => {
+            if (bottomVideo && bottomVideo.paused) {
+                bottomVideo.play().catch(() => {});
+            }
+        }, { once: true });
     </script>
 
 </body>

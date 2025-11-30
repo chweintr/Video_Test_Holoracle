@@ -1,6 +1,42 @@
 /**
  * ECHOES OF INDIANA - STATE MACHINE
- * Manages state transitions: idle → transitioning-in → active → processing → transitioning-out → idle
+ * 
+ * Manages state transitions for the 4-layer compositor:
+ * 
+ * State Flow:
+ * ┌──────────┐
+ * │   IDLE   │ ← Layers 1+2+4 playing, persona selection visible
+ * └────┬─────┘
+ *      │ user clicks persona
+ *      ▼
+ * ┌──────────────────┐
+ * │ TRANSITIONING-IN │ ← Layer 2 plays idle-to-persona video
+ * └────────┬─────────┘
+ *          │ video ends
+ *          ▼
+ * ┌──────────┐
+ * │  ACTIVE  │ ← Layer 3 (Simli) visible, interactive
+ * └────┬─────┘
+ *      │ user speaks
+ *      ▼
+ * ┌────────────┐
+ * │ PROCESSING │ ← Processing message shown
+ * └──────┬─────┘
+ *        │ AI responds
+ *        ▼
+ * ┌──────────┐
+ * │  ACTIVE  │ ← Back to interactive
+ * └────┬─────┘
+ *      │ user clicks dismiss
+ *      ▼
+ * ┌───────────────────┐
+ * │ TRANSITIONING-OUT │ ← Layer 2 plays persona-to-idle video
+ * └─────────┬─────────┘
+ *           │ video ends
+ *           ▼
+ * ┌──────────┐
+ * │   IDLE   │ ← Back to start
+ * └──────────┘
  */
 
 const StateMachine = {
@@ -60,6 +96,7 @@ const StateMachine = {
 
     /**
      * Transition: idle → transitioning-in
+     * User selected a persona, begin summoning
      */
     async summonPersona(personaId) {
         if (this.currentState !== this.states.IDLE) {
@@ -159,6 +196,7 @@ const StateMachine = {
 
     /**
      * Emergency reset - force back to idle
+     * Use when something goes wrong
      */
     forceReset() {
         console.warn('[StateMachine] FORCE RESET - returning to idle');
@@ -166,6 +204,10 @@ const StateMachine = {
         this.activePersona = null;
         this.setState(this.states.IDLE);
     },
+
+    /* ============================================
+       PROCESSING MESSAGES
+       ============================================ */
 
     /**
      * Start rotating processing messages
@@ -218,6 +260,10 @@ const StateMachine = {
         overlay.classList.remove('visible');
         overlay.classList.add('hidden');
     },
+
+    /* ============================================
+       DEBUG & HELPERS
+       ============================================ */
 
     /**
      * Update debug panel

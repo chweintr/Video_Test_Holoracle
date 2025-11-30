@@ -1,15 +1,57 @@
 /**
  * ECHOES OF INDIANA - CONFIGURATION
- * Persona definitions, Simli credentials, video paths, and processing messages
+ * 
+ * 4-Layer Compositor Configuration:
+ * ┌─────────────────────────────────────────┐
+ * │  Layer 4: TOP FLOATIES                  │
+ * │  Layer 3: SIMLI AGENT                   │
+ * │  Layer 2: ABSTRACT LOOPS / TRANSITIONS  │
+ * │  Layer 1: BOTTOM FLOATIES               │
+ * └─────────────────────────────────────────┘
  */
 
 const CONFIG = {
-    // Backend API endpoint (reuses existing backend from parent repo)
-    backendUrl: window.location.origin, // Same domain, served by Railway
+    // Backend API endpoint
+    backendUrl: window.location.origin,
     tokenEndpoint: '/simli-token',
 
-    // Personas Configuration
-    // Add new personas here - each entry is completely self-contained
+    /* ============================================
+       GLOBAL VIDEO SETTINGS
+       These affect multiple personas or global layers
+       ============================================ */
+    video: {
+        // LAYER 1: Bottom Floaties (perpetual loop)
+        // Smoke, embers, subtle depth effects behind everything
+        bottomFloaties: null, // e.g., 'floaties-bottom.mp4'
+        
+        // LAYER 4: Top Floaties (perpetual loop)
+        // Sparkles, particles, neon wisps on top of everything
+        topFloaties: null, // e.g., 'floaties-top.mp4'
+        
+        // LAYER 2: Idle Loops (random abstract videos)
+        // These play when no persona is active
+        // The compositor picks randomly from this array
+        idleLoops: [
+            'idle_1.mp4',
+            // Add more idle loops here as you create them:
+            // 'idle_2.mp4',
+            // 'idle_3.mp4',
+        ],
+        
+        // Randomize idle loop selection (true) or play sequentially (false)
+        randomizeIdleLoops: true,
+        
+        // Default transition duration (ms) - used when no video is configured
+        defaultTransitionDuration: 2000,
+        
+        // Allow user to skip transition by clicking
+        allowSkipTransition: false,
+    },
+
+    /* ============================================
+       PERSONAS CONFIGURATION
+       Each persona has their own Simli agent, videos, and settings
+       ============================================ */
     personas: {
         mabel: {
             name: 'Mabel',
@@ -19,14 +61,17 @@ const CONFIG = {
 
             // Simli Configuration
             agentId: 'dba533f4-b299-41d4-9745-4c3bc3a248a2', // Mabel's Simli Agent ID
-            faceId: '1ce9c394-89c7-45ab-b3b4-7604f6d01265', // Mabel's Face ID
+            faceId: '1ce9c394-89c7-45ab-b3b4-7604f6d01265',  // Mabel's Face ID
 
             // Video Assets (paths relative to assets/videos/)
             videos: {
-                idleToActive: 'mabel-idle-to-active.mp4', // Transition from idle to Mabel
-                activeToIdle: 'mabel-active-to-idle.mp4', // Transition from Mabel back to idle (optional)
-                background: null, // Optional: Background smoke/atmosphere loop
-                overlay: null, // Optional: Top layer effects
+                // REQUIRED: Transition from idle abstract → persona head appearing
+                // Last frame should show head in position where Simli will appear
+                idleToActive: 'idle_to_mabel_2.mp4',
+                
+                // OPTIONAL: Transition from persona → back to abstract
+                // If null, will just fade out
+                activeToIdle: null, // e.g., 'mabel_to_idle.mp4'
             },
 
             // Processing Messages (shown during AI latency)
@@ -37,18 +82,29 @@ const CONFIG = {
                 'Mabel is considering your question...',
             ],
 
-            // Positioning (adjust based on where head appears in video)
-            simliPosition: {
-                top: '50%',
-                left: '50%',
-                width: '600px',
-                height: '600px',
+            /* 
+             * HEAD POSITIONING
+             * 
+             * Normally you don't need to adjust this because the CSS 
+             * head-container handles uniform sizing. But if your video
+             * has the head offset from center, you can fine-tune here.
+             * 
+             * These values are applied to the head-container for this persona.
+             */
+            headPosition: {
+                // Offset from center (use negative values to move left/up)
+                offsetX: '0%',
+                offsetY: '0%',
+                
+                // Scale adjustment (1.0 = no change)
+                // Use if Simli head needs to be larger/smaller than video head
+                scale: 1.0,
             }
         },
 
-        // ============================================
-        // FUTURE PERSONAS - Uncomment and configure as needed
-        // ============================================
+        /* ============================================
+           FUTURE PERSONAS - Uncomment and configure as needed
+           ============================================ */
 
         /*
         'hoosier-oracle': {
@@ -58,84 +114,70 @@ const CONFIG = {
             agentId: 'YOUR_ORACLE_AGENT_ID',
             faceId: null,
             videos: {
-                idleToActive: 'oracle-idle-to-active.mp4',
-                activeToIdle: 'oracle-active-to-idle.mp4',
-                background: 'oracle-background.mp4',
-                overlay: 'oracle-overlay.mp4',
+                idleToActive: 'idle_to_oracle.mp4',
+                activeToIdle: 'oracle_to_idle.mp4',
             },
             processingMessages: [
                 'Oracle is routing your query...',
                 'Oracle is consulting the echoes...',
                 'Oracle is gathering wisdom...',
             ],
-            simliPosition: {
-                top: '50%',
-                left: '50%',
-                width: '600px',
-                height: '600px',
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
             }
         },
 
         vonnegut: {
             name: 'Kurt Vonnegut',
             fullTitle: 'Indianapolis Author',
-            quote: '"I wanted people to respond as I do to the absurdity and wickedness of all that grownups pretend to be."',
+            quote: '"I wanted people to respond as I do to the absurdity."',
             agentId: 'YOUR_VONNEGUT_AGENT_ID',
             faceId: null,
             videos: {
-                idleToActive: 'vonnegut-idle-to-active.mp4',
-                activeToIdle: 'vonnegut-active-to-idle.mp4',
-                background: null,
-                overlay: null,
+                idleToActive: 'idle_to_vonnegut.mp4',
+                activeToIdle: null,
             },
             processingMessages: [
                 'Kurt is pondering the absurdity...',
                 'Kurt is gathering his thoughts...',
-                'Kurt is considering the wickedness...',
+                'So it goes...',
             ],
-            simliPosition: {
-                top: '50%',
-                left: '50%',
-                width: '600px',
-                height: '600px',
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
             }
         },
 
         bigfoot: {
             name: 'Brown County Bigfoot',
             fullTitle: 'Trail Sage & Cryptid Teller',
-            quote: '"Say whether you need miles, water, or a creature tale for the campfire; I will point you."',
+            quote: '"Say whether you need miles, water, or a creature tale for the campfire."',
             agentId: 'YOUR_BIGFOOT_AGENT_ID',
             faceId: null,
             videos: {
-                idleToActive: 'bigfoot-idle-to-active.mp4',
-                activeToIdle: 'bigfoot-active-to-idle.mp4',
-                background: 'bigfoot-forest-smoke.mp4',
-                overlay: 'bigfoot-mist-overlay.mp4',
+                idleToActive: 'idle_to_bigfoot.mp4',
+                activeToIdle: 'bigfoot_to_idle.mp4',
             },
             processingMessages: [
                 'Bigfoot is sniffing the trail...',
                 'Bigfoot is consulting the forest...',
                 'Bigfoot is gathering a tale...',
             ],
-            simliPosition: {
-                top: '50%',
-                left: '50%',
-                width: '600px',
-                height: '600px',
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
             }
         },
         */
     },
 
-    // Global Video Settings
-    video: {
-        idleLoop: null, // Optional: Global idle animation (abstract hologram loop)
-        defaultTransitionDuration: 2000, // milliseconds
-        allowSkipTransition: false, // If true, user can click to skip transition
-    },
-
-    // UI Settings
+    /* ============================================
+       UI SETTINGS
+       ============================================ */
     ui: {
         showDebugPanel: true, // Set to false for production
         dismissButtonText: 'Dismiss',
@@ -143,23 +185,51 @@ const CONFIG = {
         autoHideSelectionDelay: 500, // ms after persona selected
 
         // Anti-Cropping Settings for LED Holograms
-        stageInset: '5%', // Inset stage from screen edges (prevents edge cropping)
-        enableBorderMask: false, // Enable irregular border to hide potential cropping
+        stageInset: '0%', // Inset stage from screen edges (e.g., '5%')
+        enableBorderMask: false, // Enable vignette border
         borderMaskOpacity: 0.8, // How dark the border mask should be (0-1)
     },
 
-    // Audio Settings (if needed beyond Simli's built-in)
+    /* ============================================
+       HEAD CONTAINER SETTINGS
+       Global settings for the unified head area
+       ============================================ */
+    head: {
+        // These CSS values control the head container size
+        // Both transition videos AND Simli render inside this same container
+        // Change these to scale all heads uniformly
+        
+        // Default size (can be overridden in CSS for responsiveness)
+        width: '80vmin',
+        height: '80vmin',
+        maxWidth: '900px',
+        maxHeight: '900px',
+    },
+
+    /* ============================================
+       STATE MACHINE TIMINGS
+       ============================================ */
+    timing: {
+        // How long to wait for transition video to start
+        transitionVideoWaitTime: 2000,
+        
+        // Rotate processing messages every X ms
+        processingMessageRotateInterval: 5000,
+        
+        // Dismiss transition time (if no video)
+        dismissTransitionTime: 500,
+        
+        // Video crossfade duration (ms)
+        crossfadeDuration: 500,
+    },
+
+    /* ============================================
+       AUDIO SETTINGS
+       ============================================ */
     audio: {
         enableBackgroundAmbience: false,
         ambienceVolume: 0.3,
     },
-
-    // State Machine Timings
-    timing: {
-        transitionVideoWaitTime: 2000, // How long to wait for transition video to start
-        processingMessageRotateInterval: 5000, // Rotate processing messages every 5s
-        dismissTransitionTime: 2000, // Time for dismiss transition
-    }
 };
 
 // Export for use in other modules

@@ -1,12 +1,17 @@
 /**
  * ECHOES OF INDIANA - SIMLI INTEGRATION
  * Manages Simli widget lifecycle, token generation, and event handling
+ * 
+ * The Simli agent lives in LAYER 3 of the 4-layer sandwich.
+ * It appears in the same "head container" space as the transition videos
+ * to ensure perfect alignment between video faces and Simli faces.
  */
 
 const SimliManager = {
     currentWidget: null,
     currentPersona: null,
     isCallActive: false,
+    widgetReady: false,
 
     /**
      * Initialize Simli manager
@@ -53,12 +58,15 @@ const SimliManager = {
                 widget.setAttribute('faceid', persona.faceId);
             }
 
-            // Custom button text
+            // Custom button text (or hide it entirely)
             widget.setAttribute('customtext', CONFIG.ui.summonButtonText);
+            
+            // Auto-start the call (don't show the start button)
+            widget.setAttribute('autostart', 'true');
 
-            // Step 3: Apply custom positioning
+            // Step 3: Apply head position adjustments if needed
             const mount = document.getElementById('simli-mount');
-            this.applyPositioning(mount, persona.simliPosition);
+            this.applyHeadPositioning(mount, persona.headPosition);
 
             // Step 4: Attach widget to mount
             mount.innerHTML = ''; // Clear any previous content
@@ -66,6 +74,7 @@ const SimliManager = {
 
             this.currentWidget = widget;
             this.currentPersona = personaId;
+            this.widgetReady = false;
 
             // Step 5: Set up event listeners
             this.setupWidgetListeners(widget, personaId);
@@ -73,7 +82,7 @@ const SimliManager = {
             console.log(`[SimliManager] Widget created for ${persona.name}`);
 
             // Update debug panel
-            this.updateDebugPanel('loaded');
+            this.updateDebugPanel('loading');
 
             return true;
 
@@ -109,22 +118,31 @@ const SimliManager = {
     },
 
     /**
-     * Apply custom positioning to Simli mount
+     * Apply head position adjustments for this persona
+     * This allows fine-tuning if a persona's video head is offset
      */
-    applyPositioning(mount, position) {
-        if (!position) return;
+    applyHeadPositioning(mount, headPosition) {
+        if (!headPosition) return;
 
-        if (position.top) mount.style.top = position.top;
-        if (position.left) mount.style.left = position.left;
-        if (position.width) mount.style.width = position.width;
-        if (position.height) mount.style.height = position.height;
-        if (position.transform) mount.style.transform = position.transform;
+        // Apply offset via transform
+        const offsetX = headPosition.offsetX || '0%';
+        const offsetY = headPosition.offsetY || '0%';
+        const scale = headPosition.scale || 1.0;
+
+        mount.style.transform = `translate(${offsetX}, ${offsetY}) scale(${scale})`;
     },
 
     /**
      * Set up event listeners on Simli widget
      */
     setupWidgetListeners(widget, personaId) {
+        // Listen for widget ready
+        widget.addEventListener('ready', (e) => {
+            console.log('[SimliManager] Widget ready');
+            this.widgetReady = true;
+            this.updateDebugPanel('ready');
+        });
+
         // Listen for call start (user clicks summon in widget)
         widget.addEventListener('callstart', (e) => {
             console.log('[SimliManager] Call started');
@@ -153,7 +171,9 @@ const SimliManager = {
         widget.addEventListener('speaking', (e) => {
             console.log('[SimliManager] User is speaking');
             // When user speaks, we're processing
-            StateMachine.startProcessing();
+            if (StateMachine.getState() === 'active') {
+                StateMachine.startProcessing();
+            }
         });
 
         // Listen for AI response start (if supported)
@@ -163,8 +183,13 @@ const SimliManager = {
             StateMachine.stopProcessing();
         });
 
+        // Listen for video stream active
+        widget.addEventListener('videoready', (e) => {
+            console.log('[SimliManager] Video stream ready');
+            this.updateDebugPanel('streaming');
+        });
+
         // Fallback: Monitor for speech activity using a MutationObserver
-        // (in case widget doesn't emit speaking events)
         this.setupSpeechMonitor(widget);
     },
 
@@ -173,11 +198,10 @@ const SimliManager = {
      * This is a fallback in case the widget doesn't emit proper events
      */
     setupSpeechMonitor(widget) {
-        // Look for changes in the widget that indicate processing
-        // This is implementation-specific and may need adjustment
         const observer = new MutationObserver((mutations) => {
             // Check if widget is showing processing indicators
-            const isProcessing = widget.querySelector('[data-processing="true"]') !== null;
+            const isProcessing = widget.querySelector('[data-processing="true"]') !== null ||
+                                 widget.querySelector('.processing') !== null;
 
             if (isProcessing && StateMachine.getState() === 'active') {
                 StateMachine.startProcessing();
@@ -194,19 +218,39 @@ const SimliManager = {
     },
 
     /**
-     * Show Simli mount (fade in)
+     * Show Simli mount (fade in or instant)
+     * @param {boolean} instant - If true, show immediately without transition
      */
-    showWidget() {
+    showWidget(instant = false) {
         const mount = document.getElementById('simli-mount');
-        mount.classList.add('active');
+        
+        if (instant) {
+            mount.classList.add('instant-show');
+            mount.classList.add('active');
+            setTimeout(() => mount.classList.remove('instant-show'), 50);
+        } else {
+            mount.classList.add('active');
+        }
+        
+        console.log('[SimliManager] Widget shown');
     },
 
     /**
-     * Hide Simli mount (fade out)
+     * Hide Simli mount (fade out or instant)
+     * @param {boolean} instant - If true, hide immediately without transition
      */
-    hideWidget() {
+    hideWidget(instant = false) {
         const mount = document.getElementById('simli-mount');
-        mount.classList.remove('active');
+        
+        if (instant) {
+            mount.classList.add('instant-hide');
+            mount.classList.remove('active');
+            setTimeout(() => mount.classList.remove('instant-hide'), 50);
+        } else {
+            mount.classList.remove('active');
+        }
+        
+        console.log('[SimliManager] Widget hidden');
     },
 
     /**
@@ -225,12 +269,14 @@ const SimliManager = {
         // Remove widget after fade out
         setTimeout(() => {
             mount.innerHTML = '';
+            mount.style.transform = ''; // Reset any positioning adjustments
             this.currentWidget = null;
             this.currentPersona = null;
             this.isCallActive = false;
+            this.widgetReady = false;
             this.updateDebugPanel('destroyed');
             console.log('[SimliManager] Widget destroyed');
-        }, 500); // Match CSS transition time
+        }, CONFIG.timing.crossfadeDuration);
     },
 
     /**
@@ -238,6 +284,13 @@ const SimliManager = {
      */
     isActive() {
         return this.isCallActive;
+    },
+
+    /**
+     * Check if widget is ready
+     */
+    isReady() {
+        return this.widgetReady;
     },
 
     /**
@@ -255,7 +308,18 @@ const SimliManager = {
      */
     forceCleanup() {
         console.warn('[SimliManager] Force cleanup');
-        this.destroyWidget();
+        
+        const mount = document.getElementById('simli-mount');
+        mount.classList.remove('active');
+        mount.innerHTML = '';
+        mount.style.transform = '';
+        
+        this.currentWidget = null;
+        this.currentPersona = null;
+        this.isCallActive = false;
+        this.widgetReady = false;
+        
+        this.updateDebugPanel('force-cleaned');
     }
 };
 

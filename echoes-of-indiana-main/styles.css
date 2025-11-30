@@ -1,6 +1,22 @@
 /* ============================================
-   ECHOES OF INDIANA - COMPOSITOR STYLES
-   Black/Alpha backgrounds for LED hologram compositing
+   ECHOES OF INDIANA - 4-LAYER COMPOSITOR STYLES
+   
+   The 4-Layer Sandwich (top to bottom):
+   ┌─────────────────────────────────────────┐
+   │  Layer 4: TOP FLOATIES                  │  ← Perpetual loop (can be long!)
+   │  (sparkles, particles, neon wisps)      │
+   ├─────────────────────────────────────────┤
+   │  Layer 3: SIMLI AGENT                   │  ← Only visible during interaction
+   │  (Mabel's face, interactive)            │
+   ├─────────────────────────────────────────┤
+   │  Layer 2: ABSTRACT LOOPS / TRANSITIONS  │  ← The "genie smoke" layer
+   │  - idle: random abstract loops          │
+   │  - idle-to-persona: swirly → face spot  │
+   │  - persona-to-idle: face spot → swirly  │
+   ├─────────────────────────────────────────┤
+   │  Layer 1: BOTTOM FLOATIES               │  ← Perpetual loop (depth enhancer)
+   │  (smoke, embers, subtle effects)        │
+   └─────────────────────────────────────────┘
    ============================================ */
 
 * {
@@ -31,7 +47,7 @@ body {
 }
 
 /* ============================================
-   VIDEO LAYERS - Below, Above, and Simli Middle
+   VIDEO LAYER CONTAINERS (z-index stacking)
    ============================================ */
 
 .video-layer-container {
@@ -41,66 +57,185 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.video-layer {
+/* Layer 1: Bottom Floaties */
+#layer-bottom-floaties {
+    z-index: 1;
+}
+
+/* Layer 2: Abstract Loops / Transitions */
+#layer-abstract {
+    z-index: 2;
+}
+
+/* Layer 3: Simli Agent */
+#layer-simli {
+    z-index: 3;
+}
+
+/* Layer 4: Top Floaties */
+#layer-top-floaties {
+    z-index: 4;
+}
+
+/* ============================================
+   HEAD CONTAINER - THE KEY TO CONSISTENT SIZING
+   
+   Both the video head and Simli avatar render
+   inside identically-sized containers, ensuring
+   the face from transition videos aligns PERFECTLY
+   with where Simli appears.
+   ============================================ */
+
+.head-container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Preserve alpha transparency */
+    
+    /* 
+     * HEAD SIZE CONTROL - Change these to scale ALL heads together!
+     * This affects:
+     * - Transition video heads (idle-to-mabel, mabel-to-idle)
+     * - Simli avatar head
+     * 
+     * Aspect ratio should match your video content.
+     * For portrait heads, use something like 80vh height, auto width
+     * For square content, use equal width/height
+     */
+    width: 80vmin;      /* 80% of smaller viewport dimension */
+    height: 80vmin;     /* Keeps it square - adjust if needed */
+    max-width: 900px;   /* Cap maximum size */
+    max-height: 900px;
+    
+    /* Debug outline - uncomment to see container bounds */
+    /* outline: 2px dashed rgba(255, 0, 255, 0.5); */
+}
+
+/* ============================================
+   VIDEO LAYERS - Base Styling
+   ============================================ */
+
+.video-layer {
+    position: absolute;
     opacity: 0;
     transition: opacity 0.5s ease;
+    background: transparent;
 }
 
 .video-layer.active {
     opacity: 1;
 }
 
-/* Layer Below - Background (z-index: 1) */
-#layer-below-container {
-    z-index: 1;
+/* Floaties - Full screen, cover the viewport */
+.video-layer.floaties {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* Simli Mount - Middle Layer (z-index: 2) */
-#simli-mount {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px; /* Adjust based on your hologram size */
-    height: 600px;
-    z-index: 2;
+/* Head Videos - Fill the head container, maintain aspect */
+.video-layer.head-video {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: contain;  /* Show full head, don't crop */
+    object-position: center center;
+}
+
+/* ============================================
+   SIMLI WIDGET STYLING
+   
+   Critical: The Simli wrapper must fill the
+   head container AND the internal video must
+   scale to match our head size.
+   ============================================ */
+
+.simli-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
     opacity: 0;
     transition: opacity 0.5s ease;
+    
+    /* Ensure pointer events work for interaction */
+    pointer-events: auto;
 }
 
-#simli-mount.active {
+.simli-wrapper.active {
     opacity: 1;
 }
 
-/* Simli widget styling overrides */
+/* Override Simli widget default styles */
 #simli-mount simli-widget {
     width: 100% !important;
     height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
 }
 
+/* Force Simli video to fill container properly */
 #simli-mount simli-widget video {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important;
+    object-fit: contain !important;  /* Match our head-video style */
+    object-position: center center !important;
+    background: transparent !important;
 }
 
-/* Layer Above - Overlay Effects (z-index: 3) */
-#layer-above-container {
-    z-index: 3;
+/* Hide Simli's default loading indicator (the dotted face) */
+#simli-mount simli-widget .loading,
+#simli-mount simli-widget [class*="loading"],
+#simli-mount simli-widget [class*="placeholder"],
+#simli-mount simli-widget [class*="avatar-placeholder"],
+#simli-mount simli-widget .avatar-loading,
+#simli-mount simli-widget svg[class*="face"],
+#simli-mount simli-widget div[class*="face-outline"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
-.video-layer.overlay {
-    mix-blend-mode: screen; /* For transparent smoke/effects */
-    opacity: 0.8; /* Adjust for desired transparency */
+/* Only show when video stream is actually active */
+#simli-mount simli-widget video:not([src=""]):not([src="undefined"]) {
+    display: block !important;
+}
+
+/* Container for Simli - prevent default button from showing */
+#simli-mount simli-widget button[class*="call"],
+#simli-mount simli-widget button[class*="start"] {
+    display: none !important;
+}
+
+/* ============================================
+   FLOATIES STYLING (Layers 1 & 4)
+   ============================================ */
+
+/* Bottom floaties - more subtle */
+#video-bottom-floaties {
+    mix-blend-mode: screen;
+    opacity: 0;
+}
+
+#video-bottom-floaties.active {
+    opacity: 0.6;
+}
+
+/* Top floaties - brighter, sparkly */
+#video-top-floaties {
+    mix-blend-mode: screen;
+    opacity: 0;
+}
+
+#video-top-floaties.active {
+    opacity: 0.8;
 }
 
 /* ============================================
@@ -112,7 +247,7 @@ body {
     top: 20%;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 4;
+    z-index: 10;
     text-align: center;
     padding: 20px 40px;
     background: rgba(0, 0, 0, 0.7);
@@ -155,7 +290,7 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 9; /* Above everything except UI */
+    z-index: 50; /* Above video layers, below UI */
     opacity: 0;
     transition: opacity 0.5s ease;
 
@@ -175,20 +310,6 @@ body {
     opacity: 1;
 }
 
-/* Optional: More aggressive irregular edge */
-.border-mask.irregular {
-    background:
-        radial-gradient(
-            ellipse 90% 85% at 48% 52%, /* Offset slightly for irregularity */
-            transparent 0%,
-            transparent 60%,
-            rgba(0,0,0,0.3) 72%,
-            rgba(0,0,0,0.6) 83%,
-            rgba(0,0,0,0.9) 92%,
-            #000000 100%
-        );
-}
-
 /* ============================================
    PERSONA SELECTION INTERFACE
    ============================================ */
@@ -198,7 +319,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 5;
+    z-index: 100;
     text-align: center;
     padding: 40px;
     background: rgba(0, 0, 0, 0.85);
@@ -287,7 +408,7 @@ body {
     position: absolute;
     bottom: 40px;
     right: 40px;
-    z-index: 6;
+    z-index: 100;
     padding: 15px 30px;
     font-size: 1.2rem;
     background: rgba(255, 0, 0, 0.3);
@@ -352,8 +473,46 @@ body {
         gap: 15px;
     }
 
-    #simli-mount {
-        width: 400px;
-        height: 400px;
+    /* Smaller head container on mobile */
+    .head-container {
+        width: 90vmin;
+        height: 90vmin;
     }
+}
+
+@media (min-width: 1920px) {
+    /* Larger head container on big screens */
+    .head-container {
+        width: 70vmin;
+        height: 70vmin;
+        max-width: 1200px;
+        max-height: 1200px;
+    }
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+
+/* Crossfade transition for video swaps */
+.video-layer.crossfade-out {
+    opacity: 0 !important;
+    transition: opacity 0.3s ease;
+}
+
+.video-layer.crossfade-in {
+    opacity: 1 !important;
+    transition: opacity 0.3s ease;
+}
+
+/* Instant hide (no transition) */
+.video-layer.instant-hide {
+    opacity: 0 !important;
+    transition: none !important;
+}
+
+/* Instant show (no transition) */
+.video-layer.instant-show {
+    opacity: 1 !important;
+    transition: none !important;
 }

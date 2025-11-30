@@ -1,29 +1,71 @@
 /**
- * ECHOES OF INDIANA - MAIN COMPOSITOR
- * Orchestrates video layers, state machine, and Simli integration
+ * ECHOES OF INDIANA - 4-LAYER COMPOSITOR
+ * 
+ * The 4-Layer Sandwich (top to bottom):
+ * ┌─────────────────────────────────────────┐
+ * │  Layer 4: TOP FLOATIES                  │  ← Perpetual loop
+ * │  (sparkles, particles, neon wisps)      │
+ * ├─────────────────────────────────────────┤
+ * │  Layer 3: SIMLI AGENT                   │  ← Only visible during interaction
+ * │  (Mabel's face, interactive)            │
+ * ├─────────────────────────────────────────┤
+ * │  Layer 2: ABSTRACT LOOPS / TRANSITIONS  │  ← The "genie smoke" layer
+ * │  - idle: random abstract loops          │
+ * │  - idle-to-persona: swirly → face spot  │
+ * │  - persona-to-idle: face spot → swirly  │
+ * ├─────────────────────────────────────────┤
+ * │  Layer 1: BOTTOM FLOATIES               │  ← Perpetual loop
+ * │  (smoke, embers, subtle effects)        │
+ * └─────────────────────────────────────────┘
+ * 
+ * The Flow:
+ * 1. Resting state: Layers 1 + 2 (random abstract loops) + 4 all playing
+ * 2. User invokes Mabel: Let current abstract loop finish → play idle-to-mabel.mp4
+ * 3. Transition ends: Simli agent appears in exact spot where smoke resolved → interactive
+ * 4. User dismisses: Immediately swap Simli for mabel-to-idle.mp4
+ * 5. Transition ends: Return to random abstract loops
  */
 
 const Compositor = {
     // DOM Elements
     elements: {
-        layerBelow: null,
-        layerAbove: null,
+        // Layer 1: Bottom floaties
+        bottomFloaties: null,
+        
+        // Layer 2: Abstract/Transitions
+        idleLoop: null,
+        transition: null,
+        
+        // Layer 3: Simli
         simliMount: null,
+        simliWrapper: null,
+        
+        // Layer 4: Top floaties
+        topFloaties: null,
+        
+        // UI
         personaSelection: null,
         dismissBtn: null,
         borderMask: null,
     },
 
+    // State tracking
+    idleLoopIndex: 0,
+    isIdleLoopPlaying: false,
+
     /**
      * Initialize the compositor
      */
     init() {
-        console.log('[Compositor] Initializing...');
+        console.log('[Compositor] Initializing 4-Layer Compositor...');
 
         // Get DOM elements
-        this.elements.layerBelow = document.getElementById('layer-below');
-        this.elements.layerAbove = document.getElementById('layer-above');
+        this.elements.bottomFloaties = document.getElementById('video-bottom-floaties');
+        this.elements.idleLoop = document.getElementById('video-idle-loop');
+        this.elements.transition = document.getElementById('video-transition');
         this.elements.simliMount = document.getElementById('simli-mount');
+        this.elements.simliWrapper = document.getElementById('simli-mount');
+        this.elements.topFloaties = document.getElementById('video-top-floaties');
         this.elements.personaSelection = document.getElementById('persona-selection');
         this.elements.dismissBtn = document.getElementById('dismiss-btn');
         this.elements.borderMask = document.getElementById('border-mask');
@@ -37,7 +79,13 @@ const Compositor = {
         // Listen for state changes
         this.listenToStateChanges();
 
-        console.log('[Compositor] Ready');
+        // Start perpetual floaties
+        this.startFloaties();
+
+        // Start idle loop
+        this.startIdleLoop();
+
+        console.log('[Compositor] Ready - 4 layers initialized');
     },
 
     /**
@@ -58,13 +106,14 @@ const Compositor = {
             this.onDismissClicked();
         });
 
-        // Listen for transition video end events
-        this.elements.layerBelow.addEventListener('ended', () => {
-            this.onTransitionVideoEnded('below');
+        // Idle loop ended - play next random loop
+        this.elements.idleLoop.addEventListener('ended', () => {
+            this.onIdleLoopEnded();
         });
 
-        this.elements.layerAbove.addEventListener('ended', () => {
-            this.onTransitionVideoEnded('above');
+        // Transition video ended
+        this.elements.transition.addEventListener('ended', () => {
+            this.onTransitionVideoEnded();
         });
     },
 
@@ -100,6 +149,124 @@ const Compositor = {
         });
     },
 
+    /* ============================================
+       FLOATIES (Layers 1 & 4) - Perpetual Loops
+       ============================================ */
+
+    /**
+     * Start perpetual floaties on layers 1 and 4
+     */
+    startFloaties() {
+        // Bottom floaties (Layer 1)
+        if (CONFIG.video.bottomFloaties) {
+            const videoPath = `assets/videos/${CONFIG.video.bottomFloaties}`;
+            this.elements.bottomFloaties.src = videoPath;
+            this.elements.bottomFloaties.loop = true;
+            this.elements.bottomFloaties.play()
+                .then(() => {
+                    this.elements.bottomFloaties.classList.add('active');
+                    console.log('[Compositor] Bottom floaties started');
+                })
+                .catch(e => console.warn('[Compositor] Bottom floaties autoplay blocked:', e));
+        }
+
+        // Top floaties (Layer 4)
+        if (CONFIG.video.topFloaties) {
+            const videoPath = `assets/videos/${CONFIG.video.topFloaties}`;
+            this.elements.topFloaties.src = videoPath;
+            this.elements.topFloaties.loop = true;
+            this.elements.topFloaties.play()
+                .then(() => {
+                    this.elements.topFloaties.classList.add('active');
+                    console.log('[Compositor] Top floaties started');
+                })
+                .catch(e => console.warn('[Compositor] Top floaties autoplay blocked:', e));
+        }
+    },
+
+    /* ============================================
+       IDLE LOOP (Layer 2) - Random Abstract Videos
+       ============================================ */
+
+    /**
+     * Start playing idle loop videos
+     */
+    startIdleLoop() {
+        if (!CONFIG.video.idleLoops || CONFIG.video.idleLoops.length === 0) {
+            console.log('[Compositor] No idle loops configured');
+            return;
+        }
+
+        this.isIdleLoopPlaying = true;
+        this.playNextIdleLoop();
+        this.updateDebugPanel('idle', 'playing');
+    },
+
+    /**
+     * Play the next idle loop video
+     */
+    playNextIdleLoop() {
+        if (!this.isIdleLoopPlaying) return;
+
+        const idleLoops = CONFIG.video.idleLoops;
+        
+        // Pick random video (or sequential if configured)
+        if (CONFIG.video.randomizeIdleLoops) {
+            this.idleLoopIndex = Math.floor(Math.random() * idleLoops.length);
+        } else {
+            this.idleLoopIndex = (this.idleLoopIndex + 1) % idleLoops.length;
+        }
+
+        const videoPath = `assets/videos/${idleLoops[this.idleLoopIndex]}`;
+        console.log(`[Compositor] Playing idle loop: ${videoPath}`);
+
+        this.elements.idleLoop.src = videoPath;
+        this.elements.idleLoop.loop = false; // Don't loop - we'll pick new one on end
+        this.elements.idleLoop.classList.add('active');
+        
+        this.elements.idleLoop.play()
+            .catch(e => console.warn('[Compositor] Idle loop autoplay blocked:', e));
+    },
+
+    /**
+     * Handle idle loop video ended
+     */
+    onIdleLoopEnded() {
+        if (this.isIdleLoopPlaying) {
+            this.playNextIdleLoop();
+        }
+    },
+
+    /**
+     * Stop idle loop
+     */
+    stopIdleLoop() {
+        console.log('[Compositor] Stopping idle loop');
+        this.isIdleLoopPlaying = false;
+        this.updateDebugPanel('idle', 'stopped');
+        
+        // Fade out current idle loop
+        this.elements.idleLoop.classList.remove('active');
+        
+        setTimeout(() => {
+            this.elements.idleLoop.pause();
+        }, 500); // Match CSS fade transition
+    },
+
+    /**
+     * Resume idle loop
+     */
+    resumeIdleLoop() {
+        console.log('[Compositor] Resuming idle loop');
+        this.isIdleLoopPlaying = true;
+        this.updateDebugPanel('idle', 'playing');
+        this.playNextIdleLoop();
+    },
+
+    /* ============================================
+       EVENT HANDLERS
+       ============================================ */
+
     /**
      * Handle: User selects a persona
      */
@@ -126,19 +293,18 @@ const Compositor = {
     /**
      * Handle: Transition video ended
      */
-    onTransitionVideoEnded(layer) {
-        console.log(`[Compositor] Transition video ended on layer: ${layer}`);
+    onTransitionVideoEnded() {
+        console.log('[Compositor] Transition video ended');
 
         const state = StateMachine.getState();
 
-        // If we're transitioning in and the main transition video ended, move to active
-        if (state === 'transitioning-in' && layer === 'below') {
-            // Transition is complete, move to active state
+        // If we're transitioning in and the transition video ended, move to active
+        if (state === 'transitioning-in') {
             StateMachine.transitionComplete();
         }
 
         // If we're transitioning out and the transition video ended, return to idle
-        if (state === 'transitioning-out' && layer === 'below') {
+        if (state === 'transitioning-out') {
             StateMachine.returnToIdle();
         }
     },
@@ -149,7 +315,7 @@ const Compositor = {
 
     /**
      * State: IDLE
-     * Show persona selection, hide everything else
+     * Show persona selection, play idle loops, hide Simli
      */
     handleIdleState() {
         console.log('[Compositor] → IDLE state');
@@ -161,15 +327,14 @@ const Compositor = {
         this.elements.dismissBtn.classList.remove('visible');
         this.elements.dismissBtn.classList.add('hidden');
 
-        // Clear all video layers
-        this.clearVideoLayer('below');
-        this.clearVideoLayer('above');
+        // Clear transition video
+        this.clearTransitionVideo();
 
-        // Hide Simli mount
+        // Hide Simli widget
         SimliManager.hideWidget();
 
-        // TODO: Optionally play global idle loop video here
-        // this.playVideo('below', 'assets/videos/global-idle-loop.mp4', true);
+        // Resume idle loop
+        this.resumeIdleLoop();
     },
 
     /**
@@ -186,13 +351,15 @@ const Compositor = {
             this.elements.personaSelection.classList.add('hidden');
         }, CONFIG.ui.autoHideSelectionDelay);
 
+        // Stop idle loop - let it fade out while transition fades in
+        this.stopIdleLoop();
+
         // Play transition video (idle → persona)
         if (persona.videos.idleToActive) {
-            const videoPath = `assets/videos/${persona.videos.idleToActive}`;
-            await this.playVideo('below', videoPath, false);
+            await this.playTransitionVideo(persona.videos.idleToActive);
         } else {
             console.warn('[Compositor] No idle-to-active video configured');
-            // No transition video, move directly to active
+            // No transition video, move directly to active after short delay
             setTimeout(() => {
                 StateMachine.transitionComplete();
             }, 1000);
@@ -211,30 +378,16 @@ const Compositor = {
 
     /**
      * State: ACTIVE
-     * Show Simli widget, start background/overlay loops, show dismiss button
+     * Show Simli widget, hide transition video, show dismiss button
      */
     handleActiveState(personaId) {
         console.log(`[Compositor] → ACTIVE state (${personaId})`);
 
-        const persona = CONFIG.personas[personaId];
-
-        // Clear transition video from below layer
-        this.clearVideoLayer('below');
+        // Hide transition video (instant for seamless swap)
+        this.clearTransitionVideo(true); // true = instant, no fade
 
         // Show Simli widget
         SimliManager.showWidget();
-
-        // Start background loop (if configured)
-        if (persona.videos.background) {
-            const videoPath = `assets/videos/${persona.videos.background}`;
-            this.playVideo('below', videoPath, true);
-        }
-
-        // Start overlay loop (if configured)
-        if (persona.videos.overlay) {
-            const videoPath = `assets/videos/${persona.videos.overlay}`;
-            this.playVideo('above', videoPath, true);
-        }
 
         // Show dismiss button
         this.elements.dismissBtn.classList.remove('hidden');
@@ -247,10 +400,8 @@ const Compositor = {
      */
     handleProcessingState(personaId) {
         console.log(`[Compositor] → PROCESSING state (${personaId})`);
-
         // Processing messages are handled by StateMachine
-        // Background and overlay videos continue playing
-        // Nothing special to do here in compositor
+        // Simli remains visible, nothing to do here
     },
 
     /**
@@ -266,22 +417,17 @@ const Compositor = {
         this.elements.dismissBtn.classList.remove('visible');
         this.elements.dismissBtn.classList.add('hidden');
 
-        // Hide Simli widget
-        SimliManager.hideWidget();
-
-        // Clear overlay
-        this.clearVideoLayer('above');
+        // Hide Simli widget INSTANTLY (so transition video takes over)
+        SimliManager.hideWidget(true); // true = instant
 
         // Play transition video (persona → idle)
         if (persona.videos.activeToIdle) {
-            const videoPath = `assets/videos/${persona.videos.activeToIdle}`;
-            await this.playVideo('below', videoPath, false);
+            await this.playTransitionVideo(persona.videos.activeToIdle);
         } else {
-            // No transition-out video, just fade and return to idle
-            this.clearVideoLayer('below');
+            // No transition-out video, just return to idle
             setTimeout(() => {
                 StateMachine.returnToIdle();
-            }, 1000);
+            }, 500);
         }
 
         // Note: transition video 'ended' event will trigger returnToIdle()
@@ -292,62 +438,46 @@ const Compositor = {
        ============================================ */
 
     /**
-     * Play video on specified layer
+     * Play a transition video (Layer 2)
      */
-    async playVideo(layer, videoPath, loop = false) {
-        const videoEl = layer === 'below' ? this.elements.layerBelow : this.elements.layerAbove;
+    async playTransitionVideo(videoName) {
+        const videoPath = `assets/videos/${videoName}`;
+        console.log(`[Compositor] Playing transition video: ${videoPath}`);
 
-        console.log(`[Compositor] Playing video on ${layer}: ${videoPath} (loop: ${loop})`);
+        this.elements.transition.src = videoPath;
+        this.elements.transition.loop = false;
+        this.elements.transition.classList.add('active');
 
-        // Set video source
-        videoEl.src = videoPath;
-        videoEl.loop = loop;
-
-        // Show video
-        videoEl.classList.add('active');
-
-        // Play video
         try {
-            await videoEl.play();
-            console.log(`[Compositor] Video playing on ${layer}`);
+            await this.elements.transition.play();
+            console.log('[Compositor] Transition video playing');
         } catch (error) {
-            console.error(`[Compositor] Error playing video on ${layer}:`, error);
+            console.error('[Compositor] Error playing transition video:', error);
         }
     },
 
     /**
-     * Clear video from layer
+     * Clear transition video
      */
-    clearVideoLayer(layer) {
-        const videoEl = layer === 'below' ? this.elements.layerBelow : this.elements.layerAbove;
-
-        console.log(`[Compositor] Clearing video layer: ${layer}`);
-
-        // Fade out
-        videoEl.classList.remove('active');
-
-        // Stop and clear after fade
-        setTimeout(() => {
-            videoEl.pause();
-            videoEl.src = '';
-            videoEl.currentTime = 0;
-        }, 500); // Match CSS transition time
-    },
-
-    /**
-     * Pause video on layer
-     */
-    pauseVideo(layer) {
-        const videoEl = layer === 'below' ? this.elements.layerBelow : this.elements.layerAbove;
-        videoEl.pause();
-    },
-
-    /**
-     * Resume video on layer
-     */
-    resumeVideo(layer) {
-        const videoEl = layer === 'below' ? this.elements.layerBelow : this.elements.layerAbove;
-        videoEl.play();
+    clearTransitionVideo(instant = false) {
+        if (instant) {
+            this.elements.transition.classList.add('instant-hide');
+            this.elements.transition.classList.remove('active');
+            this.elements.transition.pause();
+            this.elements.transition.src = '';
+            
+            // Remove instant class after a tick
+            setTimeout(() => {
+                this.elements.transition.classList.remove('instant-hide');
+            }, 50);
+        } else {
+            this.elements.transition.classList.remove('active');
+            
+            setTimeout(() => {
+                this.elements.transition.pause();
+                this.elements.transition.src = '';
+            }, 500); // Match CSS fade transition
+        }
     },
 
     /* ============================================
@@ -375,13 +505,16 @@ const Compositor = {
             this.elements.borderMask.style.opacity = CONFIG.ui.borderMaskOpacity;
             console.log(`[Compositor] Border mask enabled (opacity: ${CONFIG.ui.borderMaskOpacity})`);
         }
+    },
 
-        // Ensure videos use contain (never crop)
-        const videoLayers = document.querySelectorAll('.video-layer');
-        videoLayers.forEach(video => {
-            video.style.objectFit = 'contain';
-        });
-        console.log('[Compositor] Video layers set to object-fit: contain');
+    /**
+     * Update debug panel
+     */
+    updateDebugPanel(field, value) {
+        if (!CONFIG.ui.showDebugPanel) return;
+
+        const el = document.getElementById(`debug-${field}`);
+        if (el) el.textContent = value;
     },
 
     /**
@@ -391,6 +524,7 @@ const Compositor = {
         console.warn('[Compositor] FORCE RESET');
         StateMachine.forceReset();
         SimliManager.forceCleanup();
+        this.clearTransitionVideo();
         this.handleIdleState();
     }
 };
@@ -400,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Compositor.init();
 });
 
-// Expose compositor globally for debugging
+// Expose globally for debugging
 window.Compositor = Compositor;
 window.StateMachine = StateMachine;
 window.SimliManager = SimliManager;

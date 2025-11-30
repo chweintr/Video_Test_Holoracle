@@ -13,17 +13,43 @@
     <!-- Main Hologram Stage -->
     <div id="stage">
 
-        <!-- Layer 1: Background Video (Below Simli) -->
-        <div id="layer-below-container" class="video-layer-container">
-            <video id="layer-below" class="video-layer" playsinline loop muted></video>
+        <!-- ============================================
+             4-LAYER SANDWICH ARCHITECTURE
+             ============================================
+             Layer 4 (top):    Top Floaties - sparkles, particles, neon wisps
+             Layer 3 (middle): Simli Agent - Mabel's face, interactive
+             Layer 2 (middle): Abstract Loops / Transitions - the "genie smoke" layer
+             Layer 1 (bottom): Bottom Floaties - smoke, embers, subtle effects
+             ============================================ -->
+
+        <!-- LAYER 1: Bottom Floaties (perpetual loop - depth enhancer) -->
+        <div id="layer-bottom-floaties" class="video-layer-container" data-layer="1">
+            <video id="video-bottom-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
 
-        <!-- Layer 2: Simli Avatar Mount (Middle) -->
-        <div id="simli-mount" class="simli-container"></div>
+        <!-- LAYER 2: Abstract Loops / Transitions (the "genie smoke" layer) -->
+        <!-- This layer holds BOTH idle loops AND transition videos -->
+        <div id="layer-abstract" class="video-layer-container" data-layer="2">
+            <!-- Head Container - ensures all heads render at same scale/position -->
+            <div id="head-container-video" class="head-container">
+                <!-- Idle loop video (random abstract loops when no persona active) -->
+                <video id="video-idle-loop" class="video-layer head-video" playsinline loop muted></video>
+                <!-- Transition video (idle-to-persona / persona-to-idle) -->
+                <video id="video-transition" class="video-layer head-video" playsinline muted></video>
+            </div>
+        </div>
 
-        <!-- Layer 3: Overlay Video (Above Simli) -->
-        <div id="layer-above-container" class="video-layer-container">
-            <video id="layer-above" class="video-layer overlay" playsinline loop muted></video>
+        <!-- LAYER 3: Simli Agent (only visible during interaction) -->
+        <div id="layer-simli" class="video-layer-container" data-layer="3">
+            <!-- Head Container - SAME SIZE as video head container for perfect alignment -->
+            <div id="head-container-simli" class="head-container">
+                <div id="simli-mount" class="simli-wrapper"></div>
+            </div>
+        </div>
+
+        <!-- LAYER 4: Top Floaties (perpetual loop - sparkles, particles) -->
+        <div id="layer-top-floaties" class="video-layer-container" data-layer="4">
+            <video id="video-top-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
 
         <!-- Processing/Status Messages -->
@@ -73,6 +99,7 @@
         <div>State: <span id="debug-state">idle</span></div>
         <div>Active Persona: <span id="debug-persona">none</span></div>
         <div>Simli Status: <span id="debug-simli">not loaded</span></div>
+        <div>Idle Loop: <span id="debug-idle">stopped</span></div>
     </div>
 
     <!-- Configuration & State Management -->

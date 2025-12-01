@@ -1,141 +1,94 @@
-/* ============================================
-   ECHOES OF INDIANA - HOLOGRAM OUTPUT DISPLAY
-   
-   PURE VIDEO OUTPUT - No UI, No Text
-   ALL BLACK = TRANSPARENT via mix-blend-mode: screen
-   ============================================ */
+/* ECHOES OF INDIANA - HOLOGRAM DISPLAY
+   All black = transparent via mix-blend-mode: screen */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background: #000000;
+    background: #000;
     overflow: hidden;
     width: 100vw;
     height: 100vh;
-    /* No cursor needed on hologram display */
     cursor: none;
 }
-
-/* ============================================
-   MAIN STAGE - Full Screen Black
-   ============================================ */
 
 #stage {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background: #000000;
+    background: #000;
     overflow: hidden;
 }
 
-/* ============================================
-   VIDEO LAYER CONTAINERS
-   ============================================ */
-
 .video-layer-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Layer z-index stacking */
 #layer-bottom-floaties { z-index: 1; }
 #layer-abstract { z-index: 2; }
 #layer-simli { z-index: 3; }
 #layer-top-floaties { z-index: 4; }
 
-/* ============================================
-   HEAD CONTAINER - Unified sizing
-   
-   Change these values to scale ALL heads:
-   - Transition video heads
-   - Simli avatar head
-   ============================================ */
-
 .head-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    
-    /* HEAD SIZE - adjust these to scale the face */
     width: 90vmin;
     height: 90vmin;
     max-width: 1200px;
     max-height: 1200px;
+    overflow: hidden; /* IMPORTANT: clips the cropped video */
 }
-
-/* ============================================
-   VIDEO LAYERS - BLACK = TRANSPARENT
-   ============================================ */
 
 .video-layer {
     position: absolute;
     opacity: 0;
     transition: opacity 0.5s ease;
-    background: transparent;
-    
-    /* THE MAGIC: Black becomes transparent */
+    background: #000;
     mix-blend-mode: screen;
 }
 
-.video-layer.active {
-    opacity: 1;
-}
+.video-layer.active { opacity: 1; }
 
-/* Floaties - Full screen */
 .video-layer.floaties {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: cover;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
 }
 
-/* Head Videos - Fill head container */
 .video-layer.head-video {
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    width: 100%; height: 100%;
+    top: 0; left: 0;
     object-fit: contain;
-    object-position: center center;
+    object-position: center;
 }
 
-/* ============================================
-   SIMLI WIDGET - BLACK = TRANSPARENT
-   ============================================ */
-
+/* SIMLI - Force crop 16:9 to square */
 .simli-wrapper {
     width: 100%;
     height: 100%;
     position: relative;
     opacity: 0;
     transition: opacity 0.5s ease;
-    pointer-events: none; /* No interaction on hologram display */
-    
-    /* Make Simli's black transparent */
-    mix-blend-mode: screen;
+    pointer-events: none;
+    background: #000;
+    overflow: hidden;
 }
 
-.simli-wrapper.active {
-    opacity: 1;
-}
+.simli-wrapper.active { opacity: 1; }
 
-/* Override ALL Simli widget styles */
+/* Force ALL Simli backgrounds to BLACK */
+#simli-mount,
+#simli-mount *,
 #simli-mount simli-widget,
 #simli-mount simli-widget * {
-    background: transparent !important;
+    background: #000 !important;
+    background-color: #000 !important;
 }
 
 #simli-mount simli-widget {
@@ -147,169 +100,131 @@ body {
     mix-blend-mode: screen !important;
 }
 
+/* KEY FIX: object-fit COVER crops 16:9 into square */
 #simli-mount simli-widget video {
     width: 100% !important;
     height: 100% !important;
-    object-fit: contain !important;
+    object-fit: cover !important;  /* CROP, not contain */
     object-position: center center !important;
     mix-blend-mode: screen !important;
+    background: #000 !important;
 }
 
-/* HIDE ALL Simli UI elements */
+/* HIDE all Simli UI elements */
 #simli-mount simli-widget button,
 #simli-mount simli-widget [class*="button"],
-#simli-mount simli-widget [class*="loading"],
-#simli-mount simli-widget [class*="placeholder"],
-#simli-mount simli-widget [class*="avatar"],
+#simli-mount simli-widget [class*="Button"],
+#simli-mount simli-widget [class*="close"],
+#simli-mount simli-widget [class*="Close"],
+#simli-mount simli-widget [class*="control"],
+#simli-mount simli-widget [class*="Control"],
 #simli-mount simli-widget svg,
-#simli-mount simli-widget img:not(video) {
+#simli-mount simli-widget img {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
 }
 
-/* ============================================
-   STATUS OVERLAY - Subtle processing indicator
-   (Hidden by default, only shows during processing)
-   ============================================ */
-
-#status-overlay {
-    position: absolute;
-    top: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    text-align: center;
-    padding: 10px 20px;
-    background: transparent;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-#status-overlay.visible {
-    opacity: 0.7;
-}
-
-#status-overlay.hidden {
-    opacity: 0;
-}
-
-.status-message {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 1rem;
-    color: #ffffff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-}
-
-/* ============================================
-   BORDER MASK (optional vignette for LED array)
-   ============================================ */
-
-.border-mask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 50;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    background: radial-gradient(
-        ellipse 90% 90% at 50% 50%,
-        transparent 0%,
-        transparent 75%,
-        rgba(0,0,0,0.5) 90%,
-        #000000 100%
-    );
-}
-
-.border-mask.enabled {
-    opacity: 1;
-}
-
-/* ============================================
-   DEBUG PANEL (hidden by default)
-   Show with ?debug=true in URL
-   ============================================ */
-
-.debug-panel {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 10px 15px;
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 0.8rem;
-    color: #00ff00;
-    line-height: 1.4;
-}
-
-.debug-panel.hidden {
-    display: none;
-}
-
-.debug-panel div {
-    margin-bottom: 3px;
-}
-
-/* ============================================
-   CLICK TO START (Autoplay Policy)
-   Required for browsers to allow video/audio
-   ============================================ */
-
+/* Click to Start overlay */
 .click-to-start {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
     z-index: 10000;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0,0,0,0.9);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: opacity 0.5s ease;
 }
 
 .click-to-start.hidden {
     opacity: 0;
     pointer-events: none;
+    transition: opacity 0.5s;
 }
 
 .start-prompt {
     font-family: 'Segoe UI', sans-serif;
     font-size: 2rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255,255,255,0.7);
     text-transform: uppercase;
     letter-spacing: 0.3em;
-    animation: pulse-start 2s ease-in-out infinite;
+    animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes pulse-start {
+@keyframes pulse {
     0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
 }
 
-/* ============================================
-   UTILITY CLASSES
-   ============================================ */
-
-.hidden {
-    display: none !important;
+/* Status overlay */
+#status-overlay {
+    position: absolute;
+    top: 5%; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 10px 20px;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
-.instant-hide {
-    opacity: 0 !important;
-    transition: none !important;
+#status-overlay.visible { opacity: 0.7; }
+#status-overlay.hidden { opacity: 0; }
+
+.status-message {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255,255,255,0.8);
 }
 
-.instant-show {
-    opacity: 1 !important;
-    transition: none !important;
+/* Debug panel */
+.debug-panel {
+    position: fixed;
+    top: 10px; left: 10px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.9);
+    padding: 10px 15px;
+    border: 1px solid #0f0;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #0f0;
 }
+
+.debug-panel.hidden { display: none; }
+
+/* Control panel (temporary) */
+.control-panel {
+    position: fixed;
+    bottom: 20px; left: 20px;
+    z-index: 10000;
+    display: flex;
+    gap: 10px;
+}
+
+.ctrl-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    background: rgba(0,100,200,0.8);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+}
+
+.ctrl-btn:hover {
+    background: rgba(0,150,255,0.9);
+}
+
+.ctrl-dismiss {
+    background: rgba(200,50,50,0.8);
+}
+
+.ctrl-dismiss:hover {
+    background: rgba(255,80,80,0.9);
+}
+
+.hidden { display: none !important; }
+.border-mask { display: none; }

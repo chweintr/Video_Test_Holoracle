@@ -5,152 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Echoes of Indiana - Hologram Display</title>
     <link rel="stylesheet" href="styles.css">
-
-    <!-- Simli Widget Script -->
     <script src="https://app.simli.com/simli-widget/index.js" defer></script>
 </head>
 <body>
-    <!-- 
-    ============================================
-    HOLOGRAM OUTPUT DISPLAY
-    
-    This page is PURE VIDEO OUTPUT for the LED fan array.
-    No UI, no text, no buttons - just the hologram.
-    
-    INVOKE PERSONAS VIA:
-    - URL param: ?persona=mabel
-    - JavaScript: Compositor.invokePersona('mabel')
-    - PostMessage: window.postMessage({action: 'invoke', persona: 'mabel'}, '*')
-    
-    DISMISS VIA:
-    - URL param: ?dismiss=true  
-    - JavaScript: Compositor.dismissPersona()
-    - PostMessage: window.postMessage({action: 'dismiss'}, '*')
-    ============================================
-    -->
-
-    <!-- Click to Start (required for browser autoplay policy) -->
     <div id="click-to-start" class="click-to-start">
         <div class="start-prompt">Touch to Begin</div>
     </div>
 
     <div id="stage">
-
-        <!-- LAYER 1: Bottom Floaties -->
         <div id="layer-bottom-floaties" class="video-layer-container" data-layer="1">
             <video id="video-bottom-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
-
-        <!-- LAYER 2: Abstract Loops / Transitions -->
         <div id="layer-abstract" class="video-layer-container" data-layer="2">
             <div id="head-container-video" class="head-container">
                 <video id="video-idle-loop" class="video-layer head-video" playsinline loop muted></video>
                 <video id="video-transition" class="video-layer head-video" playsinline muted></video>
             </div>
         </div>
-
-        <!-- LAYER 3: Simli Agent -->
         <div id="layer-simli" class="video-layer-container" data-layer="3">
             <div id="head-container-simli" class="head-container">
                 <div id="simli-mount" class="simli-wrapper"></div>
             </div>
         </div>
-
-        <!-- LAYER 4: Top Floaties -->
         <div id="layer-top-floaties" class="video-layer-container" data-layer="4">
             <video id="video-top-floaties" class="video-layer floaties" playsinline loop muted></video>
         </div>
-
-        <!-- Processing Status (subtle, for hologram) -->
         <div id="status-overlay" class="status-overlay hidden">
             <div class="status-message"></div>
         </div>
-
-        <!-- Border Mask (optional vignette) -->
         <div id="border-mask" class="border-mask"></div>
-
     </div>
 
-    <!-- Debug Panel (toggle with ?debug=true) -->
     <div id="debug-panel" class="debug-panel hidden">
         <div>State: <span id="debug-state">idle</span></div>
         <div>Persona: <span id="debug-persona">none</span></div>
         <div>Simli: <span id="debug-simli">-</span></div>
-        <div>Idle: <span id="debug-idle">-</span></div>
     </div>
 
-    <!-- Scripts -->
+    <div id="control-panel" class="control-panel">
+        <button id="btn-mabel" class="ctrl-btn">Summon Mabel</button>
+        <button id="btn-dismiss" class="ctrl-btn ctrl-dismiss">Dismiss</button>
+    </div>
+
     <script src="config.js"></script>
     <script src="state-machine.js"></script>
     <script src="simli-integration.js"></script>
     <script src="compositor.js"></script>
     
-    <!-- Startup & Command Handler -->
     <script>
         let isStarted = false;
         const params = new URLSearchParams(window.location.search);
         
-        // Click to start handler - unlocks autoplay
         document.getElementById('click-to-start').addEventListener('click', () => {
             if (isStarted) return;
             isStarted = true;
-            
-            console.log('[Hologram] User interaction - starting...');
-            
-            // Hide the overlay
             document.getElementById('click-to-start').classList.add('hidden');
-            
-            // Start the compositor (idle loop will play)
-            if (typeof Compositor !== 'undefined') {
-                Compositor.startIdleLoop();
-            }
-            
-            // Auto-invoke persona if ?persona=xxx
+            if (typeof Compositor !== 'undefined') Compositor.startIdleLoop();
             const persona = params.get('persona');
             if (persona && CONFIG.personas && CONFIG.personas[persona]) {
-                setTimeout(() => {
-                    console.log('[Hologram] Auto-invoking persona from URL:', persona);
-                    Compositor.invokePersona(persona);
-                }, 500);
+                setTimeout(() => Compositor.invokePersona(persona), 500);
             }
         });
         
-        // Handle URL debug param
+        document.getElementById('btn-mabel').addEventListener('click', () => {
+            if (!isStarted) document.getElementById('click-to-start').click();
+            setTimeout(() => Compositor.invokePersona('mabel'), 100);
+        });
+        
+        document.getElementById('btn-dismiss').addEventListener('click', () => {
+            Compositor.dismissPersona();
+        });
+        
         document.addEventListener('DOMContentLoaded', () => {
-            if (params.get('debug') === 'true') {
-                document.getElementById('debug-panel').classList.remove('hidden');
-            }
-            
-            // Skip click-to-start if ?autostart=true (for embedded use)
-            if (params.get('autostart') === 'true') {
-                document.getElementById('click-to-start').click();
-            }
+            if (params.get('debug') === 'true') document.getElementById('debug-panel').classList.remove('hidden');
+            if (params.get('hidecontrols') === 'true') document.getElementById('control-panel').style.display = 'none';
+            if (params.get('autostart') === 'true') document.getElementById('click-to-start').click();
         });
         
-        // Handle postMessage from kiosk
         window.addEventListener('message', (event) => {
             const { action, persona } = event.data || {};
-            
-            // Start command (from kiosk interaction)
-            if (action === 'start') {
-                document.getElementById('click-to-start').click();
-            }
-            
+            if (action === 'start') document.getElementById('click-to-start').click();
             if (action === 'invoke' && persona) {
-                console.log('[Hologram] Received invoke command:', persona);
                 if (!isStarted) document.getElementById('click-to-start').click();
                 setTimeout(() => Compositor.invokePersona(persona), 100);
             }
-            
-            if (action === 'dismiss') {
-                console.log('[Hologram] Received dismiss command');
-                Compositor.dismissPersona();
-            }
-            
-            if (action === 'reset') {
-                console.log('[Hologram] Received reset command');
-                Compositor.forceReset();
-            }
+            if (action === 'dismiss') Compositor.dismissPersona();
+            if (action === 'reset') Compositor.forceReset();
         });
     </script>
 </body>

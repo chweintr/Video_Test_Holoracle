@@ -1,0 +1,208 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #000;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    color: #fff;
+}
+
+.persona-menu {
+    position: fixed;
+    left: 0; top: 0;
+    width: 220px;
+    height: 100vh;
+    background: rgba(0,0,0,0.9);
+    border-right: 1px solid rgba(255,255,255,0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.menu-header {
+    font-size: 13px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.persona-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.persona-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    color: #fff;
+}
+
+.persona-btn:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.4);
+    transform: translateX(5px);
+}
+
+.persona-name {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.persona-role {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+}
+
+.dismiss-btn {
+    background: rgba(180,50,50,0.7);
+    border: 1px solid rgba(255,100,100,0.3);
+    border-radius: 10px;
+    padding: 12px;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: auto;
+}
+
+.dismiss-btn:hover {
+    background: rgba(220,60,60,0.9);
+}
+
+#stage {
+    position: absolute;
+    left: 220px; top: 0;
+    width: calc(100vw - 220px);
+    height: 100vh;
+    background: #000;
+    overflow: hidden;
+}
+
+.video-layer-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#layer-abstract { z-index: 2; }
+#layer-simli { z-index: 3; }
+
+.head-container {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85vmin;
+    height: 85vmin;
+    max-width: 900px;
+    max-height: 900px;
+    overflow: hidden;
+}
+
+.video-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s;
+    background: #000;
+    mix-blend-mode: screen;
+    object-fit: contain;
+}
+
+.video-layer.active { opacity: 1; }
+
+.simli-wrapper {
+    width: 100%; height: 100%;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.5s;
+    background: #000;
+    overflow: hidden;
+}
+
+.simli-wrapper.active { opacity: 1; }
+
+#simli-mount, #simli-mount *, #simli-mount simli-widget, #simli-mount simli-widget * {
+    background: #000 !important;
+}
+
+#simli-mount simli-widget {
+    width: 100% !important;
+    height: 100% !important;
+    mix-blend-mode: screen !important;
+}
+
+#simli-mount simli-widget video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    mix-blend-mode: screen !important;
+    background: #000 !important;
+}
+
+#simli-mount simli-widget button { display: none !important; }
+
+.click-to-start {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 10000;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.click-to-start.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+.start-prompt {
+    font-size: 2rem;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+.debug-panel {
+    position: fixed;
+    bottom: 10px; right: 10px;
+    z-index: 9999;
+    background: rgba(0,0,0,0.9);
+    padding: 10px;
+    border: 1px solid #0f0;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #0f0;
+}
+
+.debug-panel.hidden { display: none; }
+.hidden { display: none !important; }

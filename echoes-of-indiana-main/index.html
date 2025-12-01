@@ -8,10 +8,35 @@
     <script src="https://app.simli.com/simli-widget/index.js" defer></script>
 </head>
 <body>
+    <!-- Click to Start -->
     <div id="click-to-start" class="click-to-start">
         <div class="start-prompt">Touch to Begin</div>
     </div>
 
+    <!-- Side Menu for Personas -->
+    <div id="persona-menu" class="persona-menu">
+        <div class="menu-header">ECHOES OF INDIANA</div>
+        <div class="persona-list">
+            <button class="persona-btn" data-persona="mabel">
+                <span class="persona-name">Mabel</span>
+                <span class="persona-role">Showers Worker, 1917</span>
+            </button>
+            <!-- Add more personas here as they become available -->
+            <!--
+            <button class="persona-btn" data-persona="vonnegut">
+                <span class="persona-name">Vonnegut</span>
+                <span class="persona-role">Author</span>
+            </button>
+            <button class="persona-btn" data-persona="oracle">
+                <span class="persona-name">Oracle</span>
+                <span class="persona-role">Guide</span>
+            </button>
+            -->
+        </div>
+        <button id="btn-dismiss" class="dismiss-btn">Dismiss</button>
+    </div>
+
+    <!-- Main Stage -->
     <div id="stage">
         <div id="layer-bottom-floaties" class="video-layer-container" data-layer="1">
             <video id="video-bottom-floaties" class="video-layer floaties" playsinline loop muted></video>
@@ -33,18 +58,13 @@
         <div id="status-overlay" class="status-overlay hidden">
             <div class="status-message"></div>
         </div>
-        <div id="border-mask" class="border-mask"></div>
     </div>
 
+    <!-- Debug Panel -->
     <div id="debug-panel" class="debug-panel hidden">
         <div>State: <span id="debug-state">idle</span></div>
         <div>Persona: <span id="debug-persona">none</span></div>
         <div>Simli: <span id="debug-simli">-</span></div>
-    </div>
-
-    <div id="control-panel" class="control-panel">
-        <button id="btn-mabel" class="ctrl-btn">Summon Mabel</button>
-        <button id="btn-dismiss" class="ctrl-btn ctrl-dismiss">Dismiss</button>
     </div>
 
     <script src="config.js"></script>
@@ -56,32 +76,54 @@
         let isStarted = false;
         const params = new URLSearchParams(window.location.search);
         
+        // Click to start
         document.getElementById('click-to-start').addEventListener('click', () => {
             if (isStarted) return;
             isStarted = true;
             document.getElementById('click-to-start').classList.add('hidden');
             if (typeof Compositor !== 'undefined') Compositor.startIdleLoop();
+            
+            // Auto-invoke if URL param
             const persona = params.get('persona');
             if (persona && CONFIG.personas && CONFIG.personas[persona]) {
                 setTimeout(() => Compositor.invokePersona(persona), 500);
             }
         });
         
-        document.getElementById('btn-mabel').addEventListener('click', () => {
-            if (!isStarted) document.getElementById('click-to-start').click();
-            setTimeout(() => Compositor.invokePersona('mabel'), 100);
+        // Persona buttons
+        document.querySelectorAll('.persona-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const personaId = btn.getAttribute('data-persona');
+                if (!isStarted) document.getElementById('click-to-start').click();
+                setTimeout(() => {
+                    if (typeof Compositor !== 'undefined') {
+                        Compositor.invokePersona(personaId);
+                    }
+                }, 100);
+            });
         });
         
+        // Dismiss button
         document.getElementById('btn-dismiss').addEventListener('click', () => {
-            Compositor.dismissPersona();
+            if (typeof Compositor !== 'undefined') {
+                Compositor.dismissPersona();
+            }
         });
         
+        // Debug panel
         document.addEventListener('DOMContentLoaded', () => {
-            if (params.get('debug') === 'true') document.getElementById('debug-panel').classList.remove('hidden');
-            if (params.get('hidecontrols') === 'true') document.getElementById('control-panel').style.display = 'none';
-            if (params.get('autostart') === 'true') document.getElementById('click-to-start').click();
+            if (params.get('debug') === 'true') {
+                document.getElementById('debug-panel').classList.remove('hidden');
+            }
+            if (params.get('hidemenu') === 'true') {
+                document.getElementById('persona-menu').style.display = 'none';
+            }
+            if (params.get('autostart') === 'true') {
+                document.getElementById('click-to-start').click();
+            }
         });
         
+        // PostMessage handler
         window.addEventListener('message', (event) => {
             const { action, persona } = event.data || {};
             if (action === 'start') document.getElementById('click-to-start').click();

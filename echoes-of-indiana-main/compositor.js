@@ -95,7 +95,8 @@ const Compositor = {
     handleIdle() {
         console.log('[Compositor] → IDLE');
         this.hideTransitionVideo();
-        SimliManager.hideWidget();
+        // Fully destroy Simli widget when returning to idle
+        SimliManager.destroyWidget();
         // Idle loop keeps playing
     },
 
@@ -145,13 +146,14 @@ const Compositor = {
         console.log('[Compositor] → TRANSITIONING-OUT');
         const persona = CONFIG.personas[personaId];
 
-        // Hide Simli
-        SimliManager.hideWidget();
+        // DESTROY Simli widget (not just hide) - this stops the API session
+        SimliManager.destroyWidget();
 
         // Play transition out (on top of idle which keeps playing)
-        if (persona.videos.activeToIdle) {
+        if (persona && persona.videos && persona.videos.activeToIdle) {
             this.playTransitionVideo(persona.videos.activeToIdle);
         } else {
+            // No transition video, go directly to idle
             setTimeout(() => StateMachine.returnToIdle(), 500);
         }
     },

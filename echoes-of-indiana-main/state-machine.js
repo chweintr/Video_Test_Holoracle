@@ -163,12 +163,19 @@ const StateMachine = {
     },
 
     /**
-     * Transition: active → transitioning-out
+     * Transition: active/processing/transitioning-in → transitioning-out
      * Called when user clicks dismiss
+     * FIX: Now also allows dismiss from transitioning-in state
      */
     dismissPersona() {
-        if (this.currentState !== this.states.ACTIVE && this.currentState !== this.states.PROCESSING) {
-            console.warn('[StateMachine] Cannot dismiss - not in active or processing state');
+        const allowedStates = [
+            this.states.ACTIVE, 
+            this.states.PROCESSING, 
+            this.states.TRANSITIONING_IN
+        ];
+        
+        if (!allowedStates.includes(this.currentState)) {
+            console.warn('[StateMachine] Cannot dismiss - not in active, processing, or transitioning-in state');
             return false;
         }
 
@@ -245,9 +252,10 @@ const StateMachine = {
      */
     showProcessingMessage(message) {
         const overlay = document.getElementById('status-overlay');
+        if (!overlay) return;
         const messageEl = overlay.querySelector('.status-message');
 
-        messageEl.textContent = message;
+        if (messageEl) messageEl.textContent = message;
         overlay.classList.remove('hidden');
         overlay.classList.add('visible');
     },
@@ -257,6 +265,7 @@ const StateMachine = {
      */
     hideProcessingMessage() {
         const overlay = document.getElementById('status-overlay');
+        if (!overlay) return;
         overlay.classList.remove('visible');
         overlay.classList.add('hidden');
     },

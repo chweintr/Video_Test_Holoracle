@@ -155,6 +155,12 @@ const SimliManager = {
             this.detectionTimeout = null;
         }
         
+        // FIX: Force state to active if still transitioning
+        if (StateMachine.getState() === 'transitioning-in') {
+            console.log('[SimliManager] Forcing state transition to active');
+            StateMachine.transitionComplete();
+        }
+        
         // Tell compositor
         document.dispatchEvent(new CustomEvent('simli-video-ready'));
         

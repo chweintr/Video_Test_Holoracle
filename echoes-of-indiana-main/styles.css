@@ -136,10 +136,13 @@ body {
     transition: opacity 0.5s;
     background: #000;
     overflow: hidden;
+    /* Allow clicks through to Simli widget */
+    pointer-events: auto;
 }
 
 .simli-wrapper.active { opacity: 1; }
 
+/* Simli widget container - force black background */
 #simli-mount, #simli-mount *, #simli-mount simli-widget, #simli-mount simli-widget * {
     background: #000 !important;
 }
@@ -158,7 +161,12 @@ body {
     background: #000 !important;
 }
 
-#simli-mount simli-widget button { display: none !important; }
+/* Hide only the START button inside Simli (we auto-click it) */
+/* Keep Close button visible for now as backup */
+#simli-mount simli-widget button[class*="start"],
+#simli-mount simli-widget button[class*="Start"] {
+    display: none !important;
+}
 
 .click-to-start {
     position: fixed;

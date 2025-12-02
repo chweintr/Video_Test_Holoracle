@@ -105,29 +105,23 @@ body {
 #layer-abstract { z-index: 2; }
 #layer-simli { z-index: 3; pointer-events: auto; }
 
-/* 
- * HEAD CONTAINER - THE MOUNTING BOX
- * This is positioned in the CENTER of the stage
- * Everything must render INSIDE this box
- */
+/* HEAD CONTAINER - The centered mounting box */
 .head-container {
     position: absolute;
-    /* Center it in the stage */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* Fixed size */
     width: 70vh;
     height: 70vh;
     max-width: 800px;
     max-height: 800px;
-    /* DEBUG: Red border so we can SEE the box */
-    /* border: 2px solid red; */
     overflow: hidden;
     background: transparent;
+    /* DEBUG: Uncomment to see the box */
+    /* border: 2px solid red; */
 }
 
-/* Videos fill the head-container completely */
+/* Videos fill the container */
 .video-layer {
     position: absolute;
     top: 0; left: 0;
@@ -136,12 +130,12 @@ body {
     transition: opacity 0.5s;
     background: #000;
     mix-blend-mode: screen;
-    object-fit: cover; /* Changed to cover to fill the box */
+    object-fit: cover;
 }
 
 .video-layer.active { opacity: 1; }
 
-/* Simli wrapper - MUST fill head-container */
+/* Simli wrapper */
 .simli-wrapper {
     position: absolute;
     top: 0; left: 0;
@@ -155,56 +149,58 @@ body {
 
 .simli-wrapper.active { opacity: 1; }
 
-/* 
- * CRITICAL: Force Simli to stay in our box
- * The simli-widget tends to position itself on the page
- * We need to TRAP it inside our container
- */
+/* Simli mount - contains the widget */
 #simli-mount {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     overflow: hidden;
     background: #000;
-    /* Create a new stacking context */
     isolation: isolate;
 }
 
-/* Target the simli-widget element directly */
+/* 
+ * SIMLI WIDGET - SCALED UP to match transition video head
+ * Adjust the scale value to match your transition video
+ */
 simli-widget {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    transform: none !important;
-    background: #000 !important;
-    mix-blend-mode: screen !important;
-}
-
-/* Target video inside simli-widget */
-simli-widget video,
-#simli-mount video {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    min-width: 100% !important;
-    min-height: 100% !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: cover !important;
+    /* SCALE UP - adjust this value to match transition video head size */
+    /* 1.3 = 130% of original size */
+    transform: translate(-50%, -50%) scale(1.4) !important;
+    width: 100% !important;
+    height: 100% !important;
     background: #000 !important;
     mix-blend-mode: screen !important;
 }
 
-/* Force black on everything Simli */
+/* 
+ * SIMLI VIDEO - Gray bar fix
+ * Use filter to crush dark grays to black
+ * mix-blend-mode: screen then makes black transparent
+ */
+simli-widget video,
+#simli-mount video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    background: #000 !important;
+    mix-blend-mode: screen !important;
+    /* 
+     * GRAY BAR FIX: Increase contrast to crush grays to black
+     * Adjust these values if bars are still visible:
+     * - Higher contrast = darker grays
+     * - Lower brightness = darker overall
+     */
+    filter: contrast(1.4) brightness(0.95) !important;
+}
+
+/* Force black backgrounds */
 #simli-mount *, simli-widget * {
     background-color: #000 !important;
 }

@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Indiana - Hologram Display</title>
+    <title>Echoes of Indiana</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://app.simli.com/simli-widget/index.js" defer></script>
 </head>
 <body>
-    <!-- Click to Start -->
     <div id="click-to-start" class="click-to-start">
         <div class="start-prompt">Touch to Begin</div>
     </div>
 
-    <!-- Side Menu for Personas -->
     <div id="persona-menu" class="persona-menu">
         <div class="menu-header">ECHOES OF INDIANA</div>
         <div class="persona-list">
@@ -21,49 +19,31 @@
                 <span class="persona-name">Mabel</span>
                 <span class="persona-role">Showers Worker, 1917</span>
             </button>
-            <!-- Add more personas here as they become available -->
-            <!--
-            <button class="persona-btn" data-persona="vonnegut">
-                <span class="persona-name">Vonnegut</span>
-                <span class="persona-role">Author</span>
-            </button>
-            <button class="persona-btn" data-persona="oracle">
-                <span class="persona-name">Oracle</span>
-                <span class="persona-role">Guide</span>
-            </button>
-            -->
         </div>
         <button id="btn-dismiss" class="dismiss-btn">Dismiss</button>
     </div>
 
-    <!-- Main Stage -->
+    <!-- Loading Message -->
+    <div id="loading-msg" class="loading-msg hidden">
+        <div class="loading-text">Summoning...</div>
+    </div>
+
     <div id="stage">
-        <div id="layer-bottom-floaties" class="video-layer-container" data-layer="1">
-            <video id="video-bottom-floaties" class="video-layer floaties" playsinline loop muted></video>
-        </div>
-        <div id="layer-abstract" class="video-layer-container" data-layer="2">
-            <div id="head-container-video" class="head-container">
-                <video id="video-idle-loop" class="video-layer head-video" playsinline loop muted></video>
-                <video id="video-transition" class="video-layer head-video" playsinline muted></video>
+        <div id="layer-abstract" class="video-layer-container">
+            <div class="head-container">
+                <video id="video-idle-loop" class="video-layer" playsinline loop muted></video>
+                <video id="video-transition" class="video-layer" playsinline muted></video>
             </div>
         </div>
-        <div id="layer-simli" class="video-layer-container" data-layer="3">
-            <div id="head-container-simli" class="head-container">
+        <div id="layer-simli" class="video-layer-container">
+            <div class="head-container">
                 <div id="simli-mount" class="simli-wrapper"></div>
             </div>
         </div>
-        <div id="layer-top-floaties" class="video-layer-container" data-layer="4">
-            <video id="video-top-floaties" class="video-layer floaties" playsinline loop muted></video>
-        </div>
-        <div id="status-overlay" class="status-overlay hidden">
-            <div class="status-message"></div>
-        </div>
     </div>
 
-    <!-- Debug Panel -->
-    <div id="debug-panel" class="debug-panel hidden">
-        <div>State: <span id="debug-state">idle</span></div>
-        <div>Persona: <span id="debug-persona">none</span></div>
+    <div id="debug-panel" class="debug-panel">
+        <div>State: <span id="debug-state">-</span></div>
         <div>Simli: <span id="debug-simli">-</span></div>
     </div>
 
@@ -74,65 +54,43 @@
     
     <script>
         let isStarted = false;
-        const params = new URLSearchParams(window.location.search);
         
-        // Click to start
         document.getElementById('click-to-start').addEventListener('click', () => {
             if (isStarted) return;
             isStarted = true;
             document.getElementById('click-to-start').classList.add('hidden');
-            if (typeof Compositor !== 'undefined') Compositor.startIdleLoop();
-            
-            // Auto-invoke if URL param
-            const persona = params.get('persona');
-            if (persona && CONFIG.personas && CONFIG.personas[persona]) {
-                setTimeout(() => Compositor.invokePersona(persona), 500);
-            }
+            Compositor.startIdleLoop();
         });
         
-        // Persona buttons
         document.querySelectorAll('.persona-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const personaId = btn.getAttribute('data-persona');
-                if (!isStarted) document.getElementById('click-to-start').click();
-                setTimeout(() => {
-                    if (typeof Compositor !== 'undefined') {
-                        Compositor.invokePersona(personaId);
-                    }
-                }, 100);
+                const id = btn.getAttribute('data-persona');
+                if (!isStarted) {
+                    isStarted = true;
+                    document.getElementById('click-to-start').classList.add('hidden');
+                    Compositor.startIdleLoop();
+                }
+                // Show loading message
+                document.getElementById('loading-msg').classList.remove('hidden');
+                setTimeout(() => Compositor.invokePersona(id), 100);
             });
         });
         
-        // Dismiss button
         document.getElementById('btn-dismiss').addEventListener('click', () => {
-            if (typeof Compositor !== 'undefined') {
-                Compositor.dismissPersona();
-            }
+            Compositor.dismissPersona();
         });
-        
-        // Debug panel
-        document.addEventListener('DOMContentLoaded', () => {
-            if (params.get('debug') === 'true') {
-                document.getElementById('debug-panel').classList.remove('hidden');
-            }
-            if (params.get('hidemenu') === 'true') {
-                document.getElementById('persona-menu').style.display = 'none';
-            }
-            if (params.get('autostart') === 'true') {
-                document.getElementById('click-to-start').click();
-            }
+
+        // Hide loading when Simli is ready
+        document.addEventListener('simli-video-ready', () => {
+            document.getElementById('loading-msg').classList.add('hidden');
         });
-        
-        // PostMessage handler
-        window.addEventListener('message', (event) => {
-            const { action, persona } = event.data || {};
-            if (action === 'start') document.getElementById('click-to-start').click();
-            if (action === 'invoke' && persona) {
-                if (!isStarted) document.getElementById('click-to-start').click();
-                setTimeout(() => Compositor.invokePersona(persona), 100);
+
+        // Also hide on state change to idle
+        document.addEventListener('statechange', (e) => {
+            if (e.detail.state === 'idle') {
+                document.getElementById('loading-msg').classList.add('hidden');
             }
-            if (action === 'dismiss') Compositor.dismissPersona();
-            if (action === 'reset') Compositor.forceReset();
+            document.getElementById('debug-state').textContent = e.detail.state;
         });
     </script>
 </body>

@@ -206,3 +206,20 @@ body {
 
 .debug-panel.hidden { display: none; }
 .hidden { display: none !important; }
+
+.loading-msg {
+    position: fixed;
+    top: 50%;
+    left: calc(220px + (100vw - 220px) / 2);
+    transform: translate(-50%, -50%);
+    z-index: 500;
+    text-align: center;
+}
+
+.loading-text {
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    animation: pulse 1.5s infinite;
+}

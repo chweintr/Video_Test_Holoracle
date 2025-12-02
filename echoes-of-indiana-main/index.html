@@ -28,15 +28,23 @@
         <div class="loading-text">Summoning...</div>
     </div>
 
+    <!-- 
+        STAGE: All video layers share the SAME head-container positioning
+        Layer 2 = Abstract videos (idle loop, transitions)
+        Layer 3 = Simli (appears on top when active)
+    -->
     <div id="stage">
+        <!-- LAYER 2: Background/Transition Videos -->
         <div id="layer-abstract" class="video-layer-container">
-            <div class="head-container">
+            <div class="head-container" id="video-mount">
                 <video id="video-idle-loop" class="video-layer" playsinline loop muted></video>
                 <video id="video-transition" class="video-layer" playsinline muted></video>
             </div>
         </div>
+        
+        <!-- LAYER 3: Simli - uses SAME head-container class for identical positioning -->
         <div id="layer-simli" class="video-layer-container">
-            <div class="head-container simli-head-container">
+            <div class="head-container" id="simli-container">
                 <div id="simli-mount" class="simli-wrapper"></div>
             </div>
         </div>
@@ -70,7 +78,6 @@
                     document.getElementById('click-to-start').classList.add('hidden');
                     Compositor.startIdleLoop();
                 }
-                // Show loading message
                 document.getElementById('loading-msg').classList.remove('hidden');
                 setTimeout(() => Compositor.invokePersona(id), 100);
             });
@@ -83,12 +90,10 @@
             Compositor.forceReset();
         });
 
-        // Hide loading when Simli is ready
         document.addEventListener('simli-video-ready', () => {
             document.getElementById('loading-msg').classList.add('hidden');
         });
 
-        // Also hide on state change to idle
         document.addEventListener('statechange', (e) => {
             if (e.detail.state === 'idle') {
                 document.getElementById('loading-msg').classList.add('hidden');

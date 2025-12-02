@@ -106,37 +106,25 @@ body {
 #layer-abstract { z-index: 2; }
 #layer-simli { z-index: 3; pointer-events: auto; }
 
-/* Standard head container for transition videos */
+/* 
+ * HEAD CONTAINER - The shared "mount" for ALL video content
+ * Both video layers and Simli layer use this EXACT same class
+ * This ensures they occupy the identical position on screen
+ */
 .head-container {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
     width: 85vmin;
     height: 85vmin;
     max-width: 900px;
     max-height: 900px;
     overflow: hidden;
+    background: #000;
 }
 
-/* 
- * SIMLI HEAD CONTAINER
- * Sized LARGER than needed so object-fit:cover crops the gray bars
- * The container clips to a square, hiding the 16:9 letterboxing
- */
-.simli-head-container {
-    /* Much larger to force aggressive cropping of gray bars */
-    width: 140vmin;
-    height: 140vmin;
-    max-width: 1500px;
-    max-height: 1500px;
-    /* Position: adjust these to align with transition video head */
-    /* More negative Y = higher up */
-    transform: translate(-50%, -45%);
-    /* Clip to circle/rounded square to ensure clean edges */
-    overflow: hidden;
-    border-radius: 0;
-}
-
+/* Video layers fill the container */
 .video-layer {
     position: absolute;
     top: 0; left: 0;
@@ -150,9 +138,12 @@ body {
 
 .video-layer.active { opacity: 1; }
 
+/* Simli wrapper fills the head-container exactly */
 .simli-wrapper {
-    width: 100%; height: 100%;
-    position: relative;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
     background: #000;
@@ -162,38 +153,39 @@ body {
 
 .simli-wrapper.active { opacity: 1; }
 
-/* Simli widget container - force black background */
-#simli-mount, #simli-mount *, #simli-mount simli-widget, #simli-mount simli-widget * {
-    background: #000 !important;
-}
-
+/* 
+ * SIMLI WIDGET STYLING
+ * The widget is made WIDER than the container to crop gray bars
+ * overflow:hidden on parent clips the excess
+ */
 #simli-mount simli-widget {
-    width: 100% !important;
+    position: absolute !important;
+    /* Scale wider to push gray bars outside container */
+    width: 130% !important;
     height: 100% !important;
+    /* Center horizontally so bars are cut equally on both sides */
+    left: 50% !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    background: #000 !important;
     mix-blend-mode: screen !important;
 }
 
-/* 
- * SIMLI VIDEO ELEMENT
- * object-fit: cover fills the container, cropping the 16:9 gray bars
- * We also filter the gray bars to black
- */
+/* The video inside Simli widget */
 #simli-mount simli-widget video {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    mix-blend-mode: screen !important;
     background: #000 !important;
-    /* Boost contrast to make gray bars darker/black */
-    filter: contrast(1.1) brightness(1.05);
+    mix-blend-mode: screen !important;
 }
 
-/* 
- * MASK: Hide any elements outside the main stage area
- * This catches any Simli UI that bleeds outside
- */
-#stage {
-    clip-path: inset(0);
+/* Force all Simli elements to have black backgrounds */
+#simli-mount, 
+#simli-mount *, 
+simli-widget, 
+simli-widget * {
+    background-color: #000 !important;
 }
 
 .click-to-start {

@@ -36,7 +36,7 @@
             </div>
         </div>
         <div id="layer-simli" class="video-layer-container">
-            <div class="head-container">
+            <div class="head-container simli-head-container">
                 <div id="simli-mount" class="simli-wrapper"></div>
             </div>
         </div>
@@ -76,8 +76,11 @@
             });
         });
         
+        // DISMISS - Force cleanup regardless of state
         document.getElementById('btn-dismiss').addEventListener('click', () => {
-            Compositor.dismissPersona();
+            console.log('[UI] Dismiss clicked - forcing cleanup');
+            document.getElementById('loading-msg').classList.add('hidden');
+            Compositor.forceReset();
         });
 
         // Hide loading when Simli is ready

@@ -84,51 +84,56 @@ body {
     background: rgba(220,60,60,0.9);
 }
 
+/* STAGE - the main viewing area */
 #stage {
     position: absolute;
-    left: 220px; top: 0;
+    left: 220px; 
+    top: 0;
     width: calc(100vw - 220px);
     height: 100vh;
     background: #000;
     overflow: hidden;
+    /* This is the positioning context for everything inside */
 }
 
+/* Video layer containers - full stage size, centered content */
 .video-layer-container {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
 }
 
 #layer-abstract { z-index: 2; }
 #layer-simli { z-index: 3; pointer-events: auto; }
 
 /* 
- * HEAD CONTAINER - The shared "mount" for ALL video content
- * Both video layers and Simli layer use this EXACT same class
- * This ensures they occupy the identical position on screen
+ * HEAD CONTAINER - The centered "mount" 
+ * BOTH layers use this exact same class
  */
 .head-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /* Use relative + flex centering from parent instead of absolute */
+    position: relative;
     width: 85vmin;
     height: 85vmin;
     max-width: 900px;
     max-height: 900px;
     overflow: hidden;
-    background: #000;
+    background: transparent;
 }
 
-/* Video layers fill the container */
+/* Video elements - fill the head-container */
 .video-layer {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
     background: #000;
@@ -136,12 +141,15 @@ body {
     object-fit: contain;
 }
 
-.video-layer.active { opacity: 1; }
+.video-layer.active { 
+    opacity: 1; 
+}
 
-/* Simli wrapper fills the head-container exactly */
+/* Simli wrapper - fills head-container */
 .simli-wrapper {
     position: absolute;
-    top: 0; left: 0;
+    top: 0; 
+    left: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -151,28 +159,40 @@ body {
     pointer-events: auto;
 }
 
-.simli-wrapper.active { opacity: 1; }
+.simli-wrapper.active { 
+    opacity: 1; 
+}
 
 /* 
- * SIMLI WIDGET STYLING
- * The widget is made WIDER than the container to crop gray bars
- * overflow:hidden on parent clips the excess
+ * FORCE Simli widget to stay inside our container
+ * Override any internal positioning 
  */
-#simli-mount simli-widget {
+#simli-mount {
     position: absolute !important;
-    /* Scale wider to push gray bars outside container */
-    width: 130% !important;
-    height: 100% !important;
-    /* Center horizontally so bars are cut equally on both sides */
-    left: 50% !important;
     top: 0 !important;
-    transform: translateX(-50%) !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    background: #000 !important;
+}
+
+#simli-mount > * {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+simli-widget {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
     background: #000 !important;
     mix-blend-mode: screen !important;
 }
 
-/* The video inside Simli widget */
-#simli-mount simli-widget video {
+simli-widget video {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
@@ -180,11 +200,8 @@ body {
     mix-blend-mode: screen !important;
 }
 
-/* Force all Simli elements to have black backgrounds */
-#simli-mount, 
-#simli-mount *, 
-simli-widget, 
-simli-widget * {
+/* Black backgrounds on all Simli elements */
+#simli-mount, #simli-mount *, simli-widget, simli-widget * {
     background-color: #000 !important;
 }
 

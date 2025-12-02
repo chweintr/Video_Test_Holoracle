@@ -84,28 +84,21 @@ body {
     background: rgba(220,60,60,0.9);
 }
 
-/* STAGE - the main viewing area */
+/* STAGE */
 #stage {
-    position: absolute;
+    position: fixed;
     left: 220px; 
     top: 0;
-    width: calc(100vw - 220px);
-    height: 100vh;
+    right: 0;
+    bottom: 0;
     background: #000;
     overflow: hidden;
-    /* This is the positioning context for everything inside */
 }
 
-/* Video layer containers - full stage size, centered content */
+/* Both layers fill the stage */
 .video-layer-container {
     position: absolute;
-    top: 0; 
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 0; left: 0; right: 0; bottom: 0;
     pointer-events: none;
 }
 
@@ -113,45 +106,46 @@ body {
 #layer-simli { z-index: 3; pointer-events: auto; }
 
 /* 
- * HEAD CONTAINER - The centered "mount" 
- * BOTH layers use this exact same class
+ * HEAD CONTAINER - THE MOUNTING BOX
+ * This is positioned in the CENTER of the stage
+ * Everything must render INSIDE this box
  */
 .head-container {
-    /* Use relative + flex centering from parent instead of absolute */
-    position: relative;
-    width: 85vmin;
-    height: 85vmin;
-    max-width: 900px;
-    max-height: 900px;
+    position: absolute;
+    /* Center it in the stage */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Fixed size */
+    width: 70vh;
+    height: 70vh;
+    max-width: 800px;
+    max-height: 800px;
+    /* DEBUG: Red border so we can SEE the box */
+    /* border: 2px solid red; */
     overflow: hidden;
     background: transparent;
 }
 
-/* Video elements - fill the head-container */
+/* Videos fill the head-container completely */
 .video-layer {
     position: absolute;
-    top: 0; 
-    left: 0;
-    width: 100%; 
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
     background: #000;
     mix-blend-mode: screen;
-    object-fit: contain;
+    object-fit: cover; /* Changed to cover to fill the box */
 }
 
-.video-layer.active { 
-    opacity: 1; 
-}
+.video-layer.active { opacity: 1; }
 
-/* Simli wrapper - fills head-container */
+/* Simli wrapper - MUST fill head-container */
 .simli-wrapper {
     position: absolute;
-    top: 0; 
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
     background: #000;
@@ -159,49 +153,59 @@ body {
     pointer-events: auto;
 }
 
-.simli-wrapper.active { 
-    opacity: 1; 
-}
+.simli-wrapper.active { opacity: 1; }
 
 /* 
- * FORCE Simli widget to stay inside our container
- * Override any internal positioning 
+ * CRITICAL: Force Simli to stay in our box
+ * The simli-widget tends to position itself on the page
+ * We need to TRAP it inside our container
  */
 #simli-mount {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+    /* Create a new stacking context */
+    isolation: isolate;
+}
+
+/* Target the simli-widget element directly */
+simli-widget {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    overflow: hidden !important;
-    background: #000 !important;
-}
-
-#simli-mount > * {
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-simli-widget {
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
     background: #000 !important;
     mix-blend-mode: screen !important;
 }
 
-simli-widget video {
-    width: 100% !important;
-    height: 100% !important;
+/* Target video inside simli-widget */
+simli-widget video,
+#simli-mount video {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
     object-fit: cover !important;
     background: #000 !important;
     mix-blend-mode: screen !important;
 }
 
-/* Black backgrounds on all Simli elements */
-#simli-mount, #simli-mount *, simli-widget, simli-widget * {
+/* Force black on everything Simli */
+#simli-mount *, simli-widget * {
     background-color: #000 !important;
 }
 

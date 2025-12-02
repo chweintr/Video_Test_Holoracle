@@ -118,15 +118,23 @@ body {
     overflow: hidden;
 }
 
-/* Simli-specific head container - ADJUST THESE VALUES to match transition video */
+/* 
+ * SIMLI HEAD CONTAINER
+ * Sized LARGER than needed so object-fit:cover crops the gray bars
+ * The container clips to a square, hiding the 16:9 letterboxing
+ */
 .simli-head-container {
-    /* Scale up to match transition video head size */
-    width: 100vmin;
-    height: 100vmin;
-    max-width: 1100px;
-    max-height: 1100px;
-    /* Shift position if needed (negative = up/left) */
-    transform: translate(-50%, -52%);
+    /* Much larger to force aggressive cropping of gray bars */
+    width: 140vmin;
+    height: 140vmin;
+    max-width: 1500px;
+    max-height: 1500px;
+    /* Position: adjust these to align with transition video head */
+    /* More negative Y = higher up */
+    transform: translate(-50%, -45%);
+    /* Clip to circle/rounded square to ensure clean edges */
+    overflow: hidden;
+    border-radius: 0;
 }
 
 .video-layer {
@@ -165,13 +173,27 @@ body {
     mix-blend-mode: screen !important;
 }
 
+/* 
+ * SIMLI VIDEO ELEMENT
+ * object-fit: cover fills the container, cropping the 16:9 gray bars
+ * We also filter the gray bars to black
+ */
 #simli-mount simli-widget video {
     width: 100% !important;
     height: 100% !important;
-    /* Cover crops to fill container, centering the head */
     object-fit: cover !important;
     mix-blend-mode: screen !important;
     background: #000 !important;
+    /* Boost contrast to make gray bars darker/black */
+    filter: contrast(1.1) brightness(1.05);
+}
+
+/* 
+ * MASK: Hide any elements outside the main stage area
+ * This catches any Simli UI that bleeds outside
+ */
+#stage {
+    clip-path: inset(0);
 }
 
 .click-to-start {

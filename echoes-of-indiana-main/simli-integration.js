@@ -1,5 +1,7 @@
 /**
- * SIMLI INTEGRATION - with fallback timeout
+ * SIMLI INTEGRATION
+ * Loads Simli widget but does NOT auto-show
+ * Compositor controls when to show based on transition video
  */
 
 const SimliManager = {
@@ -48,14 +50,14 @@ const SimliManager = {
             // Start detecting video stream
             this.detectVideoStream(widget);
             
-            // FALLBACK: After 8 seconds, show Simli anyway
+            // FALLBACK: After 10 seconds, mark as ready anyway
             this.detectionTimeout = setTimeout(() => {
                 if (!this.videoStreamActive) {
-                    console.log('[SimliManager] FALLBACK: Forcing show after timeout');
-                    this.updateDebug('fallback show');
+                    console.log('[SimliManager] FALLBACK: Marking ready after timeout');
+                    this.updateDebug('fallback ready');
                     this.onVideoReady();
                 }
-            }, 8000);
+            }, 10000);
 
             return true;
 
@@ -86,7 +88,6 @@ const SimliManager = {
         const tryClick = () => {
             attempts++;
             
-            // Try various ways to find the button
             let btn = widget.querySelector('button');
             if (!btn) btn = document.querySelector('#simli-mount button');
             if (!btn && widget.shadowRoot) btn = widget.shadowRoot.querySelector('button');
@@ -115,7 +116,6 @@ const SimliManager = {
         const check = () => {
             checks++;
             
-            // Look for video element
             let video = widget.querySelector('video');
             if (!video) video = document.querySelector('#simli-mount video');
             if (!video && widget.shadowRoot) video = widget.shadowRoot.querySelector('video');
@@ -125,8 +125,6 @@ const SimliManager = {
                 const hasSize = video.videoWidth > 0;
                 const hasSrc = video.src || video.srcObject;
                 
-                console.log('[SimliManager] Video check:', { playing, hasSize, hasSrc, readyState: video.readyState });
-                
                 if (hasSrc && (playing || hasSize)) {
                     console.log('[SimliManager] Video stream detected!');
                     this.onVideoReady();
@@ -134,7 +132,7 @@ const SimliManager = {
                 }
             }
             
-            if (checks < 80) { // 8 seconds
+            if (checks < 100) { // 10 seconds
                 setTimeout(check, 100);
             }
         };
@@ -146,8 +144,8 @@ const SimliManager = {
         if (this.videoStreamActive) return;
         this.videoStreamActive = true;
         
-        console.log('[SimliManager] Video ready - revealing');
-        this.updateDebug('streaming');
+        console.log('[SimliManager] Video ready - notifying compositor');
+        this.updateDebug('ready (waiting)');
         
         // Clear fallback timeout
         if (this.detectionTimeout) {
@@ -155,20 +153,14 @@ const SimliManager = {
             this.detectionTimeout = null;
         }
         
-        // FIX: Force state to active if still transitioning
-        if (StateMachine.getState() === 'transitioning-in') {
-            console.log('[SimliManager] Forcing state transition to active');
-            StateMachine.transitionComplete();
-        }
-        
-        // Tell compositor
+        // Just notify - don't show yet! Compositor will decide when
         document.dispatchEvent(new CustomEvent('simli-video-ready'));
-        
-        // Show widget
-        this.showWidget();
     },
 
+    // Called by Compositor when it's time to show
     showWidget() {
+        console.log('[SimliManager] Showing widget');
+        this.updateDebug('streaming');
         document.getElementById('simli-mount').classList.add('active');
     },
 
@@ -181,6 +173,7 @@ const SimliManager = {
     },
 
     destroyWidget() {
+        console.log('[SimliManager] Destroying widget');
         if (this.detectionTimeout) {
             clearTimeout(this.detectionTimeout);
         }
@@ -203,6 +196,7 @@ const SimliManager = {
         document.getElementById('simli-mount').classList.remove('active');
         document.getElementById('simli-mount').innerHTML = '';
         this.videoStreamActive = false;
+        this.updateDebug('-');
     }
 };
 

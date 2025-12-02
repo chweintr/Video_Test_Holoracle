@@ -7,6 +7,8 @@ const Compositor = {
     elements: {},
     idleLoopIndex: 0,
     isIdleLoopPlaying: false,
+    transitionComplete: false,  // Track if transition video finished
+    simliReady: false,          // Track if Simli is ready
 
     init() {
         console.log('[Compositor] Initializing...');
@@ -27,9 +29,11 @@ const Compositor = {
             this.playNextIdleLoop();
         });
 
-        // Transition ended
+        // Transition ended - NOW we can show Simli
         this.elements.transition.addEventListener('ended', () => {
-            this.onTransitionEnded();
+            console.log('[Compositor] Transition video ENDED');
+            this.transitionComplete = true;
+            this.tryShowSimli();
         });
     },
 
@@ -46,11 +50,26 @@ const Compositor = {
             }
         });
 
-        // Simli video ready - hide transition, show Simli
+        // Simli video ready - but DON'T show yet, wait for transition
         document.addEventListener('simli-video-ready', () => {
-            console.log('[Compositor] Simli ready - showing');
-            this.hideTransitionVideo();
+            console.log('[Compositor] Simli ready - waiting for transition to end');
+            this.simliReady = true;
+            this.tryShowSimli();
         });
+    },
+
+    // Only show Simli when BOTH transition is done AND Simli is ready
+    tryShowSimli() {
+        console.log('[Compositor] tryShowSimli - transition:', this.transitionComplete, 'simli:', this.simliReady);
+        if (this.transitionComplete && this.simliReady) {
+            console.log('[Compositor] BOTH ready - showing Simli now');
+            this.hideTransitionVideo();
+            SimliManager.showWidget();
+            // Move to active state if not already
+            if (StateMachine.getState() === 'transitioning-in') {
+                StateMachine.transitionComplete();
+            }
+        }
     },
 
     // PUBLIC: Start idle loop (called after user click)
@@ -74,7 +93,7 @@ const Compositor = {
         console.log('[Compositor] Idle loop:', path);
         
         this.elements.idleLoop.src = path;
-        this.elements.idleLoop.loop = true; // Loop continuously
+        this.elements.idleLoop.loop = true;
         this.elements.idleLoop.classList.add('active');
         this.elements.idleLoop.play().catch(e => console.warn('Idle play error:', e));
     },
@@ -90,26 +109,33 @@ const Compositor = {
         return StateMachine.dismissPersona();
     },
 
-    // State handlers - idle loop NEVER stops
+    // State handlers
 
     handleIdle() {
         console.log('[Compositor] → IDLE');
+        this.transitionComplete = false;
+        this.simliReady = false;
         this.hideTransitionVideo();
-        // Fully destroy Simli widget when returning to idle
         SimliManager.destroyWidget();
-        // Idle loop keeps playing
     },
 
     async handleTransitionIn(personaId) {
         console.log('[Compositor] → TRANSITIONING-IN');
         const persona = CONFIG.personas[personaId];
+        
+        // Reset flags
+        this.transitionComplete = false;
+        this.simliReady = false;
 
-        // Play transition ON TOP of idle (idle keeps playing underneath)
+        // Play transition video
         if (persona.videos.idleToActive) {
             await this.playTransitionVideo(persona.videos.idleToActive);
+        } else {
+            // No transition video, mark as complete immediately
+            this.transitionComplete = true;
         }
 
-        // Load Simli in background
+        // Load Simli in background (but don't show until transition ends)
         const success = await SimliManager.createWidget(personaId);
         if (!success) {
             console.error('[Compositor] Simli failed');
@@ -117,50 +143,29 @@ const Compositor = {
         }
     },
 
-    onTransitionEnded() {
-        const state = StateMachine.getState();
-        console.log('[Compositor] Transition ended, state:', state);
-
-        if (state === 'transitioning-in') {
-            // Keep transition visible until Simli ready
-            console.log('[Compositor] Holding for Simli...');
-            StateMachine.transitionComplete();
-        }
-
-        if (state === 'transitioning-out') {
-            this.hideTransitionVideo();
-            StateMachine.returnToIdle();
-        }
-    },
-
     handleActive(personaId) {
         console.log('[Compositor] → ACTIVE');
-        // Transition stays visible until simli-video-ready fires
-        // Idle loop still playing underneath
-        if (SimliManager.isVideoReady()) {
-            this.hideTransitionVideo();
-        }
+        // Simli should already be visible from tryShowSimli()
     },
 
     handleTransitionOut(personaId) {
         console.log('[Compositor] → TRANSITIONING-OUT');
         const persona = CONFIG.personas[personaId];
 
-        // DESTROY Simli widget (not just hide) - this stops the API session
+        // Destroy Simli widget
         SimliManager.destroyWidget();
 
-        // Play transition out (on top of idle which keeps playing)
+        // Play transition out if exists
         if (persona && persona.videos && persona.videos.activeToIdle) {
             this.playTransitionVideo(persona.videos.activeToIdle);
         } else {
-            // No transition video, go directly to idle
             setTimeout(() => StateMachine.returnToIdle(), 500);
         }
     },
 
     async playTransitionVideo(filename) {
         const path = `assets/videos/${filename}`;
-        console.log('[Compositor] Transition:', path);
+        console.log('[Compositor] Playing transition:', path);
         
         this.elements.transition.src = path;
         this.elements.transition.loop = false;
@@ -170,6 +175,9 @@ const Compositor = {
             await this.elements.transition.play();
         } catch (e) {
             console.warn('Transition play error:', e);
+            // If play fails, mark transition as complete
+            this.transitionComplete = true;
+            this.tryShowSimli();
         }
     },
 
@@ -182,6 +190,9 @@ const Compositor = {
     },
 
     forceReset() {
+        console.log('[Compositor] FORCE RESET');
+        this.transitionComplete = false;
+        this.simliReady = false;
         this.hideTransitionVideo();
         SimliManager.forceCleanup();
         StateMachine.forceReset();

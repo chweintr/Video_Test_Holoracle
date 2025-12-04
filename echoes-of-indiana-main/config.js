@@ -60,8 +60,8 @@ const CONFIG = {
             description: 'Sanded drawer fronts; helped at the veneer press; counted pieces at the bell during the war years.',
 
             // Simli Configuration
-            agentId: 'dba533f4-b299-41d4-9745-4c3bc3a248a2', // Mabel's Simli Agent ID
-            faceId: '1ce9c394-89c7-45ab-b3b4-7604f6d01265',  // Mabel's Face ID
+            agentId: '2c8b6f6d-cb83-4100-a99b-ee33f808069a', // Mabel's Simli Agent ID
+            faceId: '33622e5c-6107-4da0-9794-8ea784ccdb43',  // Mabel's Face ID
 
             // Video Assets (paths relative to assets/videos/)
             videos: {

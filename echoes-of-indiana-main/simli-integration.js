@@ -33,14 +33,12 @@ const SimliManager = {
 
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
-            // Try multiple attribute formats (Simli docs inconsistent)
-            widget.setAttribute('agentid', persona.agentId);
+            // Use ONLY kebab-case attributes (per Simli docs)
             widget.setAttribute('agent-id', persona.agentId);
             if (persona.faceId) {
-                widget.setAttribute('faceid', persona.faceId);
                 widget.setAttribute('face-id', persona.faceId);
-                console.log('[SimliManager] Face ID:', persona.faceId);
             }
+            console.log('[SimliManager] Widget attrs - agent-id:', persona.agentId, 'face-id:', persona.faceId);
 
             const mount = document.getElementById('simli-mount');
             mount.innerHTML = '';
@@ -49,6 +47,10 @@ const SimliManager = {
             this.currentWidget = widget;
             this.currentPersona = personaId;
             this.videoStreamActive = false;
+
+            // SHOW loading overlay (covers dotted face placeholder)
+            const overlay = document.getElementById('simli-loading-overlay');
+            if (overlay) overlay.classList.remove('hidden');
 
             // Try to auto-start after widget loads
             setTimeout(() => this.autoStart(widget), 1000);
@@ -159,6 +161,10 @@ const SimliManager = {
             this.detectionTimeout = null;
         }
         
+        // HIDE the loading overlay (reveals the actual video)
+        const overlay = document.getElementById('simli-loading-overlay');
+        if (overlay) overlay.classList.add('hidden');
+        
         // Just notify - don't show yet! Compositor will decide when
         document.dispatchEvent(new CustomEvent('simli-video-ready'));
     },
@@ -168,6 +174,10 @@ const SimliManager = {
         console.log('[SimliManager] Showing widget');
         this.updateDebug('streaming');
         document.getElementById('simli-mount').classList.add('active');
+        
+        // Also ensure loading overlay is hidden
+        const overlay = document.getElementById('simli-loading-overlay');
+        if (overlay) overlay.classList.add('hidden');
     },
 
     hideWidget() {

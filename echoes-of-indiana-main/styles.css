@@ -220,11 +220,28 @@ body.debug-borders simli-widget {
 
 /* =============================================
    SIMLI LAYER (Layer 4)
+   
+   POSITIONING STRATEGY:
+   Instead of making simli-mount fill the container and trying to 
+   position the widget inside, we make simli-mount the EXACT SIZE
+   and POSITION where the head should appear.
    ============================================= */
 #simli-mount {
+    /* Don't use .layer class - custom positioning */
+    position: absolute !important;
+    
+    /* 
+     * HEAD POSITION - Where Simli face should appear
+     * Adjust these to match your transition video's final head position
+     */
+    width: 60%;
+    height: 70%;
+    top: 5%;
+    left: 20%;
+    
     opacity: 0;
     transition: opacity 0.5s;
-    mix-blend-mode: screen; /* Black = transparent, shows idle below */
+    mix-blend-mode: screen;
     pointer-events: auto;
     overflow: hidden;
 }
@@ -235,35 +252,15 @@ body.debug-borders simli-widget {
    ============================================= */
 
 /* 
- * SIMLI WIDGET - Positioned and scaled to match transition video head
- * 
- * ADJUSTMENT INSTRUCTIONS:
- * 1. Scale: Change scale(1.4) to make Simli bigger/smaller
- * 2. Position: Change top/left percentages to move Simli
- *    - top: 50% = vertical center, lower % = higher on screen
- *    - left: 50% = horizontal center, lower % = more left
+ * SIMLI WIDGET - Simply fills its container (#simli-mount)
+ * Position and size are controlled by #simli-mount above
  */
 simli-widget {
     position: absolute !important;
-    
-    /* 
-     * POSITION OFFSET - Adjusted to match video head location
-     * Simli was slightly LEFT of platform, moved RIGHT by increasing left %
-     */
-    top: 50% !important;
-    left: 53% !important;  /* Moved right from 50% */
-    
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    
-    /* 
-     * TRANSFORM: Centering + Scale
-     * - translate(-50%, -50%): centers based on top/left position
-     * - scale(1.4): size adjustment (increase if Simli too small)
-     */
-    transform: translate(-50%, -50%) scale(1.4) !important;
-    transform-origin: center center !important;
-    
     background: #000 !important;
     mix-blend-mode: screen !important;
 }

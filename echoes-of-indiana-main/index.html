@@ -16,8 +16,15 @@
         <div class="menu-header">ECHOES OF INDIANA</div>
         <div class="persona-list">
             <button class="persona-btn" data-persona="mabel">
-                <span class="persona-name">Mabel</span>
-                <span class="persona-role">Showers Worker, 1917</span>
+                <div class="persona-thumbnail">
+                    <video class="persona-preview" autoplay loop muted playsinline>
+                        <source src="assets/videos/mabel_blink.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="persona-info">
+                    <span class="persona-name">Mabel</span>
+                    <span class="persona-role">Showers Worker, 1917</span>
+                </div>
             </button>
         </div>
         <button id="btn-dismiss" class="dismiss-btn">Dismiss</button>
@@ -95,6 +102,11 @@
                     document.getElementById('click-to-start').classList.add('hidden');
                     Compositor.startIdleLoop();
                 }
+                
+                // Mark this button as active, remove from others
+                document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
                 document.getElementById('loading-msg').classList.remove('hidden');
                 setTimeout(() => Compositor.invokePersona(id), 100);
             });
@@ -104,6 +116,10 @@
         document.getElementById('btn-dismiss').addEventListener('click', () => {
             console.log('[UI] Dismiss clicked - forcing cleanup');
             document.getElementById('loading-msg').classList.add('hidden');
+            
+            // Remove active state from all persona buttons
+            document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+            
             Compositor.forceReset();
         });
 
@@ -114,6 +130,8 @@
         document.addEventListener('statechange', (e) => {
             if (e.detail.state === 'idle') {
                 document.getElementById('loading-msg').classList.add('hidden');
+                // Remove active state when returning to idle
+                document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
             }
             document.getElementById('debug-state').textContent = e.detail.state;
         });

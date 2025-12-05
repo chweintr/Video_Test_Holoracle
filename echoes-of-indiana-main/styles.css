@@ -267,8 +267,12 @@ simli-widget {
     width: 100% !important;
     height: 100% !important;
     
-    /* TRANSFORM: Modest scale up, shift right to center */
-    transform: translate(-50%, -50%) scale(1.4) translateX(15%) !important;
+    /* TRANSFORM: Based on measurements:
+     * - Face was ~10% too far right → translateX(-5%)
+     * - Top cut off → translateY(8%) to shift down
+     * - Scale 1.4 looks good for size match
+     */
+    transform: translate(-50%, -50%) scale(1.4) translateX(-5%) translateY(8%) !important;
     transform-origin: center center !important;
     
     background: #000 !important;

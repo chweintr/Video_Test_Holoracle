@@ -195,35 +195,57 @@ body.debug-borders simli-widget {
    ============================================= */
 
 /* 
- * SIMLI WIDGET - Centered and scaled to match transition video
+ * SIMLI WIDGET - Positioned and scaled to match transition video head
  * 
- * KEY: The widget must be:
- * 1. Centered in the container (translate -50%, -50%)
- * 2. Scaled to match the video head size (scale factor)
+ * ADJUSTMENT INSTRUCTIONS:
+ * 1. Scale: Change scale(1.4) to make Simli bigger/smaller
+ * 2. Position: Change top/left percentages to move Simli
+ *    - top: 50% = vertical center, lower % = higher on screen
+ *    - left: 50% = horizontal center, lower % = more left
  */
 simli-widget {
     position: absolute !important;
-    /* CENTER in container */
+    
+    /* 
+     * POSITION OFFSET - Adjust these to match your video head location
+     * Default is centered (50%, 50%)
+     * Example: If video head is slightly up and right, try top: 45%, left: 52%
+     */
     top: 50% !important;
     left: 50% !important;
+    
     width: 100% !important;
     height: 100% !important;
     
     /* 
-     * TRANSFORM: Center + Scale
-     * - translate(-50%, -50%): centers the element
-     * - scale(X): adjusts size to match video head
-     * 
-     * ADJUST SCALE TO MATCH YOUR VIDEO:
-     * - scale(1.0) = same size as container
-     * - scale(1.5) = 150% size
-     * - scale(0.8) = 80% size
+     * TRANSFORM: Centering + Scale
+     * - translate(-50%, -50%): centers based on top/left position
+     * - scale(1.4): size adjustment (increase if Simli too small)
      */
     transform: translate(-50%, -50%) scale(1.4) !important;
     transform-origin: center center !important;
     
     background: #000 !important;
     mix-blend-mode: screen !important;
+}
+
+/* =============================================
+   HIDE SIMLI UI BUTTONS (Close, Start, etc.)
+   ============================================= */
+simli-widget button,
+simli-widget [role="button"],
+simli-widget [class*="button"],
+simli-widget [class*="Button"],
+simli-widget [class*="close"],
+simli-widget [class*="Close"],
+simli-widget [class*="stop"],
+simli-widget [class*="Stop"],
+simli-widget [class*="start"],
+simli-widget [class*="Start"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* SIMLI VIDEO - The actual avatar stream */
@@ -241,7 +263,7 @@ simli-widget video,
 
 /* 
  * HIDE SIMLI DOTTED FACE PLACEHOLDER
- * Hide everything except the video element
+ * AGGRESSIVELY hide everything except the video element
  */
 simli-widget svg,
 simli-widget canvas,
@@ -251,7 +273,13 @@ simli-widget [class*="avatar"],
 simli-widget [class*="outline"],
 simli-widget [class*="preview"],
 simli-widget [class*="dot"],
-simli-widget [class*="Dot"] {
+simli-widget [class*="Dot"],
+simli-widget [class*="face"],
+simli-widget [class*="Face"],
+simli-widget [class*="idle"],
+simli-widget [class*="Idle"],
+simli-widget [class*="waiting"],
+simli-widget [class*="Waiting"] {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
@@ -264,10 +292,19 @@ simli-widget video {
     visibility: visible !important;
 }
 
-/* Hide any dotted/dashed borders */
+/* Hide any dotted/dashed elements */
 simli-widget *[style*="dotted"],
-simli-widget *[style*="dashed"] {
+simli-widget *[style*="dashed"],
+simli-widget *[style*="border-radius: 50%"] {
+    display: none !important;
     border: none !important;
+}
+
+/* When simli-mount is not active, hide EVERYTHING inside */
+#simli-mount:not(.active) * {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
 /* Force black backgrounds */

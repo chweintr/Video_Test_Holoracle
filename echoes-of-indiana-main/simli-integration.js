@@ -222,10 +222,23 @@ const SimliManager = {
 
     forceCleanup() {
         if (this.detectionTimeout) clearTimeout(this.detectionTimeout);
-        document.getElementById('simli-mount').classList.remove('active');
-        document.getElementById('simli-mount').innerHTML = '';
+        const mount = document.getElementById('simli-mount');
+        
+        // IMMEDIATELY hide everything
+        mount.classList.remove('active');
+        mount.style.opacity = '0';
+        mount.style.visibility = 'hidden';
+        mount.innerHTML = '';
+        
+        this.currentWidget = null;
         this.videoStreamActive = false;
         this.updateDebug('-');
+        
+        // Reset styles after transition
+        setTimeout(() => {
+            mount.style.opacity = '';
+            mount.style.visibility = '';
+        }, 500);
     }
 };
 

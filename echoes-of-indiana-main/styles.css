@@ -103,7 +103,12 @@ body {
 }
 
 #layer-abstract { z-index: 2; }
-#layer-simli { z-index: 3; pointer-events: auto; }
+#layer-simli { 
+    z-index: 3; 
+    pointer-events: auto;
+    /* IMPORTANT: Let idle video show through black areas */
+    mix-blend-mode: screen;
+}
 
 /* HEAD CONTAINER - The centered mounting box */
 .head-container {
@@ -142,9 +147,10 @@ body {
     width: 100%; height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
-    background: #000;
+    background: transparent; /* Changed from #000 to let idle show through */
     overflow: hidden;
     pointer-events: auto;
+    mix-blend-mode: screen; /* Black becomes transparent */
 }
 
 .simli-wrapper.active { opacity: 1; }
@@ -155,8 +161,28 @@ body {
     top: 0; left: 0;
     width: 100%; height: 100%;
     overflow: hidden;
-    background: #000;
+    background: transparent; /* Changed from #000 */
     isolation: isolate;
+}
+
+/* 
+ * HIDE SIMLI DOTTED FACE PLACEHOLDER
+ * This is the loading indicator that shows before video stream starts
+ */
+simli-widget svg,
+simli-widget [class*="placeholder"],
+simli-widget [class*="loading"],
+simli-widget [class*="avatar-outline"],
+simli-widget canvas:not([style*="opacity: 1"]) {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Hide any dotted/dashed borders that might be the face outline */
+simli-widget *[style*="dotted"],
+simli-widget *[style*="dashed"] {
+    display: none !important;
 }
 
 /* 

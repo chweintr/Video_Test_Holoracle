@@ -232,6 +232,7 @@ OPENAI_API_KEY=your_key_here  # if using voice
 - [ ] **Fine-tune Mabel head positioning** ← CURRENT PRIORITY
 - [ ] Add floaties videos (layers 1 & 4) for depth sandwich
 - [ ] Shorten transition video (current one is longer than needed)
+- [ ] **Add music and sound effects** (ambient music, transition sounds, interaction SFX)
 - [ ] Build kiosk touch interface
 - [ ] Add more personas (Vonnegut, Oracle, Bigfoot)
 - [ ] Create persona-to-idle transition videos

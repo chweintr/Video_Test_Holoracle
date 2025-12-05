@@ -33,12 +33,26 @@ const SimliManager = {
 
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
-            // Use ONLY kebab-case attributes (per Simli docs)
+            
+            // Set ALL possible attribute formats (Simli docs are inconsistent)
+            widget.setAttribute('agentid', persona.agentId);
             widget.setAttribute('agent-id', persona.agentId);
+            widget.setAttribute('agentId', persona.agentId);
             if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
                 widget.setAttribute('face-id', persona.faceId);
+                widget.setAttribute('faceId', persona.faceId);
             }
-            console.log('[SimliManager] Widget attrs - agent-id:', persona.agentId, 'face-id:', persona.faceId);
+            
+            // Also try setting as properties
+            widget.agentId = persona.agentId;
+            widget.agentid = persona.agentId;
+            if (persona.faceId) {
+                widget.faceId = persona.faceId;
+                widget.faceid = persona.faceId;
+            }
+            
+            console.log('[SimliManager] Widget set - agentId:', persona.agentId, 'faceId:', persona.faceId);
 
             const mount = document.getElementById('simli-mount');
             mount.innerHTML = '';

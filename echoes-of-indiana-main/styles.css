@@ -84,7 +84,9 @@ body {
     background: rgba(220,60,60,0.9);
 }
 
-/* STAGE */
+/* =============================================
+   STAGE - The viewport (minus menu sidebar)
+   ============================================= */
 #stage {
     position: fixed;
     left: 220px; 
@@ -93,98 +95,130 @@ body {
     bottom: 0;
     background: #000;
     overflow: hidden;
+    
+    /* Center the hologram mount */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Container fills the stage */
-.video-layer-container {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-}
-
-/* 
- * SANDWICH STACK - All in same container, layered with z-index
- * Bottom: idle loop (always visible)
- * Middle: transition video
- * Top: Simli (black areas = see-through)
- */
-.sandwich-bottom { z-index: 1; }
-.sandwich-middle { z-index: 2; }
-.sandwich-top { 
-    z-index: 3; 
-    pointer-events: auto;
-    mix-blend-mode: screen; /* Black becomes transparent, shows idle below */
-}
-
-/* HEAD CONTAINER - The centered mounting box */
-.head-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+/* =============================================
+   HOLOGRAM MOUNT - THE SACRED BOX
+   All layers MUST render inside this container
+   This is the ONLY positioning reference point
+   ============================================= */
+#hologram-mount {
+    /* FIXED SIZE - adjust these to match your videos */
     width: 70vh;
     height: 70vh;
     max-width: 800px;
     max-height: 800px;
+    
+    /* Strict containment */
+    position: relative;
     overflow: hidden;
-    background: transparent;
-    /* DEBUG: Uncomment to see the box */
-    /* border: 2px solid red; */
+    
+    /* Debug: Uncomment to see the box */
+    /* border: 3px solid red; */
 }
 
-/* Videos fill the container */
-.video-layer {
+/* =============================================
+   LAYER SYSTEM - All layers fill the mount
+   ============================================= */
+.layer {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    opacity: 0;
-    transition: opacity 0.5s;
-    background: transparent;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
-.video-layer.active { opacity: 1; }
+/* Z-INDEX STACK (bottom to top) */
+.layer-1 { z-index: 1; } /* Bottom floaties (future) */
+.layer-2 { z-index: 2; } /* Idle loop */
+.layer-3 { z-index: 3; } /* Transition video */
+.layer-4 { z-index: 4; } /* Simli agent */
+.layer-5 { z-index: 5; } /* Top floaties (future) */
 
-/* Idle loop uses screen blend to show through other layers' black areas */
+/* =============================================
+   VIDEO LAYERS
+   ============================================= */
 #video-idle-loop {
-    mix-blend-mode: normal; /* Bottom layer, no blend needed */
-}
-
-/* Transition video blends on top of idle */
-#video-transition {
-    mix-blend-mode: screen;
-}
-
-/* 
- * SIMLI WRAPPER - Top of sandwich
- * mix-blend-mode: screen makes black transparent, showing idle video below
- */
-.simli-wrapper {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
-    background: transparent;
-    overflow: hidden;
+}
+#video-idle-loop.active { opacity: 1; }
+
+#video-transition {
+    opacity: 0;
+    transition: opacity 0.5s;
+    mix-blend-mode: screen; /* Black = transparent, shows idle below */
+}
+#video-transition.active { opacity: 1; }
+
+/* =============================================
+   SIMLI LAYER (Layer 4)
+   ============================================= */
+#simli-mount {
+    opacity: 0;
+    transition: opacity 0.5s;
+    mix-blend-mode: screen; /* Black = transparent, shows idle below */
     pointer-events: auto;
+    overflow: hidden;
+}
+#simli-mount.active { opacity: 1; }
+
+/* =============================================
+   SIMLI WIDGET STYLING
+   ============================================= */
+
+/* 
+ * SIMLI WIDGET - Fills the mount, can be scaled
+ * ADJUST scale() TO MATCH YOUR TRANSITION VIDEO HEAD SIZE
+ */
+simli-widget {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    
+    /* SCALE ADJUSTMENT - Change this to match transition video head */
+    /* Example: scale(1.2) = 120% size, scale(0.9) = 90% size */
+    transform-origin: center center !important;
+    transform: scale(1.0) !important;
+    
+    background: #000 !important;
+    mix-blend-mode: screen !important;
 }
 
-.simli-wrapper.active { opacity: 1; }
+/* SIMLI VIDEO - The actual avatar stream */
+simli-widget video,
+#simli-mount video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    background: #000 !important;
+    mix-blend-mode: screen !important;
+}
 
 /* 
  * HIDE SIMLI DOTTED FACE PLACEHOLDER
- * This appears while waiting for video stream
- * Hide ALL non-video elements until stream starts
+ * Hide everything except the video element
  */
 simli-widget svg,
+simli-widget canvas,
 simli-widget [class*="placeholder"],
 simli-widget [class*="loading"],
 simli-widget [class*="avatar"],
-simli-widget [class*="face"],
 simli-widget [class*="outline"],
 simli-widget [class*="preview"],
-simli-widget canvas {
+simli-widget [class*="dot"],
+simli-widget [class*="Dot"] {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
@@ -199,50 +233,8 @@ simli-widget video {
 
 /* Hide any dotted/dashed borders */
 simli-widget *[style*="dotted"],
-simli-widget *[style*="dashed"],
-simli-widget *[style*="border"] {
+simli-widget *[style*="dashed"] {
     border: none !important;
-}
-
-/* 
- * SIMLI WIDGET - SCALED UP to match transition video head
- * Adjust the scale value to match your transition video
- */
-simli-widget {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    /* SCALE UP - adjust this value to match transition video head size */
-    /* 1.3 = 130% of original size */
-    transform: translate(-50%, -50%) scale(1.4) !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: #000 !important;
-    mix-blend-mode: screen !important;
-}
-
-/* 
- * SIMLI VIDEO - Gray bar fix
- * Use filter to crush dark grays to black
- * mix-blend-mode: screen then makes black transparent
- */
-simli-widget video,
-#simli-mount video {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    background: #000 !important;
-    mix-blend-mode: screen !important;
-    /* 
-     * GRAY BAR FIX: Increase contrast to crush grays to black
-     * Adjust these values if bars are still visible:
-     * - Higher contrast = darker grays
-     * - Lower brightness = darker overall
-     */
-    filter: contrast(1.4) brightness(0.95) !important;
 }
 
 /* Force black backgrounds */

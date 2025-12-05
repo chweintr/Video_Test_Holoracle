@@ -33,25 +33,37 @@
         Layer 2 = Abstract videos (idle loop, transitions)
         Layer 3 = Simli (appears on top when active)
     -->
+    <!-- 
+        MASTER STAGE - Everything renders inside this centered box
+        All layers MUST conform to this container's bounds
+    -->
     <div id="stage">
         <!-- 
-            SANDWICH ARCHITECTURE:
-            All videos in ONE container, stacked on top of each other
-            - Idle loop: ALWAYS visible at bottom (z-index: 1)
-            - Transition: plays during invoke (z-index: 2)
-            - Simli: on top, black areas transparent via mix-blend-mode: screen (z-index: 3)
+            HOLOGRAM MOUNT - The sacred box where all layers live
+            This is THE reference point for all positioning
+            
+            SANDWICH (bottom to top):
+            z-index 1: Bottom floaties (future)
+            z-index 2: Idle loop (always visible)
+            z-index 3: Transition video
+            z-index 4: Simli agent
+            z-index 5: Top floaties (future)
         -->
-        <div class="video-layer-container">
-            <div class="head-container" id="video-mount">
-                <!-- BOTTOM: Idle loop - ALWAYS PLAYING -->
-                <video id="video-idle-loop" class="video-layer sandwich-bottom" playsinline loop muted></video>
-                
-                <!-- MIDDLE: Transition video -->
-                <video id="video-transition" class="video-layer sandwich-middle" playsinline muted></video>
-                
-                <!-- TOP: Simli agent (black = see-through to idle below) -->
-                <div id="simli-mount" class="simli-wrapper sandwich-top"></div>
-            </div>
+        <div id="hologram-mount">
+            <!-- Layer 1: Bottom floaties (future) -->
+            <!-- <video id="video-floaties-bottom" class="layer layer-1" playsinline loop muted></video> -->
+            
+            <!-- Layer 2: Idle loop - ALWAYS PLAYING -->
+            <video id="video-idle-loop" class="layer layer-2" playsinline loop muted></video>
+            
+            <!-- Layer 3: Transition video -->
+            <video id="video-transition" class="layer layer-3" playsinline muted></video>
+            
+            <!-- Layer 4: Simli agent -->
+            <div id="simli-mount" class="layer layer-4"></div>
+            
+            <!-- Layer 5: Top floaties (future) -->
+            <!-- <video id="video-floaties-top" class="layer layer-5" playsinline loop muted></video> -->
         </div>
     </div>
 

@@ -422,6 +422,19 @@ async def get_simli_config():
         "agentId": agent_id,
     }
 
+@app.get("/debug-env")
+async def debug_env():
+    """Debug endpoint to see what environment variables are available."""
+    import os
+    simli_vars = {k: v[:10] + "..." if v and len(v) > 10 else v 
+                  for k, v in os.environ.items() 
+                  if "SIMLI" in k.upper()}
+    return {
+        "simli_vars": simli_vars,
+        "all_env_count": len(os.environ),
+        "railway_env": os.getenv("RAILWAY_ENVIRONMENT", "not set"),
+    }
+
 @app.post("/simli-compose/session")
 @app.get("/simli-compose/session")
 async def simli_compose_session(request: Request, persona: Optional[str] = None, faceId: Optional[str] = None):

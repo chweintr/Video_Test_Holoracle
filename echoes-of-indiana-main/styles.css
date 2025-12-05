@@ -267,8 +267,8 @@ simli-widget {
     width: 100% !important;
     height: 100% !important;
     
-    /* TRANSFORM: Scale up significantly + shift left to center */
-    transform: translate(-50%, -50%) scale(2.5) translateX(-10%) !important;
+    /* TRANSFORM: Modest scale up, shift right to center */
+    transform: translate(-50%, -50%) scale(1.4) translateX(15%) !important;
     transform-origin: center center !important;
     
     background: #000 !important;

@@ -95,19 +95,25 @@ body {
     overflow: hidden;
 }
 
-/* Both layers fill the stage */
+/* Container fills the stage */
 .video-layer-container {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     pointer-events: none;
 }
 
-#layer-abstract { z-index: 2; }
-#layer-simli { 
+/* 
+ * SANDWICH STACK - All in same container, layered with z-index
+ * Bottom: idle loop (always visible)
+ * Middle: transition video
+ * Top: Simli (black areas = see-through)
+ */
+.sandwich-bottom { z-index: 1; }
+.sandwich-middle { z-index: 2; }
+.sandwich-top { 
     z-index: 3; 
     pointer-events: auto;
-    /* IMPORTANT: Let idle video show through black areas */
-    mix-blend-mode: screen;
+    mix-blend-mode: screen; /* Black becomes transparent, shows idle below */
 }
 
 /* HEAD CONTAINER - The centered mounting box */
@@ -133,68 +139,38 @@ body {
     width: 100%; height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
-    background: #000;
-    mix-blend-mode: screen;
+    background: transparent;
     object-fit: cover;
 }
 
 .video-layer.active { opacity: 1; }
 
-/* Simli wrapper */
+/* Idle loop uses screen blend to show through other layers' black areas */
+#video-idle-loop {
+    mix-blend-mode: normal; /* Bottom layer, no blend needed */
+}
+
+/* Transition video blends on top of idle */
+#video-transition {
+    mix-blend-mode: screen;
+}
+
+/* 
+ * SIMLI WRAPPER - Top of sandwich
+ * mix-blend-mode: screen makes black transparent, showing idle video below
+ */
 .simli-wrapper {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     opacity: 0;
     transition: opacity 0.5s;
-    background: transparent; /* Changed from #000 to let idle show through */
+    background: transparent;
     overflow: hidden;
     pointer-events: auto;
-    mix-blend-mode: screen; /* Black becomes transparent */
 }
 
 .simli-wrapper.active { opacity: 1; }
-
-/* Simli mount - contains the widget */
-#simli-mount {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: transparent; /* Changed from #000 */
-    isolation: isolate;
-}
-
-/* 
- * SIMLI LOADING OVERLAY
- * Covers the dotted face placeholder until video stream starts
- * Add a mist GIF here, or leave empty for black/transparent
- */
-.simli-loading-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 10; /* Above simli-widget */
-    background: #000;
-    mix-blend-mode: screen; /* Black = transparent */
-    pointer-events: none;
-    transition: opacity 0.5s;
-}
-
-/* Hide overlay when Simli video is streaming */
-.simli-loading-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* If you add a mist gif/video */
-.simli-loading-overlay .loading-mist,
-.simli-loading-overlay video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    mix-blend-mode: screen;
-}
 
 /* 
  * HIDE SIMLI DOTTED FACE PLACEHOLDER

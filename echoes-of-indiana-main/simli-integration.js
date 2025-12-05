@@ -48,10 +48,6 @@ const SimliManager = {
             this.currentPersona = personaId;
             this.videoStreamActive = false;
 
-            // SHOW loading overlay (covers dotted face placeholder)
-            const overlay = document.getElementById('simli-loading-overlay');
-            if (overlay) overlay.classList.remove('hidden');
-
             // Try to auto-start after widget loads
             setTimeout(() => this.autoStart(widget), 1000);
             
@@ -161,10 +157,6 @@ const SimliManager = {
             this.detectionTimeout = null;
         }
         
-        // HIDE the loading overlay (reveals the actual video)
-        const overlay = document.getElementById('simli-loading-overlay');
-        if (overlay) overlay.classList.add('hidden');
-        
         // Just notify - don't show yet! Compositor will decide when
         document.dispatchEvent(new CustomEvent('simli-video-ready'));
     },
@@ -174,10 +166,6 @@ const SimliManager = {
         console.log('[SimliManager] Showing widget');
         this.updateDebug('streaming');
         document.getElementById('simli-mount').classList.add('active');
-        
-        // Also ensure loading overlay is hidden
-        const overlay = document.getElementById('simli-loading-overlay');
-        if (overlay) overlay.classList.add('hidden');
     },
 
     hideWidget() {

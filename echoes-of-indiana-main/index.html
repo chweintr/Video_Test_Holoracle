@@ -34,29 +34,23 @@
         Layer 3 = Simli (appears on top when active)
     -->
     <div id="stage">
-        <!-- LAYER 2: Background/Transition Videos -->
-        <div id="layer-abstract" class="video-layer-container">
+        <!-- 
+            SANDWICH ARCHITECTURE:
+            All videos in ONE container, stacked on top of each other
+            - Idle loop: ALWAYS visible at bottom (z-index: 1)
+            - Transition: plays during invoke (z-index: 2)
+            - Simli: on top, black areas transparent via mix-blend-mode: screen (z-index: 3)
+        -->
+        <div class="video-layer-container">
             <div class="head-container" id="video-mount">
-                <video id="video-idle-loop" class="video-layer" playsinline loop muted></video>
-                <video id="video-transition" class="video-layer" playsinline muted></video>
-            </div>
-        </div>
-        
-        <!-- LAYER 3: Simli - uses SAME head-container class for identical positioning -->
-        <div id="layer-simli" class="video-layer-container">
-            <div class="head-container" id="simli-container">
-                <div id="simli-mount" class="simli-wrapper"></div>
-                <!-- 
-                    LOADING OVERLAY - Covers Simli's dotted face placeholder
-                    Options:
-                    1. Keep empty (transparent/black via mix-blend-mode)
-                    2. Add a mist GIF: <img src="assets/videos/mist-loop.gif" class="loading-mist">
-                    3. Add video: <video src="assets/videos/mist.mp4" autoplay loop muted></video>
-                -->
-                <div id="simli-loading-overlay" class="simli-loading-overlay">
-                    <!-- Put mist gif here if desired: -->
-                    <!-- <img src="assets/videos/mist-loading.gif" alt="" class="loading-mist"> -->
-                </div>
+                <!-- BOTTOM: Idle loop - ALWAYS PLAYING -->
+                <video id="video-idle-loop" class="video-layer sandwich-bottom" playsinline loop muted></video>
+                
+                <!-- MIDDLE: Transition video -->
+                <video id="video-transition" class="video-layer sandwich-middle" playsinline muted></video>
+                
+                <!-- TOP: Simli agent (black = see-through to idle below) -->
+                <div id="simli-mount" class="simli-wrapper sandwich-top"></div>
             </div>
         </div>
     </div>

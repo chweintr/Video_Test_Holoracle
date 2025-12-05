@@ -1,5 +1,48 @@
 # Echoes of Indiana - Hologram Display System
 
+---
+
+## 🤖 FOR FUTURE AI ASSISTANTS (READ THIS FIRST!)
+
+**Last Updated:** December 5, 2025
+
+### Current Status: ✅ WORKING
+- Mabel loads and streams correctly
+- State machine works (idle → transitioning-in → active → idle)
+- Dismiss button works
+- No gray bars on Simli output
+
+### What We're Working On NOW:
+1. **HEAD POSITIONING** - Mabel's head position needs fine-tuning to match the transition video's final frame
+   - Adjust in: `styles.css` → `.head-container` and `#simli-mount`
+   - Current scale: `transform: scale(1.4)` on `.simli-widget`
+   
+2. **VIDEO SANDWICH** - Adding depth layers (floaties above/below)
+   - Layer 1: Bottom floaties (smoke/embers)
+   - Layer 4: Top floaties (sparkles/particles)
+
+### Key Files:
+| File | Purpose |
+|------|---------|
+| `styles.css` | **HEAD POSITIONING** - `.head-container`, `#simli-mount`, `.simli-widget` |
+| `config.js` | Mabel's agentId, faceId, video paths |
+| `compositor.js` | Layer orchestration, video playback |
+| `simli-integration.js` | Simli widget creation |
+
+### Current Mabel Config (config.js):
+```javascript
+agentId: '2c8b6f6d-cb83-4100-a99b-ee33f808069a'
+faceId: '33622e5c-6107-4da0-9794-8ea784ccdb43'
+```
+
+### Railway Quirk ⚠️
+Railway sometimes adds trailing spaces to env var names. The backend has a workaround (`get_simli_api_key()` function) that handles this. If API key issues occur, check `/debug-env` endpoint.
+
+### Test URL:
+`https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/?debug=true`
+
+---
+
 ## Overview
 
 A 4-layer video compositor for LED holographic fan arrays featuring interactive AI personas (powered by Simli).
@@ -186,12 +229,20 @@ OPENAI_API_KEY=your_key_here  # if using voice
 
 ## TODO
 
+- [ ] **Fine-tune Mabel head positioning** ← CURRENT PRIORITY
+- [ ] Add floaties videos (layers 1 & 4) for depth sandwich
+- [ ] Shorten transition video (current one is longer than needed)
 - [ ] Build kiosk touch interface
 - [ ] Add more personas (Vonnegut, Oracle, Bigfoot)
 - [ ] Create persona-to-idle transition videos
-- [ ] Add floaties videos (layers 1 & 4)
 - [ ] Test on actual LED fan array
-- [ ] Fine-tune head positioning/scaling
+
+### COMPLETED ✅
+- [x] Mabel Simli integration working
+- [x] State machine (idle → active → idle)
+- [x] Dismiss button functionality
+- [x] Gray bars eliminated (new avatar)
+- [x] Railway API key quirks fixed
 
 ---
 

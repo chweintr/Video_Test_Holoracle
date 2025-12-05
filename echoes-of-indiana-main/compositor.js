@@ -171,6 +171,11 @@ const Compositor = {
         this.elements.transition.loop = false;
         this.elements.transition.classList.add('active');
         
+        // Optional: Speed up transition video (1.0 = normal, 1.5 = 50% faster, 2.0 = double speed)
+        const speed = CONFIG.video?.transitionPlaybackRate || 1.0;
+        this.elements.transition.playbackRate = speed;
+        if (speed !== 1.0) console.log('[Compositor] Transition speed:', speed + 'x');
+        
         try {
             await this.elements.transition.play();
         } catch (e) {

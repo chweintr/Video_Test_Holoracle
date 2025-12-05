@@ -46,6 +46,10 @@ const CONFIG = {
         
         // Allow user to skip transition by clicking
         allowSkipTransition: false,
+        
+        // Transition video playback speed (1.0 = normal, 1.5 = 50% faster, 2.0 = double speed)
+        // Increase this if your transition video is too long
+        transitionPlaybackRate: 1.5,  // ← ADJUST THIS (1.0-2.0)
     },
 
     /* ============================================

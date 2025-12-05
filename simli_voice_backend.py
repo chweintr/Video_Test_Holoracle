@@ -23,6 +23,22 @@ import uvicorn
 if os.getenv("RAILWAY_ENVIRONMENT") != "production":
     load_dotenv(override=False)
 
+def get_simli_api_key():
+    """Get SIMLI_API_KEY, checking for common Railway variable name issues."""
+    # Try exact name first
+    key = os.getenv("SIMLI_API_KEY")
+    if key and key.strip():
+        return key.strip()
+    # Try with trailing space (Railway sometimes adds this)
+    key = os.getenv("SIMLI_API_KEY ")
+    if key and key.strip():
+        return key.strip()
+    # Try scanning all env vars for any that match
+    for k, v in os.environ.items():
+        if k.strip().upper() == "SIMLI_API_KEY" and v and v.strip():
+            return v.strip()
+    return ""
+
 # Import the voice system components
 from voice_system import VoiceSystem
 from personas.persona_rag_system import SimpleRAGSystem, PersonaRAGSystem
@@ -400,7 +416,7 @@ async def get_simli_config():
     overriding default agent via SIMLI_AGENT_ID. Returns minimal info to avoid
     leaking keys in logs.
     """
-    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    api_key = get_simli_api_key()
     # Clean up any leading equals signs
     while api_key.startswith("="):
         api_key = api_key[1:].lstrip()
@@ -446,7 +462,7 @@ async def simli_compose_session(request: Request, persona: Optional[str] = None,
     3) persona -> built-in mapping from /personas
     """
     # Sanitize API key
-    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    api_key = get_simli_api_key()
     while api_key.startswith("="):
         api_key = api_key[1:].lstrip()
 
@@ -581,13 +597,12 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
     3) env SIMLI_AGENT_ID or SIMLI_FACE_ID
     4) default hoosier fallback id
     """
-    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    api_key = get_simli_api_key()
     elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
     # Remove any accidental leading equals signs and stray whitespace
     while api_key.startswith("="):
         api_key = api_key[1:].lstrip()
-    logger.info(f"DEBUG: SIMLI_API_KEY raw = {repr(os.getenv('SIMLI_API_KEY'))}")
-    logger.info(f"DEBUG: SIMLI_API_KEY sanitized = {repr(api_key)}")
+    logger.info(f"DEBUG: SIMLI_API_KEY resolved = {repr(api_key[:10] + '...' if api_key else 'EMPTY')}")
     logger.info(f"DEBUG: ELEVENLABS_API_KEY present = {bool(elevenlabs_key)}")
 
     # Try to read persona/agentId from JSON body as well (POST)
@@ -1092,7 +1107,7 @@ async def get_personas():
 @app.get("/api-keys")
 async def get_api_keys():
     """Get API keys for direct integration - secure endpoint"""
-    api_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+    api_key = get_simli_api_key()
     elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
     
     # Clean up any leading equals signs
@@ -1119,7 +1134,7 @@ async def create_direct_session(request: dict):
         voice_id = request.get("voiceId")
         
         # Get API keys
-        simli_key = (os.getenv("SIMLI_API_KEY") or "").strip()
+        simli_key = get_simli_api_key()
         elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
         
         # Clean up Simli key

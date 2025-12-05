@@ -196,19 +196,23 @@ const SimliManager = {
             clearTimeout(this.detectionTimeout);
         }
         
-        // IMMEDIATELY hide to prevent dotted face from showing during cleanup
         const mount = document.getElementById('simli-mount');
-        mount.classList.remove('active');
-        mount.style.visibility = 'hidden'; // Extra insurance
         
-        // Clear after fade
+        // IMMEDIATELY hide AND clear - no delay, no chance for dotted face
+        mount.classList.remove('active');
+        mount.style.opacity = '0';
+        mount.style.visibility = 'hidden';
+        mount.innerHTML = ''; // Clear immediately
+        
+        this.currentWidget = null;
+        this.videoStreamActive = false;
+        this.updateDebug('-');
+        
+        // Reset styles after a moment
         setTimeout(() => {
-            mount.innerHTML = '';
-            mount.style.visibility = ''; // Reset
-            this.currentWidget = null;
-            this.videoStreamActive = false;
-            this.updateDebug('-');
-        }, 100); // Shorter delay since we're hiding immediately
+            mount.style.opacity = '';
+            mount.style.visibility = '';
+        }, 500);
     },
 
     updateDebug(msg) {

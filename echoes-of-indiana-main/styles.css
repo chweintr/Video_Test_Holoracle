@@ -195,20 +195,32 @@ body.debug-borders simli-widget {
    ============================================= */
 
 /* 
- * SIMLI WIDGET - Fills the mount, can be scaled
- * ADJUST scale() TO MATCH YOUR TRANSITION VIDEO HEAD SIZE
+ * SIMLI WIDGET - Centered and scaled to match transition video
+ * 
+ * KEY: The widget must be:
+ * 1. Centered in the container (translate -50%, -50%)
+ * 2. Scaled to match the video head size (scale factor)
  */
 simli-widget {
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    /* CENTER in container */
+    top: 50% !important;
+    left: 50% !important;
     width: 100% !important;
     height: 100% !important;
     
-    /* SCALE ADJUSTMENT - Change this to match transition video head */
-    /* Example: scale(1.2) = 120% size, scale(0.9) = 90% size */
+    /* 
+     * TRANSFORM: Center + Scale
+     * - translate(-50%, -50%): centers the element
+     * - scale(X): adjusts size to match video head
+     * 
+     * ADJUST SCALE TO MATCH YOUR VIDEO:
+     * - scale(1.0) = same size as container
+     * - scale(1.5) = 150% size
+     * - scale(0.8) = 80% size
+     */
+    transform: translate(-50%, -50%) scale(1.4) !important;
     transform-origin: center center !important;
-    transform: scale(1.0) !important;
     
     background: #000 !important;
     mix-blend-mode: screen !important;

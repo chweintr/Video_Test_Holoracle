@@ -167,22 +167,34 @@ body {
 
 /* 
  * HIDE SIMLI DOTTED FACE PLACEHOLDER
- * This is the loading indicator that shows before video stream starts
+ * This appears while waiting for video stream
+ * Hide ALL non-video elements until stream starts
  */
 simli-widget svg,
 simli-widget [class*="placeholder"],
 simli-widget [class*="loading"],
-simli-widget [class*="avatar-outline"],
-simli-widget canvas:not([style*="opacity: 1"]) {
+simli-widget [class*="avatar"],
+simli-widget [class*="face"],
+simli-widget [class*="outline"],
+simli-widget [class*="preview"],
+simli-widget canvas {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
 }
 
-/* Hide any dotted/dashed borders that might be the face outline */
+/* Only show VIDEO elements */
+simli-widget video {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Hide any dotted/dashed borders */
 simli-widget *[style*="dotted"],
-simli-widget *[style*="dashed"] {
-    display: none !important;
+simli-widget *[style*="dashed"],
+simli-widget *[style*="border"] {
+    border: none !important;
 }
 
 /* 

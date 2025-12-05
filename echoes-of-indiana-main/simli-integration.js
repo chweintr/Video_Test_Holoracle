@@ -33,8 +33,14 @@ const SimliManager = {
 
             const widget = document.createElement('simli-widget');
             widget.setAttribute('token', token);
+            // Try multiple attribute formats (Simli docs inconsistent)
             widget.setAttribute('agentid', persona.agentId);
-            if (persona.faceId) widget.setAttribute('faceid', persona.faceId);
+            widget.setAttribute('agent-id', persona.agentId);
+            if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
+                widget.setAttribute('face-id', persona.faceId);
+                console.log('[SimliManager] Face ID:', persona.faceId);
+            }
 
             const mount = document.getElementById('simli-mount');
             mount.innerHTML = '';

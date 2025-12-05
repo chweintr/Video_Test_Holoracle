@@ -117,6 +117,13 @@
             }
             document.getElementById('debug-state').textContent = e.detail.state;
         });
+
+        // DEBUG MODE: Add ?debug=borders to URL to see layer boundaries
+        // Red = hologram-mount, Blue = idle, Green = transition, Yellow = simli, Magenta = widget
+        if (new URLSearchParams(window.location.search).get('debug') === 'borders') {
+            document.body.classList.add('debug-borders');
+            console.log('[DEBUG] Border mode enabled - showing layer boundaries');
+        }
     </script>
 </body>
 </html>

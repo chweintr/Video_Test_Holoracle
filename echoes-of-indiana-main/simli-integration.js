@@ -181,13 +181,20 @@ const SimliManager = {
         if (this.detectionTimeout) {
             clearTimeout(this.detectionTimeout);
         }
-        this.hideWidget();
+        
+        // IMMEDIATELY hide to prevent dotted face from showing during cleanup
+        const mount = document.getElementById('simli-mount');
+        mount.classList.remove('active');
+        mount.style.visibility = 'hidden'; // Extra insurance
+        
+        // Clear after fade
         setTimeout(() => {
-            document.getElementById('simli-mount').innerHTML = '';
+            mount.innerHTML = '';
+            mount.style.visibility = ''; // Reset
             this.currentWidget = null;
             this.videoStreamActive = false;
             this.updateDebug('-');
-        }, 500);
+        }, 100); // Shorter delay since we're hiding immediately
     },
 
     updateDebug(msg) {

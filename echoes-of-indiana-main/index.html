@@ -142,6 +142,28 @@
             document.body.classList.add('debug-borders');
             console.log('[DEBUG] Border mode enabled - showing layer boundaries');
         }
+        
+        // MEASURE MODE: Add ?measure to URL to show measurement grid
+        if (new URLSearchParams(window.location.search).get('measure') !== null) {
+            const mount = document.getElementById('hologram-mount');
+            const grid = document.createElement('div');
+            grid.id = 'measure-grid';
+            grid.innerHTML = `
+                <div class="crosshair-h"></div>
+                <div class="crosshair-v"></div>
+                <div class="grid-label" style="top:0;left:50%;transform:translateX(-50%)">TOP</div>
+                <div class="grid-label" style="bottom:0;left:50%;transform:translateX(-50%)">BOTTOM</div>
+                <div class="grid-label" style="left:0;top:50%;transform:translateY(-50%)">LEFT</div>
+                <div class="grid-label" style="right:0;top:50%;transform:translateY(-50%)">RIGHT</div>
+                <div class="grid-label" style="top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px">CENTER</div>
+                <div class="grid-line h25"></div>
+                <div class="grid-line h75"></div>
+                <div class="grid-line v25"></div>
+                <div class="grid-line v75"></div>
+            `;
+            mount.appendChild(grid);
+            console.log('[MEASURE] Grid overlay enabled');
+        }
     </script>
 </body>
 </html>

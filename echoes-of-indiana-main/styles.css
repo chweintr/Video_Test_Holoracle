@@ -262,18 +262,13 @@ body.debug-borders simli-widget {
  */
 simli-widget {
     position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
     
-    /* TRANSFORM: Based on measurements:
-     * - Face was ~10% too far right → translateX(-5%)
-     * - Top cut off → translateY(8%) to shift down
-     * - Scale 1.4 looks good for size match
-     */
-    transform: translate(-50%, -50%) scale(1.4) translateX(-5%) translateY(8%) !important;
-    transform-origin: center center !important;
+    /* BASELINE - NO TRANSFORM - For measurement */
+    transform: none !important;
     
     background: #000 !important;
     mix-blend-mode: screen !important;
@@ -434,4 +429,51 @@ simli-widget *[style*="border-radius: 50%"] {
     text-transform: uppercase;
     letter-spacing: 0.2em;
     animation: pulse 1.5s infinite;
+}
+
+/* =============================================
+   MEASUREMENT GRID - Add ?measure to URL
+   ============================================= */
+#measure-grid {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+#measure-grid .crosshair-h {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,0,0,0.8);
+}
+
+#measure-grid .crosshair-v {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(255,0,0,0.8);
+}
+
+#measure-grid .grid-line {
+    position: absolute;
+    background: rgba(255,255,0,0.4);
+}
+#measure-grid .h25 { top: 25%; left: 0; width: 100%; height: 1px; }
+#measure-grid .h75 { top: 75%; left: 0; width: 100%; height: 1px; }
+#measure-grid .v25 { left: 25%; top: 0; width: 1px; height: 100%; }
+#measure-grid .v75 { left: 75%; top: 0; width: 1px; height: 100%; }
+
+#measure-grid .grid-label {
+    position: absolute;
+    background: rgba(255,0,0,0.9);
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
 }

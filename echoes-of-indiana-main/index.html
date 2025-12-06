@@ -143,26 +143,69 @@
             console.log('[DEBUG] Border mode enabled - showing layer boundaries');
         }
         
-        // MEASURE MODE: Add ?measure to URL to show measurement grid
-        if (new URLSearchParams(window.location.search).get('measure') !== null) {
-            const mount = document.getElementById('hologram-mount');
-            const grid = document.createElement('div');
-            grid.id = 'measure-grid';
-            grid.innerHTML = `
-                <div class="crosshair-h"></div>
-                <div class="crosshair-v"></div>
-                <div class="grid-label" style="top:0;left:50%;transform:translateX(-50%)">TOP</div>
-                <div class="grid-label" style="bottom:0;left:50%;transform:translateX(-50%)">BOTTOM</div>
-                <div class="grid-label" style="left:0;top:50%;transform:translateY(-50%)">LEFT</div>
-                <div class="grid-label" style="right:0;top:50%;transform:translateY(-50%)">RIGHT</div>
-                <div class="grid-label" style="top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px">CENTER</div>
-                <div class="grid-line h25"></div>
-                <div class="grid-line h75"></div>
-                <div class="grid-line v25"></div>
-                <div class="grid-line v75"></div>
+        // CALIBRATE MODE: Add ?calibrate to URL for interactive positioning
+        if (new URLSearchParams(window.location.search).get('calibrate') !== null) {
+            // Current values
+            let scale = 1.1;
+            let moveX = 0;
+            let moveY = -6;
+            
+            // Create control panel
+            const panel = document.createElement('div');
+            panel.id = 'calibrate-panel';
+            panel.innerHTML = `
+                <div class="cal-title">SIMLI CALIBRATION</div>
+                <div class="cal-row">
+                    <span>Scale:</span>
+                    <button onclick="calAdjust('scale', -0.1)">−</button>
+                    <span id="cal-scale">1.1</span>
+                    <button onclick="calAdjust('scale', 0.1)">+</button>
+                </div>
+                <div class="cal-row">
+                    <span>Move X:</span>
+                    <button onclick="calAdjust('x', -2)">←</button>
+                    <span id="cal-x">0%</span>
+                    <button onclick="calAdjust('x', 2)">→</button>
+                </div>
+                <div class="cal-row">
+                    <span>Move Y:</span>
+                    <button onclick="calAdjust('y', -2)">↑</button>
+                    <span id="cal-y">-6%</span>
+                    <button onclick="calAdjust('y', 2)">↓</button>
+                </div>
+                <div class="cal-css" id="cal-css">transform: translateX(0%) translateY(-6%) scale(1.1)</div>
             `;
-            mount.appendChild(grid);
-            console.log('[MEASURE] Grid overlay enabled');
+            document.body.appendChild(panel);
+            
+            // Adjustment function
+            window.calAdjust = function(type, delta) {
+                if (type === 'scale') scale = Math.round((scale + delta) * 10) / 10;
+                if (type === 'x') moveX += delta;
+                if (type === 'y') moveY += delta;
+                
+                document.getElementById('cal-scale').textContent = scale.toFixed(1);
+                document.getElementById('cal-x').textContent = moveX + '%';
+                document.getElementById('cal-y').textContent = moveY + '%';
+                
+                const css = `transform: translateX(${moveX}%) translateY(${moveY}%) scale(${scale})`;
+                document.getElementById('cal-css').textContent = css;
+                
+                // Apply to Simli widget
+                const widget = document.querySelector('simli-widget');
+                if (widget) {
+                    widget.style.cssText = `
+                        position: absolute !important;
+                        top: 0 !important; left: 0 !important;
+                        width: 100% !important; height: 100% !important;
+                        transform: translateX(${moveX}%) translateY(${moveY}%) scale(${scale}) !important;
+                        transform-origin: center center !important;
+                        background: #000 !important;
+                        mix-blend-mode: screen !important;
+                    `;
+                }
+            };
+            
+            console.log('[CALIBRATE] Interactive controls enabled');
         }
     </script>
 </body>

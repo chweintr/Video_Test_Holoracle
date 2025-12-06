@@ -482,3 +482,68 @@ simli-widget *[style*="border-radius: 50%"] {
     font-size: 12px;
     font-weight: bold;
 }
+
+/* =============================================
+   CALIBRATION PANEL - Add ?calibrate to URL
+   ============================================= */
+#calibrate-panel {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 99999;
+    background: rgba(0,0,0,0.95);
+    border: 2px solid #0ff;
+    border-radius: 10px;
+    padding: 15px;
+    font-family: monospace;
+    color: #0ff;
+    min-width: 280px;
+}
+
+#calibrate-panel .cal-title {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    color: #fff;
+    border-bottom: 1px solid #0ff;
+    padding-bottom: 10px;
+}
+
+#calibrate-panel .cal-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+#calibrate-panel .cal-row span:first-child {
+    width: 70px;
+}
+
+#calibrate-panel button {
+    background: #0ff;
+    color: #000;
+    border: none;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#calibrate-panel button:hover {
+    background: #fff;
+}
+
+#calibrate-panel .cal-css {
+    margin-top: 15px;
+    padding: 10px;
+    background: #111;
+    border: 1px solid #0ff;
+    border-radius: 5px;
+    font-size: 11px;
+    word-break: break-all;
+    color: #0f0;
+}

@@ -267,8 +267,13 @@ simli-widget {
     width: 100% !important;
     height: 100% !important;
     
-    /* BASELINE - NO TRANSFORM - For measurement */
-    transform: none !important;
+    /* MEASURED TRANSFORM:
+     * Video head: top at 25%, chin at 52%
+     * Simli head: top at 30%, chin at 58%
+     * → Move UP 5-6% and scale up 10%
+     */
+    transform: translateY(-6%) scale(1.1) !important;
+    transform-origin: center center !important;
     
     background: #000 !important;
     mix-blend-mode: screen !important;

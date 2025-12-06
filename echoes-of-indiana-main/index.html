@@ -79,6 +79,17 @@
         <div>Simli: <span id="debug-simli">-</span></div>
     </div>
 
+    <!-- Background Music -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="assets/Sound/echoes_background_music.m4a" type="audio/mp4">
+    </audio>
+
+    <!-- Volume Controls -->
+    <div id="volume-controls">
+        <button id="volume-toggle" title="Toggle Music">🔊</button>
+        <input type="range" id="volume-slider" min="0" max="100" value="50" title="Volume">
+    </div>
+
     <script src="config.js"></script>
     <script src="state-machine.js"></script>
     <script src="simli-integration.js"></script>
@@ -94,6 +105,29 @@
             Compositor.startIdleLoop();
         });
         
+        // MUSIC CONTROLS
+        const bgMusic = document.getElementById('bg-music');
+        const volumeToggle = document.getElementById('volume-toggle');
+        const volumeSlider = document.getElementById('volume-slider');
+        let musicStarted = false;
+        
+        bgMusic.volume = 0.5; // Start at 50%
+        
+        volumeToggle.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                volumeToggle.textContent = '🔊';
+            } else {
+                bgMusic.pause();
+                volumeToggle.textContent = '🔇';
+            }
+        });
+        
+        volumeSlider.addEventListener('input', (e) => {
+            bgMusic.volume = e.target.value / 100;
+            volumeToggle.textContent = bgMusic.volume > 0 ? '🔊' : '🔇';
+        });
+
         document.querySelectorAll('.persona-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-persona');
@@ -101,6 +135,12 @@
                     isStarted = true;
                     document.getElementById('click-to-start').classList.add('hidden');
                     Compositor.startIdleLoop();
+                }
+                
+                // Start background music on first persona click
+                if (!musicStarted) {
+                    musicStarted = true;
+                    bgMusic.play().catch(e => console.log('Music autoplay blocked:', e));
                 }
                 
                 // Mark this button as active, remove from others

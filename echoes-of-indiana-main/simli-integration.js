@@ -68,6 +68,9 @@ const SimliManager = {
             // Start detecting video stream
             this.detectVideoStream(widget);
             
+            // AGGRESSIVELY remove any buttons that appear
+            this.hideSimliButtons();
+            
             // FALLBACK: After 10 seconds, mark as ready anyway
             this.detectionTimeout = setTimeout(() => {
                 if (!this.videoStreamActive) {
@@ -222,6 +225,8 @@ const SimliManager = {
 
     forceCleanup() {
         if (this.detectionTimeout) clearTimeout(this.detectionTimeout);
+        if (this.buttonHideInterval) clearInterval(this.buttonHideInterval);
+        
         const mount = document.getElementById('simli-mount');
         
         // IMMEDIATELY hide everything
@@ -239,6 +244,37 @@ const SimliManager = {
             mount.style.opacity = '';
             mount.style.visibility = '';
         }, 500);
+    },
+
+    // AGGRESSIVELY hide any buttons that Simli might inject
+    hideSimliButtons() {
+        const hideButtons = () => {
+            const mount = document.getElementById('simli-mount');
+            if (!mount) return;
+            
+            // Find ALL buttons
+            const buttons = mount.querySelectorAll('button');
+            buttons.forEach(btn => {
+                // Skip start button on first click
+                const text = btn.textContent?.toLowerCase() || '';
+                if (text.includes('close') || text.includes('stop') || text.includes('end')) {
+                    btn.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;position:absolute!important;left:-9999px!important;';
+                    btn.remove(); // Actually remove it
+                    console.log('[SimliManager] Removed button:', text);
+                }
+            });
+        };
+        
+        // Run immediately and repeatedly
+        hideButtons();
+        this.buttonHideInterval = setInterval(hideButtons, 500);
+        
+        // Stop after 30 seconds
+        setTimeout(() => {
+            if (this.buttonHideInterval) {
+                clearInterval(this.buttonHideInterval);
+            }
+        }, 30000);
     }
 };
 

@@ -281,8 +281,10 @@ simli-widget {
 
 /* =============================================
    HIDE SIMLI UI BUTTONS (Close, Start, etc.)
-   ULTRA AGGRESSIVE - Hide ANY clickable element
+   NUCLEAR OPTION - Hide EVERYTHING that's not a video
    ============================================= */
+
+/* Hide ALL buttons anywhere in simli-widget */
 simli-widget button,
 simli-widget [role="button"],
 simli-widget [class*="button"],
@@ -296,7 +298,12 @@ simli-widget [class*="Start"],
 simli-widget [class*="btn"],
 simli-widget [class*="Btn"],
 simli-widget [onclick],
-simli-widget a {
+simli-widget a,
+/* Target red buttons specifically */
+simli-widget [style*="background"],
+simli-widget [style*="red"],
+simli-widget div[style*="cursor: pointer"],
+simli-widget div[style*="cursor:pointer"] {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
@@ -304,6 +311,19 @@ simli-widget a {
     width: 0 !important;
     height: 0 !important;
     overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    z-index: -9999 !important;
+}
+
+/* ALSO hide by traversing down from #simli-mount */
+#simli-mount button,
+#simli-mount [role="button"],
+#simli-mount > * > button,
+#simli-mount > * > * > button,
+#simli-mount > * > * > * > button {
+    display: none !important;
     position: absolute !important;
     left: -9999px !important;
 }

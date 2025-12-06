@@ -145,10 +145,10 @@
         
         // CALIBRATE MODE: Add ?calibrate to URL for interactive positioning
         if (new URLSearchParams(window.location.search).get('calibrate') !== null) {
-            // Current values
-            let scale = 1.1;
-            let moveX = 0;
-            let moveY = -6;
+            // Current values (match styles.css simli-widget transform)
+            let scale = 1.6;
+            let moveX = 22;
+            let moveY = 6;
             
             // Create control panel
             const panel = document.createElement('div');
@@ -158,22 +158,22 @@
                 <div class="cal-row">
                     <span>Scale:</span>
                     <button onclick="calAdjust('scale', -0.1)">−</button>
-                    <span id="cal-scale">1.1</span>
+                    <span id="cal-scale">1.6</span>
                     <button onclick="calAdjust('scale', 0.1)">+</button>
                 </div>
                 <div class="cal-row">
                     <span>Move X:</span>
                     <button onclick="calAdjust('x', -2)">←</button>
-                    <span id="cal-x">0%</span>
+                    <span id="cal-x">22%</span>
                     <button onclick="calAdjust('x', 2)">→</button>
                 </div>
                 <div class="cal-row">
                     <span>Move Y:</span>
                     <button onclick="calAdjust('y', -2)">↑</button>
-                    <span id="cal-y">-6%</span>
+                    <span id="cal-y">6%</span>
                     <button onclick="calAdjust('y', 2)">↓</button>
                 </div>
-                <div class="cal-css" id="cal-css">transform: translateX(0%) translateY(-6%) scale(1.1)</div>
+                <div class="cal-css" id="cal-css">transform: translateX(22%) translateY(6%) scale(1.6)</div>
             `;
             document.body.appendChild(panel);
             

@@ -209,7 +209,7 @@ body.debug-borders simli-widget {
     opacity: 0;
     transition: opacity 0.5s;
 }
-#video-idle-loop.active { opacity: 1; }
+#video-idle-loop.active { opacity: 0.8; } /* 80% opacity for subtler background */
 
 #video-transition {
     opacity: 0;
@@ -281,49 +281,39 @@ simli-widget {
 
 /* =============================================
    HIDE SIMLI UI BUTTONS (Close, Start, etc.)
-   NUCLEAR OPTION - Hide EVERYTHING that's not a video
    ============================================= */
 
-/* Hide ALL buttons anywhere in simli-widget */
-simli-widget button,
-simli-widget [role="button"],
-simli-widget [class*="button"],
-simli-widget [class*="Button"],
+/* SPECIFIC SELECTORS (from Simli support) */
+simli-widget button[aria-label="Close"],
+simli-widget button[aria-label="close"],
+simli-widget button[aria-label="Stop"],
+simli-widget button[aria-label="stop"],
+simli-widget button[data-testid="close"],
+simli-widget button[data-testid="stop"],
 simli-widget [class*="close"],
-simli-widget [class*="Close"],
-simli-widget [class*="stop"],
-simli-widget [class*="Stop"],
-simli-widget [class*="start"],
-simli-widget [class*="Start"],
-simli-widget [class*="btn"],
-simli-widget [class*="Btn"],
-simli-widget [onclick],
-simli-widget a,
-/* Target red buttons specifically */
-simli-widget [style*="background"],
-simli-widget [style*="red"],
-simli-widget div[style*="cursor: pointer"],
-simli-widget div[style*="cursor:pointer"] {
+simli-widget [class*="Close"] {
     display: none !important;
-    opacity: 0 !important;
     visibility: hidden !important;
+    opacity: 0 !important;
     pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
     position: absolute !important;
     left: -9999px !important;
-    top: -9999px !important;
-    z-index: -9999 !important;
 }
 
-/* ALSO hide by traversing down from #simli-mount */
-#simli-mount button,
-#simli-mount [role="button"],
-#simli-mount > * > button,
-#simli-mount > * > * > button,
-#simli-mount > * > * > * > button {
+/* NUCLEAR OPTION - Hide any button that's NOT the start button */
+simli-widget button:not(:first-of-type),
+#simli-mount button:not(:first-of-type) {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Hide ALL buttons after video is streaming (class added by JS) */
+#simli-mount.active button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
     position: absolute !important;
     left: -9999px !important;
 }

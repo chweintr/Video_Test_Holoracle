@@ -4,27 +4,40 @@
 
 ## 🤖 FOR FUTURE AI ASSISTANTS (READ THIS FIRST!)
 
-**Last Updated:** December 5, 2025
+**Last Updated:** December 6, 2025
 
-### Current Status: ✅ WORKING
+### Current Status: ✅ MOSTLY WORKING
 - Mabel loads and streams correctly
 - State machine works (idle → transitioning-in → active → idle)
 - Dismiss button works
 - No gray bars on Simli output
+- Video sandwich layers working (idle visible under Simli)
 
 ### What We're Working On NOW:
-1. **HEAD POSITIONING** - Mabel's head position needs fine-tuning to match the transition video's final frame
-   - Adjust in: `styles.css` → `.head-container` and `#simli-mount`
-   - Current scale: `transform: scale(1.4)` on `.simli-widget`
-   
-2. **VIDEO SANDWICH** - Adding depth layers (floaties above/below)
-   - Layer 1: Bottom floaties (smoke/embers)
-   - Layer 4: Top floaties (sparkles/particles)
+1. **HEAD POSITIONING** - Aligning Simli head with transition video's final frame
+   - Use the **CALIBRATION TOOL**: `?calibrate` URL parameter
+   - Current calibrated values: `translateX(22%) translateY(6%) scale(1.6)`
+   - This is still approximate - video disappears when Simli loads, making exact alignment tricky
+
+### 🔧 CALIBRATION TOOL (IMPORTANT!)
+
+To align Simli head with video head:
+
+```
+https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/?calibrate
+```
+
+This shows an interactive panel:
+- **Scale [−] [+]** → Make Simli bigger/smaller
+- **Move X [←] [→]** → Move left/right  
+- **Move Y [↑] [↓]** → Move up/down
+
+After adjusting, copy the CSS transform value and update `styles.css` → `simli-widget` selector.
 
 ### Key Files:
 | File | Purpose |
 |------|---------|
-| `styles.css` | **HEAD POSITIONING** - `.head-container`, `#simli-mount`, `.simli-widget` |
+| `styles.css` | **HEAD POSITIONING** - `simli-widget` transform values |
 | `config.js` | Mabel's agentId, faceId, video paths |
 | `compositor.js` | Layer orchestration, video playback |
 | `simli-integration.js` | Simli widget creation |
@@ -35,39 +48,82 @@ agentId: '2c8b6f6d-cb83-4100-a99b-ee33f808069a'
 faceId: '33622e5c-6107-4da0-9794-8ea784ccdb43'
 ```
 
+### Current Simli Transform (styles.css):
+```css
+simli-widget {
+    transform: translateX(22%) translateY(6%) scale(1.6) !important;
+}
+```
+
 ### Railway Quirk ⚠️
 Railway sometimes adds trailing spaces to env var names. The backend has a workaround (`get_simli_api_key()` function) that handles this. If API key issues occur, check `/debug-env` endpoint.
 
-### Test URL:
-`https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/?debug=true`
+### Test URLs:
+- **Normal**: `https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/`
+- **With calibration panel**: `...?calibrate`
+- **With measurement grid**: `...?measure`
 
 ---
 
-## Overview
+## Simli Integration Approach
 
-A 4-layer video compositor for LED holographic fan arrays featuring interactive AI personas (powered by Simli).
+We use the **Simli Widget** method (simplest approach):
 
-**Two-Screen Setup:**
-- **Hologram Display** (`index.html`) - Pure video output for LED fan array, no UI
-- **Kiosk Interface** (TODO) - Touch screen with persona selection grid
+### 1. Load Widget Script (index.html)
+```html
+<script src="https://app.simli.com/simli-widget/index.js" defer></script>
+```
+
+### 2. Backend: Generate Token (simli_voice_backend.py)
+```python
+response = requests.post(
+    "https://api.simli.ai/getToken",
+    json={"apiKey": SIMLI_API_KEY}
+)
+token = response.json()["token"]
+```
+
+### 3. Frontend: Create Widget (simli-integration.js)
+```javascript
+const widget = document.createElement('simli-widget');
+widget.setAttribute('token', token);
+widget.setAttribute('agent-id', persona.agentId);  // kebab-case!
+widget.setAttribute('face-id', persona.faceId);    // kebab-case!
+document.getElementById('simli-mount').appendChild(widget);
+```
+
+### 4. Auto-Start Session
+```javascript
+const startBtn = widget.querySelector('button');
+if (startBtn) startBtn.click();
+```
+
+### Required IDs from Simli Dashboard:
+- **Agent ID** - The conversational AI agent
+- **Face ID** - The avatar/face to render
+- **API Key** - For generating tokens (keep secret on backend!)
 
 ---
 
-## 4-Layer Architecture
+## 4-Layer Architecture (Video Sandwich)
 
 ```
 ┌─────────────────────────────────────────┐
-│  Layer 4: TOP FLOATIES                  │  ← Sparkles, particles (perpetual loop)
+│  Layer 5: TOP FLOATIES (future)         │  ← Sparkles, particles
 ├─────────────────────────────────────────┤
-│  Layer 3: SIMLI AGENT                   │  ← AI avatar (only during interaction)
+│  Layer 4: SIMLI AGENT                   │  ← AI avatar (mix-blend-mode: screen)
 ├─────────────────────────────────────────┤
-│  Layer 2: ABSTRACT LOOPS / TRANSITIONS  │  ← Idle smoke loops + transition videos
+│  Layer 3: TRANSITION VIDEO              │  ← Idle-to-persona videos
 ├─────────────────────────────────────────┤
-│  Layer 1: BOTTOM FLOATIES               │  ← Smoke, embers (perpetual loop)
+│  Layer 2: IDLE LOOP (always visible)    │  ← Abstract smoke, platform
+├─────────────────────────────────────────┤
+│  Layer 1: BOTTOM FLOATIES (future)      │  ← Smoke, embers
 └─────────────────────────────────────────┘
 ```
 
-**Key Principle:** All black pixels become transparent via `mix-blend-mode: screen`
+**Key Principle:** Black pixels → transparent via `mix-blend-mode: screen`
+
+The idle loop (Layer 2) is ALWAYS playing underneath everything, creating depth illusion.
 
 ---
 
@@ -76,14 +132,17 @@ A 4-layer video compositor for LED holographic fan arrays featuring interactive 
 ```
 echoes-of-indiana-main/
 ├── index.html              # Hologram display (pure output)
-├── styles.css              # 4-layer styling, black=transparent
+├── styles.css              # Layer styling, head positioning
 ├── compositor.js           # Layer orchestration
 ├── config.js               # Persona configs, video paths
 ├── state-machine.js        # State management
-├── simli-integration.js    # Simli widget/SDK handling
-└── assets/videos/
-    ├── idle_1.mp4          # Idle loop (abstract smoke)
-    └── idle_to_mabel_2.mp4 # Transition: idle → Mabel
+├── simli-integration.js    # Simli widget handling
+└── assets/
+    ├── videos/
+    │   ├── idle_1.mp4          # Idle loop (abstract smoke)
+    │   └── idle_to_mabel_2.mp4 # Transition: idle → Mabel
+    └── images and ideas/
+        └── for menu/           # Thumbnail videos for menu
 ```
 
 ---
@@ -98,64 +157,31 @@ IDLE → TRANSITIONING-IN → ACTIVE → TRANSITIONING-OUT → IDLE
 1. **IDLE**: Idle loop videos playing, waiting for invoke
 2. **TRANSITIONING-IN**: Play idle-to-persona video while loading Simli
 3. **ACTIVE**: Simli agent visible and interactive
-4. **TRANSITIONING-OUT**: Play persona-to-idle video, cleanup Simli
+4. **TRANSITIONING-OUT**: Play persona-to-idle video, cleanup Simli (TODO)
 5. Back to **IDLE**
 
 ---
 
-## Controlling the Hologram Display
-
-### URL Parameters
+## URL Parameters
 
 | Parameter | Effect |
 |-----------|--------|
+| `?calibrate` | **Show calibration panel** for head positioning |
+| `?measure` | Show measurement grid overlay |
+| `?debug=borders` | Show colored borders on all layers |
 | `?persona=mabel` | Auto-invoke Mabel on load |
-| `?debug=true` | Show debug panel |
-| `?hidecontrols=true` | Hide Summon/Dismiss buttons |
 | `?autostart=true` | Skip "Touch to Begin" overlay |
 
-### JavaScript API
+---
+
+## JavaScript API
 
 ```javascript
 Compositor.invokePersona('mabel')  // Start a persona
 Compositor.dismissPersona()         // End current session
 Compositor.forceReset()             // Emergency reset
+Compositor.startIdleLoop()          // Start idle videos
 ```
-
-### PostMessage (from Kiosk)
-
-```javascript
-// From kiosk iframe or window:
-hologramWindow.postMessage({action: 'invoke', persona: 'mabel'}, '*')
-hologramWindow.postMessage({action: 'dismiss'}, '*')
-hologramWindow.postMessage({action: 'reset'}, '*')
-```
-
----
-
-## Simli Integration Notes
-
-### Important Constraints (from Simli docs)
-
-- **Video is FIXED 16:9** - No server-side aspect ratio control
-- **No transparency** - Must use CSS to handle background
-- **No background color control** - Gray bars appear on sides
-- **Widget has minimal UI** - Raw stream, we control the interface
-
-### Our Solution
-
-1. Use `object-fit: cover` to crop 16:9 → square (cuts sides slightly)
-2. Force black background on all containers
-3. `mix-blend-mode: screen` makes black transparent
-4. Hide any widget buttons via CSS
-
-### Simli Events (SDK)
-
-- `connected` - Call established
-- `disconnected` - Call ended
-- `failed` - Connection failed
-- `speaking` - Agent is talking
-- `silent` - Agent is listening
 
 ---
 
@@ -163,13 +189,25 @@ hologramWindow.postMessage({action: 'reset'}, '*')
 
 ### 1. Create Videos
 
+Transition video should end with head positioned:
+- Top of head: ~25% from top of frame
+- Chin: ~50-55% from top
+- Centered horizontally
+
 ```
 assets/videos/
 ├── idle_to_[persona].mp4    # Required: transition in
 └── [persona]_to_idle.mp4    # Optional: transition out
 ```
 
-### 2. Add to Config
+### 2. Create Simli Agent
+
+1. Go to Simli dashboard
+2. Create new agent with system prompt for the character
+3. Create or upload face/avatar
+4. Note the **Agent ID** and **Face ID**
+
+### 3. Add to Config
 
 ```javascript
 // config.js
@@ -187,9 +225,13 @@ personas: {
 }
 ```
 
-### 3. Add to Kiosk (when built)
+### 4. Calibrate Head Position
 
-Add button to kiosk interface that calls `invokePersona('newpersona')`
+1. Open `?calibrate` URL
+2. Summon the new persona
+3. Adjust Scale, X, Y until head matches video
+4. Copy CSS transform value
+5. If significantly different from Mabel, may need per-persona transforms
 
 ---
 
@@ -197,10 +239,12 @@ Add button to kiosk interface that calls `invokePersona('newpersona')`
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| Gray bars on Simli | 16:9 in square container | Use `object-fit: cover` |
+| Simli head wrong size/position | Transform values off | Use `?calibrate` tool |
+| Video disappears before can compare | Normal behavior | Guess & iterate with calibration |
+| Gray bars on Simli | 16:9 in square container | Use `object-fit: cover` + scale up |
 | Videos don't autoplay | Browser policy | "Touch to Begin" overlay |
-| Mic not working | Permission denied | Grant mic permission in browser |
-| Dotted face placeholder | Simli loading state | Hide with CSS or wait for stream |
+| Dotted face placeholder | Simli loading state | CSS hides it, aggressive cleanup |
+| Simli Close button visible | Simli's internal UI | CSS moves it off-screen |
 
 ---
 
@@ -208,49 +252,67 @@ Add button to kiosk interface that calls `invokePersona('newpersona')`
 
 ### Railway
 
-- Deployed via GitHub push to `main` branch
+- Deployed via GitHub push
 - URL: `https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/`
 
 ### Environment Variables (Railway)
 
 ```
 SIMLI_API_KEY=your_key_here
-OPENAI_API_KEY=your_key_here  # if using voice
+OPENAI_API_KEY=your_key_here  # if using voice/RAG
 ```
-
-### For LED Hologram Display
-
-1. Open hologram URL on display computer
-2. Grant microphone permissions
-3. Use `?autostart=true&hidecontrols=true` for clean output
-4. Control via kiosk postMessage or URL params
 
 ---
 
-## TODO
+## TODO / ROADMAP
 
-- [ ] **Fine-tune Mabel head positioning** ← CURRENT PRIORITY
-- [ ] Add floaties videos (layers 1 & 4) for depth sandwich
-- [ ] Shorten transition video (current one is longer than needed)
-- [ ] **Add music and sound effects** (ambient music, transition sounds, interaction SFX)
-- [ ] Build kiosk touch interface
-- [ ] Add more personas (Vonnegut, Oracle, Bigfoot)
+### Phase 1: Mabel Polish (Current)
+- [ ] **Perfect head alignment** with transition video (close but not exact)
+- [ ] Shorten transition video if needed
+- [ ] Test full conversation flow
+
+### Phase 2: More Content
+- [ ] Add floaties videos (layers 1 & 5) for depth
+- [ ] Create more idle loop variations
+- [ ] **Add music and sound effects** (ambient, transitions, interactions)
 - [ ] Create persona-to-idle transition videos
+
+### Phase 3: More Personas
+- [ ] Vonnegut
+- [ ] Oracle
+- [ ] Bigfoot
+- [ ] Each needs: Agent ID, Face ID, transition video, system prompt
+
+### Phase 4: Kiosk Interface
+- [ ] Separate page for touch screen menu
+- [ ] Persona selection grid with thumbnails
+- [ ] PostMessage communication to hologram display
+
+### Phase 5: Production
 - [ ] Test on actual LED fan array
+- [ ] Optimize video encoding
+- [ ] Final calibration on actual hardware
 
 ### COMPLETED ✅
 - [x] Mabel Simli integration working
 - [x] State machine (idle → active → idle)
 - [x] Dismiss button functionality
-- [x] Gray bars eliminated (new avatar)
+- [x] Video sandwich architecture (idle always visible)
+- [x] Calibration tool built (`?calibrate`)
+- [x] Measurement grid (`?measure`)
 - [x] Railway API key quirks fixed
+- [x] Dotted face placeholder hidden
+- [x] Simli Close button hidden
 
 ---
 
 ## Quick Test
 
-1. Open: `https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/?debug=true`
+1. Open: `https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/`
 2. Click "Touch to Begin"
-3. Click "Summon Mabel"
-4. Talk to Mabel!
-5. Click "Dismiss" to end
+3. Click Mabel in the menu
+4. Watch transition video
+5. Talk to Mabel!
+6. Click "Dismiss" to end
+
+For calibration: Add `?calibrate` to URL

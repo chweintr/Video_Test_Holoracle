@@ -87,7 +87,7 @@
     <!-- Volume Controls -->
     <div id="volume-controls">
         <button id="volume-toggle" title="Toggle Music">🔊</button>
-        <input type="range" id="volume-slider" min="0" max="100" value="50" title="Volume">
+        <input type="range" id="volume-slider" min="0" max="100" value="35" title="Volume">
     </div>
 
     <script src="config.js"></script>
@@ -111,7 +111,7 @@
         const volumeSlider = document.getElementById('volume-slider');
         let musicStarted = false;
         
-        bgMusic.volume = 0.5; // Start at 50%
+        bgMusic.volume = 0.35; // Start at 35%
         
         volumeToggle.addEventListener('click', () => {
             if (bgMusic.paused) {
@@ -187,7 +187,7 @@
         if (new URLSearchParams(window.location.search).get('calibrate') !== null) {
             // Current values (match styles.css simli-widget transform)
             let scale = 1.6;
-            let moveX = 22;
+            let moveX = 20;
             let moveY = 6;
             
             // Create control panel
@@ -204,7 +204,7 @@
                 <div class="cal-row">
                     <span>Move X:</span>
                     <button onclick="calAdjust('x', -2)">←</button>
-                    <span id="cal-x">22%</span>
+                    <span id="cal-x">20%</span>
                     <button onclick="calAdjust('x', 2)">→</button>
                 </div>
                 <div class="cal-row">
@@ -213,7 +213,7 @@
                     <span id="cal-y">6%</span>
                     <button onclick="calAdjust('y', 2)">↓</button>
                 </div>
-                <div class="cal-css" id="cal-css">transform: translateX(22%) translateY(6%) scale(1.6)</div>
+                <div class="cal-css" id="cal-css">transform: translateX(20%) translateY(6%) scale(1.6)</div>
             `;
             document.body.appendChild(panel);
             

@@ -154,6 +154,7 @@ const CONFIG = {
                 scale: 1.0,
             }
         },
+        */
 
         bigfoot: {
             name: 'Brown County Bigfoot',

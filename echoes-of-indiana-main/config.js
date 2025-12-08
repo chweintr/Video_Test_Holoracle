@@ -162,8 +162,7 @@ const CONFIG = {
             agentId: '4a11ab79-d20e-4277-8e94-82252e723b4d',
             faceId: 'cd6ce7ae-9317-4478-a889-a32877b176ca',
             videos: {
-                // TODO: Create bigfoot transition video
-                idleToActive: null, // No transition video yet
+                idleToActive: 'idle_to_Bigfoot.mp4',
                 activeToIdle: null,
             },
             processingMessages: [

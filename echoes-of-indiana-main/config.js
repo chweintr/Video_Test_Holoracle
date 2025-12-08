@@ -159,11 +159,12 @@ const CONFIG = {
             name: 'Brown County Bigfoot',
             fullTitle: 'Trail Sage & Cryptid Teller',
             quote: '"Say whether you need miles, water, or a creature tale for the campfire."',
-            agentId: 'YOUR_BIGFOOT_AGENT_ID',
-            faceId: null,
+            agentId: '4a11ab79-d20e-4277-8e94-82252e723b4d',
+            faceId: 'cd6ce7ae-9317-4478-a889-a32877b176ca',
             videos: {
-                idleToActive: 'idle_to_bigfoot.mp4',
-                activeToIdle: 'bigfoot_to_idle.mp4',
+                // TODO: Create bigfoot transition video
+                idleToActive: null, // No transition video yet
+                activeToIdle: null,
             },
             processingMessages: [
                 'Bigfoot is sniffing the trail...',
@@ -176,7 +177,6 @@ const CONFIG = {
                 scale: 1.0,
             }
         },
-        */
     },
 
     /* ============================================

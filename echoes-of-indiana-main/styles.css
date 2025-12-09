@@ -218,7 +218,7 @@ body.debug-borders simli-widget {
     opacity: 0;
     transition: opacity 0.5s;
 }
-#video-idle-loop.active { opacity: 0.8; } /* 80% opacity for subtler background */
+#video-idle-loop.active { opacity: 0.5; } /* 50% opacity for subtler background */
 
 #video-transition {
     opacity: 0;

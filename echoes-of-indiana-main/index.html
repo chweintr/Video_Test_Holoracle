@@ -98,7 +98,7 @@
     <!-- Volume Controls -->
     <div id="volume-controls">
         <button id="volume-toggle" title="Toggle Music">🔊</button>
-        <input type="range" id="volume-slider" min="0" max="100" value="10" title="Volume">
+        <input type="range" id="volume-slider" min="0" max="100" value="5" title="Volume">
     </div>
 
     <script src="config.js"></script>
@@ -122,7 +122,7 @@
         const volumeSlider = document.getElementById('volume-slider');
         let musicStarted = false;
         
-        bgMusic.volume = 0.10; // Start at 10%
+        bgMusic.volume = 0.05; // Start at 5%
         
         volumeToggle.addEventListener('click', () => {
             if (bgMusic.paused) {

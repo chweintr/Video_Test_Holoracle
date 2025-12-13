@@ -160,6 +160,36 @@ const CONFIG = {
         },
         */
 
+        // PLACEHOLDER - needs Simli agent/face IDs
+        /*
+        riley: {
+            name: 'James Whitcomb Riley',
+            fullTitle: 'The Hoosier Poet, 1849-1916',
+            quote: '"The ripest peach is highest on the tree."',
+            description: 'Beloved Indiana poet who wrote in Hoosier dialect. Author of "Little Orphant Annie" and "The Raggedy Man."',
+            agentId: 'YOUR_RILEY_AGENT_ID',  // ← Get from Simli
+            faceId: 'YOUR_RILEY_FACE_ID',    // ← Get from Simli
+            videos: {
+                idleToActive: [
+                    'idle_to_riley.mp4',
+                    // Add variants here
+                ],
+                activeToIdle: null,
+            },
+            processingMessages: [
+                'Riley is searching for the right verse...',
+                'Riley is recalling a Hoosier tale...',
+                'Riley is composing his thoughts...',
+                'The poet ponders...',
+            ],
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
+            }
+        },
+        */
+
         bigfoot: {
             name: 'Brown County Bigfoot',
             fullTitle: 'Trail Sage & Cryptid Teller',

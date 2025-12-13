@@ -246,28 +246,273 @@ const CONFIG = {
         carmichael: {
             name: 'Hoagy Carmichael',
             fullTitle: 'Composer from Bloomington, 1899-1981',
-            quote: '"I don\'t think I\'ll ever write a melody as pretty as Stardust."',
-            description: 'Legendary songwriter from Bloomington. Composed "Stardust," "Georgia On My Mind," "Heart and Soul," and hundreds more.',
-            agentId: 'YOUR_CARMICHAEL_AGENT_ID',  // ← Get from Simli
-            faceId: 'YOUR_CARMICHAEL_FACE_ID',    // ← Get from Simli
-            videos: {
-                idleToActive: [
-                    'idle_to_carmichael.mp4',
-                    // Add variants here
-                ],
-                activeToIdle: null,
-            },
-            processingMessages: [
-                'Hoagy is tinkling the ivories...',
-                'Hoagy is humming a melody...',
-                'Hoagy is reaching for the stars...',
-                'The composer muses...',
-            ],
-            headPosition: {
-                offsetX: '0%',
-                offsetY: '0%',
-                scale: 1.0,
-            }
+            quote: '"I know why the caged bird sings."',
+            description: 'Bloomington native and composer who wrote jazz standards including "Stardust" and helped define American popular music.',
+            agentId: 'YOUR_CARMICHAEL_AGENT_ID',
+            faceId: 'YOUR_CARMICHAEL_FACE_ID',
+            videos: { idleToActive: ['idle_to_carmichael.mp4'], activeToIdle: null },
+            processingMessages: ['Hoagy is tinkling the ivories...', 'Hoagy is humming a melody...', 'The composer muses...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        // ============================================
+        // WORKING-CLASS INDIANA PERSONAS
+        // ============================================
+
+        nell: {
+            name: 'Nell',
+            fullTitle: 'Showers Office Tube Runner, 1918',
+            quote: '"A hiss and then a thump in the box; paper rides the air faster than boots."',
+            description: 'Packed carriers; watched gauges; moved notes between office and works on the pneumatic lines.',
+            agentId: 'YOUR_NELL_AGENT_ID',
+            faceId: 'YOUR_NELL_FACE_ID',
+            videos: { idleToActive: ['idle_to_nell.mp4'], activeToIdle: null },
+            processingMessages: ['Nell is checking the pneumatic lines...', 'Nell is reading the gauges...', 'Paper is on its way...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        mae: {
+            name: 'Mae',
+            fullTitle: 'Monon Depot Clerk, 1918',
+            quote: '"Empties in, loads out; chalk the number, pass the hoop, keep the spur clear."',
+            description: 'Logged arrivals; copied orders; routed cars on and off the Showers siding from the west-side depot.',
+            agentId: 'YOUR_MAE_AGENT_ID',
+            faceId: 'YOUR_MAE_FACE_ID',
+            videos: { idleToActive: ['idle_to_mae.mp4'], activeToIdle: null },
+            processingMessages: ['Mae is logging arrivals...', 'Mae is chalking the numbers...', 'Mae is routing cars...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        tomaz: {
+            name: 'Tomaz',
+            fullTitle: 'Limestone Channeler, 1920s',
+            quote: '"Cold bar, warm stone; the channeler bites, the powder lifts, the derrick takes the load."',
+            description: 'Worked steel and powder to free blocks bound for distant buildings; lived with dust, cold mornings, and hoists.',
+            agentId: 'YOUR_TOMAZ_AGENT_ID',
+            faceId: 'YOUR_TOMAZ_FACE_ID',
+            videos: { idleToActive: ['idle_to_tomaz.mp4'], activeToIdle: null },
+            processingMessages: ['Tomaz is working the stone...', 'Tomaz is checking the derrick...', 'The channeler bites...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        cyril: {
+            name: 'Cyril',
+            fullTitle: 'Town Rider, Late 1970s',
+            quote: '"Keep cadence on the hills and tip your cap at the old pits; a finish line is one turn away."',
+            description: 'Part of the post-Breaking Away cycling culture; knows loops, cinder tracks, and quarry lore.',
+            agentId: 'YOUR_CYRIL_AGENT_ID',
+            faceId: 'YOUR_CYRIL_FACE_ID',
+            videos: { idleToActive: ['idle_to_cyril.mp4'], activeToIdle: null },
+            processingMessages: ['Cyril is finding the cadence...', 'Cyril is checking the route...', 'One more turn...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        louise: {
+            name: 'Louise',
+            fullTitle: 'RCA Color-TV Assembler, 1954',
+            quote: '"Snap the tuner, check the glow, tag a pass, send it down; color looks simple when the bench is right."',
+            description: 'Worked early color sets on South Rogers; snap the tuner, check the glow, tag a pass.',
+            agentId: 'YOUR_LOUISE_AGENT_ID',
+            faceId: 'YOUR_LOUISE_FACE_ID',
+            videos: { idleToActive: ['idle_to_louise.mp4'], activeToIdle: null },
+            processingMessages: ['Louise is checking the glow...', 'Louise is snapping the tuner...', 'Color coming through...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        frank: {
+            name: 'Frank',
+            fullTitle: 'RCA Shop Steward, Mid 1960s',
+            quote: '"We kept the line honest and the room steady; a paycheck is a decision we make together."',
+            description: 'Balanced line speed, safety, and pay during tense meetings; kept the room steady.',
+            agentId: 'YOUR_FRANK_AGENT_ID',
+            faceId: 'YOUR_FRANK_FACE_ID',
+            videos: { idleToActive: ['idle_to_frank.mp4'], activeToIdle: null },
+            processingMessages: ['Frank is checking the line...', 'Frank is considering the contract...', 'The room stays steady...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        elsie: {
+            name: 'Elsie',
+            fullTitle: 'Switchyard Hostler, Mid Century',
+            quote: '"Night air and a low lantern; you feel the rail hum before you see the headlight."',
+            description: 'Cut and spotted cars at night by lantern and voice in the McDoel yard.',
+            agentId: 'YOUR_ELSIE_AGENT_ID',
+            faceId: 'YOUR_ELSIE_FACE_ID',
+            videos: { idleToActive: ['idle_to_elsie.mp4'], activeToIdle: null },
+            processingMessages: ['Elsie is listening to the rails...', 'Elsie is spotting cars...', 'The lantern swings...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        mrsjohnson: {
+            name: 'Mrs Johnson',
+            fullTitle: 'Community Guide, Mid Century',
+            quote: '"We made room for one another in churches, clubs, and shops; walk with me and I will show you what stood where."',
+            description: 'Connects visitors to sites where neighbors gathered and pushed for change; churches, clubs, shops.',
+            agentId: 'YOUR_MRSJOHNSON_AGENT_ID',
+            faceId: 'YOUR_MRSJOHNSON_FACE_ID',
+            videos: { idleToActive: ['idle_to_mrsjohnson.mp4'], activeToIdle: null },
+            processingMessages: ['Mrs Johnson is remembering...', 'Mrs Johnson is pointing the way...', 'Walk with me...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        eddie: {
+            name: 'Eddie',
+            fullTitle: 'Showers Pond Kid, 1910s',
+            quote: '"We skated till the watchman waved us off; that pond kept the factory running and kept us running too."',
+            description: 'Grew up in the shadow of the plant and its water works; skated the company pond.',
+            agentId: 'YOUR_EDDIE_AGENT_ID',
+            faceId: 'YOUR_EDDIE_FACE_ID',
+            videos: { idleToActive: ['idle_to_eddie.mp4'], activeToIdle: null },
+            processingMessages: ['Eddie is lacing up skates...', 'Eddie is watching for the watchman...', 'The ice holds...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        // ============================================
+        // FAMOUS HOOSIERS
+        // ============================================
+
+        kinsey: {
+            name: 'Alfred Kinsey',
+            fullTitle: 'Sexologist and IU Professor',
+            quote: '"The only unnatural sex act is that which you cannot perform."',
+            description: 'IU professor whose research changed understanding of human sexuality in America.',
+            agentId: 'YOUR_KINSEY_AGENT_ID',
+            faceId: 'YOUR_KINSEY_FACE_ID',
+            videos: { idleToActive: ['idle_to_kinsey.mp4'], activeToIdle: null },
+            processingMessages: ['Dr. Kinsey is reviewing the data...', 'The professor considers...', 'Research continues...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        mellencamp: {
+            name: 'John Mellencamp',
+            fullTitle: 'Seymour Rocker',
+            quote: '"I\'m just trying to tell the truth about the American experience."',
+            description: 'Seymour rocker who captured small-town American life through heartland rock anthems and social commentary.',
+            agentId: 'YOUR_MELLENCAMP_AGENT_ID',
+            faceId: 'YOUR_MELLENCAMP_FACE_ID',
+            videos: { idleToActive: ['idle_to_mellencamp.mp4'], activeToIdle: null },
+            processingMessages: ['John is tuning the guitar...', 'The heartland calls...', 'Small town, big truth...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        carter: {
+            name: 'Vivian Carter',
+            fullTitle: 'Vee-Jay Records Co-Founder',
+            quote: '"Music doesn\'t know color. Good music is good music."',
+            description: 'Gary music executive who co-founded Vee-Jay Records, one of the most successful Black-owned record labels in America.',
+            agentId: 'YOUR_CARTER_AGENT_ID',
+            faceId: 'YOUR_CARTER_FACE_ID',
+            videos: { idleToActive: ['idle_to_carter.mp4'], activeToIdle: null },
+            processingMessages: ['Vivian is listening to the track...', 'The music plays...', 'Good music is good music...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        brown: {
+            name: 'Angela Brown',
+            fullTitle: 'Indianapolis Opera Singer',
+            quote: '"Every voice has something beautiful to say if we just listen."',
+            description: 'Indianapolis opera singer who broke barriers in classical music and brought world-class performance to Indiana stages.',
+            agentId: 'YOUR_BROWN_AGENT_ID',
+            faceId: 'YOUR_BROWN_FACE_ID',
+            videos: { idleToActive: ['idle_to_brown.mp4'], activeToIdle: null },
+            processingMessages: ['Angela is warming up...', 'The aria rises...', 'Every voice matters...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        white: {
+            name: 'Ryan White',
+            fullTitle: 'Kokomo AIDS Activist, 1971-1990',
+            quote: '"I came face to face with death at thirteen years old. I was diagnosed with AIDS."',
+            description: 'Kokomo teenager whose courageous battle with AIDS discrimination changed national policy and public understanding.',
+            agentId: 'YOUR_WHITE_AGENT_ID',
+            faceId: 'YOUR_WHITE_FACE_ID',
+            videos: { idleToActive: ['idle_to_white.mp4'], activeToIdle: null },
+            processingMessages: ['Ryan is remembering...', 'Courage speaks...', 'The fight continues...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        ostrom: {
+            name: 'Elinor Ostrom',
+            fullTitle: 'Nobel Prize-Winning Economist',
+            quote: '"What we have ignored is what citizens can do and the importance of real involvement."',
+            description: 'Nobel Prize-winning economist from IU who studied how communities manage shared resources and challenged traditional economic theory.',
+            agentId: 'YOUR_OSTROM_AGENT_ID',
+            faceId: 'YOUR_OSTROM_FACE_ID',
+            videos: { idleToActive: ['idle_to_ostrom.mp4'], activeToIdle: null },
+            processingMessages: ['Professor Ostrom is analyzing...', 'The commons endure...', 'Citizens can do...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        walker: {
+            name: 'Madam C. J. Walker',
+            fullTitle: 'Indianapolis Entrepreneur',
+            quote: '"I want to say to every woman present, don\'t sit down and wait for opportunities to come."',
+            description: 'Indianapolis entrepreneur who became America\'s first female self-made millionaire through her hair care and cosmetics empire.',
+            agentId: 'YOUR_WALKER_AGENT_ID',
+            faceId: 'YOUR_WALKER_FACE_ID',
+            videos: { idleToActive: ['idle_to_walker.mp4'], activeToIdle: null },
+            processingMessages: ['Madam Walker is building...', 'The empire grows...', 'Don\'t wait...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        letterman: {
+            name: 'David Letterman',
+            fullTitle: 'Indianapolis Late-Night Legend',
+            quote: '"There\'s no business like show business, but there are several businesses like accounting."',
+            description: 'Indianapolis native who changed late-night television with his irreverent humor and new comedy formats.',
+            agentId: 'YOUR_LETTERMAN_AGENT_ID',
+            faceId: 'YOUR_LETTERMAN_FACE_ID',
+            videos: { idleToActive: ['idle_to_letterman.mp4'], activeToIdle: null },
+            processingMessages: ['Dave is checking the cards...', 'The Top Ten list forms...', 'And the number one...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        lilbub: {
+            name: 'Lil Bub',
+            fullTitle: 'Bloomington\'s Beloved Internet Sensation',
+            quote: '"*gentle purr* Every creature has something special to offer the world."',
+            description: 'Bloomington\'s beloved internet sensation who brought joy to millions worldwide and raised awareness for special needs pets.',
+            agentId: 'YOUR_LILBUB_AGENT_ID',
+            faceId: 'YOUR_LILBUB_FACE_ID',
+            videos: { idleToActive: ['idle_to_lilbub.mp4'], activeToIdle: null },
+            processingMessages: ['*purr*...', 'Bub is considering...', '*happy chirp*...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        montgomery: {
+            name: 'Wes Montgomery',
+            fullTitle: 'Indianapolis Jazz Guitarist',
+            quote: '"I never practice my guitar. From time to time I just open the case and throw in a piece of raw meat."',
+            description: 'Indianapolis jazz guitarist whose thumb-picking technique influenced generations of musicians worldwide.',
+            agentId: 'YOUR_MONTGOMERY_AGENT_ID',
+            faceId: 'YOUR_MONTGOMERY_FACE_ID',
+            videos: { idleToActive: ['idle_to_montgomery.mp4'], activeToIdle: null },
+            processingMessages: ['Wes is finding the chord...', 'The thumb picks...', 'Jazz flows...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        lombard: {
+            name: 'Carole Lombard',
+            fullTitle: 'Fort Wayne-Born Actress',
+            quote: '"I live by a man\'s code, designed to fit a man\'s world, yet at the same time I never forget that a woman\'s first job is to choose the right shade of lipstick."',
+            description: 'Fort Wayne-born actress who became Hollywood\'s highest-paid star and defined the screwball comedy genre.',
+            agentId: 'YOUR_LOMBARD_AGENT_ID',
+            faceId: 'YOUR_LOMBARD_FACE_ID',
+            videos: { idleToActive: ['idle_to_lombard.mp4'], activeToIdle: null },
+            processingMessages: ['Carole is checking her marks...', 'The camera rolls...', 'Screwball genius...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
+
+        clark: {
+            name: 'George Rogers Clark',
+            fullTitle: 'Revolutionary War Hero',
+            quote: '"Great things have been effected by a few men well conducted."',
+            description: 'Revolutionary War hero who conquered the Illinois Country for Virginia and secured Indiana\'s future as American territory.',
+            agentId: 'YOUR_CLARK_AGENT_ID',
+            faceId: 'YOUR_CLARK_FACE_ID',
+            videos: { idleToActive: ['idle_to_clark.mp4'], activeToIdle: null },
+            processingMessages: ['General Clark is surveying the frontier...', 'The territory awaits...', 'A few men well conducted...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
         },
         */
 

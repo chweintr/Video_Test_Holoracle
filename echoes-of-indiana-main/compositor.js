@@ -10,6 +10,18 @@ const Compositor = {
     transitionComplete: false,  // Track if transition video finished
     simliReady: false,          // Track if Simli is ready
 
+    // Helper: Pick random video from array, or return single string
+    pickVideo(videoConfig) {
+        if (!videoConfig) return null;
+        if (Array.isArray(videoConfig)) {
+            if (videoConfig.length === 0) return null;
+            const idx = Math.floor(Math.random() * videoConfig.length);
+            console.log(`[Compositor] Random pick: ${videoConfig[idx]} (${idx + 1}/${videoConfig.length})`);
+            return videoConfig[idx];
+        }
+        return videoConfig; // Single string
+    },
+
     init() {
         console.log('[Compositor] Initializing...');
         
@@ -127,9 +139,10 @@ const Compositor = {
         this.transitionComplete = false;
         this.simliReady = false;
 
-        // Play transition video
-        if (persona.videos.idleToActive) {
-            await this.playTransitionVideo(persona.videos.idleToActive);
+        // Play transition video (picks randomly if array)
+        const transitionVideo = this.pickVideo(persona.videos.idleToActive);
+        if (transitionVideo) {
+            await this.playTransitionVideo(transitionVideo);
         } else {
             // No transition video, mark as complete immediately
             this.transitionComplete = true;
@@ -155,9 +168,10 @@ const Compositor = {
         // Destroy Simli widget
         SimliManager.destroyWidget();
 
-        // Play transition out if exists
-        if (persona && persona.videos && persona.videos.activeToIdle) {
-            this.playTransitionVideo(persona.videos.activeToIdle);
+        // Play transition out if exists (picks randomly if array)
+        const transitionOut = persona && persona.videos ? this.pickVideo(persona.videos.activeToIdle) : null;
+        if (transitionOut) {
+            this.playTransitionVideo(transitionOut);
         } else {
             setTimeout(() => StateMachine.returnToIdle(), 500);
         }

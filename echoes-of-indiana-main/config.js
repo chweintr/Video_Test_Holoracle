@@ -70,12 +70,16 @@ const CONFIG = {
             // Video Assets (paths relative to assets/videos/)
             videos: {
                 // REQUIRED: Transition from idle abstract → persona head appearing
+                // Can be a single string OR an array for random selection
                 // Last frame should show head in position where Simli will appear
-                idleToActive: 'idle_to_mabel_2.mp4',
+                idleToActive: [
+                    'idle_to_mabel_2.mp4',
+                    // 'idle_to_mabel_1.MOV',  // Uncomment when ready
+                ],
                 
                 // OPTIONAL: Transition from persona → back to abstract
-                // If null, will just fade out
-                activeToIdle: null, // e.g., 'mabel_to_idle.mp4'
+                // If null, will just fade out. Can also be an array for random selection.
+                activeToIdle: null, // e.g., 'mabel_to_idle.mp4' or ['mabel_to_idle_1.mp4', 'mabel_to_idle_2.mp4']
             },
 
             // Processing Messages (shown during AI latency)
@@ -163,7 +167,12 @@ const CONFIG = {
             agentId: '4a11ab79-d20e-4277-8e94-82252e723b4d',
             faceId: 'cd6ce7ae-9317-4478-a889-a32877b176ca',
             videos: {
-                idleToActive: 'idle_to_Bigfoot.mp4',
+                // Array = random selection each time Bigfoot is summoned
+                idleToActive: [
+                    'idle_to_Bigfoot.mp4',
+                    'idle_to_bigfoot_2.mp4',
+                    'idle_to_Bigfoot_3.mp4',
+                ],
                 activeToIdle: null,
             },
             processingMessages: [

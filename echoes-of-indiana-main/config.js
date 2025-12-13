@@ -188,6 +188,33 @@ const CONFIG = {
                 scale: 1.0,
             }
         },
+
+        dean: {
+            name: 'James Dean',
+            fullTitle: 'Rebel from Fairmount, 1931-1955',
+            quote: '"Dream as if you\'ll live forever. Live as if you\'ll die today."',
+            description: 'Hollywood icon and cultural rebel. Born in Marion, raised in Fairmount, Indiana. Star of Rebel Without a Cause, East of Eden, and Giant.',
+            agentId: 'YOUR_DEAN_AGENT_ID',  // ← Get from Simli
+            faceId: 'YOUR_DEAN_FACE_ID',    // ← Get from Simli
+            videos: {
+                idleToActive: [
+                    'idle_to_dean.mp4',
+                    // Add variants here
+                ],
+                activeToIdle: null,
+            },
+            processingMessages: [
+                'Dean is lighting a cigarette...',
+                'Dean is leaning against the fence...',
+                'Dean is remembering Fairmount...',
+                'The rebel reflects...',
+            ],
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
+            }
+        },
         */
 
         bigfoot: {

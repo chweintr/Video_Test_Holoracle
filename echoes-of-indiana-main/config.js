@@ -215,6 +215,60 @@ const CONFIG = {
                 scale: 1.0,
             }
         },
+
+        bird: {
+            name: 'Larry Bird',
+            fullTitle: 'The Hick from French Lick, 1956-',
+            quote: '"I\'ve got a theory that if you give 100% all of the time, somehow things will work out in the end."',
+            description: 'NBA legend from French Lick, Indiana. 3x NBA Champion, 3x MVP, 12x All-Star. The greatest Celtic of all time.',
+            agentId: 'YOUR_BIRD_AGENT_ID',  // ← Get from Simli
+            faceId: 'YOUR_BIRD_FACE_ID',    // ← Get from Simli
+            videos: {
+                idleToActive: [
+                    'idle_to_bird.mp4',
+                    // Add variants here
+                ],
+                activeToIdle: null,
+            },
+            processingMessages: [
+                'Larry is shooting around...',
+                'Larry is studying the play...',
+                'Larry is remembering French Lick...',
+                'The legend considers...',
+            ],
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
+            }
+        },
+
+        carmichael: {
+            name: 'Hoagy Carmichael',
+            fullTitle: 'Composer from Bloomington, 1899-1981',
+            quote: '"I don\'t think I\'ll ever write a melody as pretty as Stardust."',
+            description: 'Legendary songwriter from Bloomington. Composed "Stardust," "Georgia On My Mind," "Heart and Soul," and hundreds more.',
+            agentId: 'YOUR_CARMICHAEL_AGENT_ID',  // ← Get from Simli
+            faceId: 'YOUR_CARMICHAEL_FACE_ID',    // ← Get from Simli
+            videos: {
+                idleToActive: [
+                    'idle_to_carmichael.mp4',
+                    // Add variants here
+                ],
+                activeToIdle: null,
+            },
+            processingMessages: [
+                'Hoagy is tinkling the ivories...',
+                'Hoagy is humming a melody...',
+                'Hoagy is reaching for the stars...',
+                'The composer muses...',
+            ],
+            headPosition: {
+                offsetX: '0%',
+                offsetY: '0%',
+                scale: 1.0,
+            }
+        },
         */
 
         bigfoot: {

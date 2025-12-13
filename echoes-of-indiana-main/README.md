@@ -278,10 +278,38 @@ OPENAI_API_KEY=your_key_here  # if using voice/RAG
 - [ ] Create persona-to-idle transition videos
 
 ### Phase 3: More Personas
-- [ ] Vonnegut
-- [ ] Oracle
-- [ ] Bigfoot
-- [ ] Each needs: Agent ID, Face ID, transition video, system prompt
+All 21 personas are defined in `config.js` - each needs: Agent ID, Face ID, transition video
+
+**Working-Class Indiana:**
+- [ ] Nell (Showers tube runner, 1918)
+- [ ] Mae (Monon depot clerk, 1918)
+- [ ] Tomaz (Limestone channeler, 1920s)
+- [ ] Cyril (Breaking Away cyclist, 1970s)
+- [ ] Louise (RCA color-TV assembler, 1954)
+- [ ] Frank (RCA shop steward, 1960s)
+- [ ] Elsie (Switchyard hostler)
+- [ ] Mrs Johnson (Community guide)
+- [ ] Eddie (Showers pond kid, 1910s)
+
+**Famous Hoosiers:**
+- [ ] Kurt Vonnegut (Author)
+- [ ] Hoagy Carmichael (Composer)
+- [ ] James Whitcomb Riley (Poet)
+- [ ] James Dean (Actor)
+- [ ] Larry Bird (Basketball)
+- [ ] Alfred Kinsey (IU Professor)
+- [ ] John Mellencamp (Rocker)
+- [ ] Vivian Carter (Vee-Jay Records)
+- [ ] Angela Brown (Opera)
+- [ ] Ryan White (AIDS activist)
+- [ ] Elinor Ostrom (Nobel economist)
+- [ ] Madam C.J. Walker (Entrepreneur)
+- [ ] David Letterman (Late-night)
+- [ ] Lil Bub (Internet cat!)
+- [ ] Wes Montgomery (Jazz guitar)
+- [ ] Carole Lombard (Actress)
+- [ ] George Rogers Clark (Revolutionary War)
+- [ ] Hoosier Oracle (Guide/Router)
 
 ### Phase 4: Kiosk Interface
 - [ ] Separate page for touch screen menu

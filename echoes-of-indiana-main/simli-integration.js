@@ -25,7 +25,7 @@ const SimliManager = {
         this.updateDebug('fetching token...');
 
         try {
-            const token = await this.getToken(persona.agentId);
+            const token = await this.getToken(persona.agentId, persona.faceId);
             if (!token) throw new Error('No token');
 
             console.log('[SimliManager] Token received, creating widget');
@@ -89,8 +89,12 @@ const SimliManager = {
         }
     },
 
-    async getToken(agentId) {
-        const url = `${CONFIG.backendUrl}${CONFIG.tokenEndpoint}?agentId=${agentId}`;
+    async getToken(agentId, faceId) {
+        // Include faceId in token request - Simli may require it
+        let url = `${CONFIG.backendUrl}${CONFIG.tokenEndpoint}?agentId=${agentId}`;
+        if (faceId) {
+            url += `&faceId=${faceId}`;
+        }
         console.log('[SimliManager] Fetching token from:', url);
         
         const response = await fetch(url);

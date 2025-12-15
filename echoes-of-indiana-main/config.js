@@ -170,10 +170,14 @@ const CONFIG = {
             faceId: 'b52e6173-4a03-49a5-81ed-409f9fbb9d08',
             videos: {
                 idleToActive: [
-                    'idle_to_riley.mp4',
-                    // Add variants here
+                    'idle_to_James_Whitcomb_Riley.mov',
+                    'idle_to_James_Whitcomb_Riley_2.mov',
                 ],
-                activeToIdle: null,
+                activeToIdle: [
+                    'James_Whitcomb_Riley_to_idle.mp4',
+                    'James_Whitcomb_Riley_to_idle_2.mp4',
+                    'James_Whitcomb_Riley_to_idle_0.mov',
+                ],
             },
             processingMessages: [
                 'Riley is searching for the right verse...',

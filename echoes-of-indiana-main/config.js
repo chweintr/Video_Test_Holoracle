@@ -291,7 +291,7 @@ const CONFIG = {
 
         tomaz: {
             name: 'Tomaz',
-            fullTitle: 'Limestone Channeler, 1920s',
+            fullTitle: 'Limestone Channeler, 1923',
             quote: '"Cold bar, warm stone; the channeler bites, the powder lifts, the derrick takes the load."',
             description: 'Worked steel and powder to free blocks bound for distant buildings; lived with dust, cold mornings, and hoists.',
             agentId: 'YOUR_TOMAZ_AGENT_ID',

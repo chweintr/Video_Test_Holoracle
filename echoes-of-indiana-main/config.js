@@ -546,7 +546,8 @@ const CONFIG = {
             description: 'Worked steel and powder to free blocks bound for distant buildings; lived with dust, cold mornings, and hoists.',
             agentId: 'b25bed51-b7a9-4fa7-b3e4-1c646c5740a2',
             faceId: 'd8a37d32-1eae-45de-8085-1c510773cf52',
-            videos: { idleToActive: ['idle_to_tomaz.mp4'], activeToIdle: null },
+            // TODO: Add idle_to_tomaz.mp4 when ready
+            videos: { idleToActive: null, activeToIdle: null },
             processingMessages: ['Tomaz is working the stone...', 'Tomaz is checking the derrick...', 'The channeler bites...'],
             headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
         },

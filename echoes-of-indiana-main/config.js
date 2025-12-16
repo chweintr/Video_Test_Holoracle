@@ -551,6 +551,19 @@ const CONFIG = {
             processingMessages: ['Tomaz is working the stone...', 'Tomaz is checking the derrick...', 'The channeler bites...'],
             headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
         },
+
+        hazel: {
+            name: 'Hazel',
+            fullTitle: 'Indiana Worker',  // TODO: Update with her actual role/era
+            quote: '"..."',  // TODO: Add her quote
+            description: 'An Indiana worker.',  // TODO: Add her description
+            agentId: '2e04edd9-a863-4cf3-a425-e2fcd9307f12',
+            faceId: 'f4db617d-94f8-4e55-80fe-a16507da2505',
+            // TODO: Add idle_to_hazel.mp4 when ready
+            videos: { idleToActive: null, activeToIdle: null },
+            processingMessages: ['Hazel is thinking...', 'Hazel considers...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
     },
 
     /* ============================================

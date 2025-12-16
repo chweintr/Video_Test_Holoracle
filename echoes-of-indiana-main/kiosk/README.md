@@ -81,19 +81,20 @@ If kiosk and hologram are on different machines, use a simple WebSocket relay.
 
 See screenshots in `../assets/images and ideas/` for the visual style we're going for.
 
-## 📐 Current Persona Roster (21 total)
+## 📐 Current Persona Roster
 
-### Active (have Simli agent + videos):
+### Active (have Simli agent + face IDs):
 - ✅ Mabel - Showers Brothers Furniture Worker, 1917
 - ✅ Brown County Bigfoot - Trail Sage & Cryptid Teller  
 - ✅ James Whitcomb Riley - The Hoosier Poet, 1849-1916
+- ✅ Tomaz - Limestone Channeler, 1923
+- ✅ Hazel - RCA Quality Control Inspector, 1958
 
 ### Placeholders (need Simli setup):
 
 **Working-Class Indiana:**
 - Nell - Showers Office Tube Runner, 1918
 - Mae - Monon Depot Clerk, 1918
-- Tomaz - Limestone Channeler, 1920s
 - Cyril - Town Rider, Late 1970s
 - Louise - RCA Color-TV Assembler, 1954
 - Frank - RCA Shop Steward, Mid 1960s
@@ -118,6 +119,7 @@ See screenshots in `../assets/images and ideas/` for the visual style we're goin
 - Wes Montgomery - Jazz Guitarist
 - Carole Lombard - Screwball Actress
 - George Rogers Clark - Revolutionary War Hero
+- Herman B Wells - IU President, 1938-1962
 - Hoosier Oracle - Echoes Guide/Router
 
 ## 🛠️ Tech Stack Suggestion

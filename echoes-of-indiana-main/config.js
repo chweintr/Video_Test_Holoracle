@@ -510,6 +510,18 @@ const CONFIG = {
             processingMessages: ['General Clark is surveying the frontier...', 'The territory awaits...', 'A few men well conducted...'],
             headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
         },
+
+        wells: {
+            name: 'Herman B Wells',
+            fullTitle: 'IU President, 1938-1962',
+            quote: '"The real purpose of education is to develop the mind so one can deal with the hard problems of life."',
+            description: 'Legendary Indiana University president who transformed IU into a world-class institution and championed academic freedom, the arts, and international education.',
+            agentId: 'YOUR_WELLS_AGENT_ID',
+            faceId: 'YOUR_WELLS_FACE_ID',
+            videos: { idleToActive: ['idle_to_wells.mp4'], activeToIdle: null },
+            processingMessages: ['President Wells is considering...', 'The chancellor reflects...', 'Education transforms...'],
+            headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
+        },
         */
 
         bigfoot: {
@@ -554,14 +566,14 @@ const CONFIG = {
 
         hazel: {
             name: 'Hazel',
-            fullTitle: 'Indiana Worker',  // TODO: Update with her actual role/era
-            quote: '"..."',  // TODO: Add her quote
-            description: 'An Indiana worker.',  // TODO: Add her description
+            fullTitle: 'RCA Quality Control Inspector, 1958',
+            quote: '"Check the solder, check the tube, check the chassis twice; a set that comes back is a set we built wrong."',
+            description: 'Inspected television sets on the RCA line in Bloomington; caught defects before they left the floor.',
             agentId: '2e04edd9-a863-4cf3-a425-e2fcd9307f12',
             faceId: 'f4db617d-94f8-4e55-80fe-a16507da2505',
             // TODO: Add idle_to_hazel.mp4 when ready
             videos: { idleToActive: null, activeToIdle: null },
-            processingMessages: ['Hazel is thinking...', 'Hazel considers...'],
+            processingMessages: ['Hazel is checking the chassis...', 'Hazel is inspecting the solder...', 'Quality comes first...'],
             headPosition: { offsetX: '0%', offsetY: '0%', scale: 1.0 }
         },
     },

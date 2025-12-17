@@ -187,6 +187,13 @@ const SimliManager = {
         console.log('[SimliManager] Showing widget');
         this.updateDebug('streaming');
         document.getElementById('simli-mount').classList.add('active');
+        
+        // Focus the widget to enable audio (browser requirement)
+        if (this.currentWidget) {
+            this.currentWidget.focus();
+            this.currentWidget.click();
+            console.log('[SimliManager] Widget focused for audio');
+        }
     },
 
     hideWidget() {

@@ -129,3 +129,48 @@ Keep track of what's working:
 
 Fill this in when debugging to find patterns!
 
+---
+
+## 🔄 Alternative Architectures (If Simli Unreliable)
+
+### Option A: ElevenLabs-Only Pipeline + Simli Avatar
+From community notes:
+> "Ideal framework using only ElevenLabs for TTS, STT, LLM (even custom LLMs) with function calls and Agentic capabilities. Latency <1 second even with legacy Avatars. Used Simli's old ElevenLabs Git repo but needed updates. Can change system prompt, voice, LLM, tools directly on ElevenLabs platform without redeploying."
+
+**Architecture:**
+```
+User Speech → ElevenLabs STT → ElevenLabs LLM → ElevenLabs TTS → Simli Avatar (video only)
+```
+
+**Pros:** Full control over AI pipeline, sub-second latency, no Simli AI dependency
+**Cons:** More complex setup, need to update legacy code
+**Repo to investigate:** Simli's old ElevenLabs integration repo
+
+### Option B: LiveKit Agent with Wake Word
+From community notes:
+> "IDLE MODE: Silero VAD checks for human voice with open wake mode.
+> WAKE MODE: Gemini Live and Simli sessions are initiated. User asks questions, receives answers. Session ends naturally, returns to idle mode."
+
+**Architecture:**
+```
+Silero VAD (wake detection) → Gemini Live (conversation) → Simli (avatar)
+```
+
+**Pros:** Efficient (only active when speaking), uses Gemini Live
+**Cons:** More moving parts, LiveKit complexity
+
+### Option C: NVIDIA Audio2Face + Virtual Camera
+**Architecture:**
+```
+User Speech → Whisper STT → GPT/Claude → ElevenLabs TTS → NVIDIA Audio2Face → OBS Virtual Cam
+```
+
+**Pros:** Fully local, no cloud dependency, high quality
+**Cons:** Requires NVIDIA GPU, complex setup
+
+### Investigation TODOs:
+- [ ] Find Simli's old ElevenLabs Git repo
+- [ ] Test ElevenLabs Conversational AI standalone
+- [ ] Evaluate LiveKit Agent framework
+- [ ] Prototype NVIDIA Audio2Face locally
+

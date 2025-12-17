@@ -674,10 +674,14 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
             }
             
             # Only add ttsAPIKey for personas that actually need ElevenLabs voices
-            # Using correct agent IDs from WORKING_CONFIGURATION_REFERENCE.md
+            # Agents configured with ElevenLabs voices on Simli dashboard
             elevenlabs_agents = [
-                '2970497b-880f-46bb-b5bf-3203dc196db1',  # Vonnegut (enhanced with ElevenLabs)
-                '126ac401-aaf7-46c3-80ec-02b89e781f25'   # Larry Bird (enhanced with ElevenLabs)
+                '2970497b-880f-46bb-b5bf-3203dc196db1',  # Vonnegut
+                '126ac401-aaf7-46c3-80ec-02b89e781f25',  # Larry Bird
+                '9a22d997-e5b7-4388-bd45-2135fc75c20a',  # Riley
+                'b25bed51-b7a9-4fa7-b3e4-1c646c5740a2',  # Tomaz
+                '2e04edd9-a863-4cf3-a425-e2fcd9307f12',  # Hazel
+                '2c8b6f6d-cb83-4100-a99b-ee33f808069a',  # Mabel
             ]
             if elevenlabs_key and resolved_agent_id in elevenlabs_agents:
                 json_payload["ttsAPIKey"] = elevenlabs_key

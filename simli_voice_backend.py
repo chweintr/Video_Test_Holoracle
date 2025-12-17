@@ -668,7 +668,10 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
     try:
         async with aiohttp.ClientSession() as session:
             # Try adding ttsAPIKey only for ElevenLabs personas
-            json_payload = {"simliAPIKey": api_key}
+            json_payload = {
+                "simliAPIKey": api_key,
+                "agentId": resolved_agent_id  # Include agentId in token request
+            }
             
             # Only add ttsAPIKey for personas that actually need ElevenLabs voices
             # Using correct agent IDs from WORKING_CONFIGURATION_REFERENCE.md

@@ -152,8 +152,6 @@ const SimliManager = {
                 
                 if (hasSrc && (playing || hasSize)) {
                     console.log('[SimliManager] Video stream detected!');
-                    // Add class to reveal video (removes black overlay)
-                    document.getElementById('simli-mount').classList.add('video-confirmed');
                     this.onVideoReady();
                     return;
                 }
@@ -216,7 +214,6 @@ const SimliManager = {
         
         // IMMEDIATELY hide AND clear - no delay, no chance for dotted face
         mount.classList.remove('active');
-        mount.classList.remove('video-confirmed'); // Reset overlay for next persona
         mount.style.opacity = '0';
         mount.style.visibility = 'hidden';
         mount.innerHTML = ''; // Clear immediately

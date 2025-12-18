@@ -404,22 +404,32 @@ simli-widget video {
     visibility: visible !important;
 }
 
-/* BLACK OVERLAY - covers dotted face until video confirmed */
-/* Added via JS when video stream is actually playing */
-#simli-mount::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    z-index: 10;
-    pointer-events: none;
-    transition: opacity 0.3s;
+/* 
+ * HIDE SIMLI'S DOTTED PLACEHOLDER MORE AGGRESSIVELY
+ * Target any div/element that's NOT the video
+ */
+simli-widget > *:not(video),
+simli-widget div:not(:has(video)),
+#simli-mount simli-widget > div {
+    background: #000 !important;
 }
-#simli-mount.video-confirmed::before {
-    opacity: 0;
+
+/* Any circle/ellipse shapes (the dots) */
+simli-widget [style*="border-radius"],
+simli-widget [style*="ellipse"],
+simli-widget [style*="circle"] {
+    display: none !important;
+}
+
+/* Target common placeholder class patterns */
+simli-widget [class*="Placeholder"],
+simli-widget [class*="placeholder"],
+simli-widget [class*="Loader"],
+simli-widget [class*="loader"],
+simli-widget [class*="Spinner"],
+simli-widget [class*="spinner"] {
+    display: none !important;
+    background: #000 !important;
 }
 
 /* Hide any dotted/dashed elements */

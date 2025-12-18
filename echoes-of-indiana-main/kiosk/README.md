@@ -90,37 +90,71 @@ See screenshots in `../assets/images and ideas/` for the visual style we're goin
 - ✅ Tomaz - Limestone Channeler, 1923
 - ✅ Hazel - RCA Quality Control Inspector, 1958
 
-### Placeholders (need Simli setup):
+---
 
-**Working-Class Indiana:**
-- Nell - Showers Tube Runner, 1918
-- Mae - Monon Depot Clerk, 1918
-- Eddie - Showers Pond Kid, 1910s
-- Cyril - Town Rider, Late 1970s
-- Elsie - Switchyard Hostler, Mid Century
-- CCC Worker - Brown County Conservation, 1930s *(new suggestion)*
+### Category System
 
-**Famous Hoosiers:**
-- Kurt Vonnegut - Indianapolis Author
-- Hoagy Carmichael - Stardust Composer
-- James Dean - Rebel from Fairmount
-- Larry Bird - French Lick Legend
-- Alfred Kinsey - IU Sexologist
-- John Mellencamp - Seymour Rocker
-- Vivian Carter - Vee-Jay Records
-- Angela Brown - Opera Singer
-- Ryan White - AIDS Activist
-- Elinor Ostrom - Nobel Economist
-- Madam C.J. Walker - Entrepreneur
-- David Letterman - Late-Night Legend
-- Lil Bub - Internet Sensation
-- Wes Montgomery - Jazz Guitarist
-- Carole Lombard - Screwball Actress
-- George Rogers Clark - Revolutionary War Hero
-- Herman B Wells - IU President
-- Ernie Pyle - War Correspondent *(new suggestion)*
-- Oscar Charleston - Negro League Legend *(new suggestion)*
-- Hoosier Oracle - Echoes Guide/Router
+| Category | Description |
+|----------|-------------|
+| **Archetypes** | Composite everyday Hoosiers - working lives, local voices |
+| **Historical Figures** | Notable Hoosiers who have passed |
+| **Living Legends** | Famous Hoosiers still with us |
+| **Lore** | Folklore, curiosities, the unexplained |
+
+---
+
+### By Category:
+
+**ARCHETYPES** *(Everyday Hoosiers)*
+| Name | Role | Status |
+|------|------|--------|
+| Mabel | Showers Finishing Worker, 1917 | ✅ Active |
+| Tomaz | Limestone Channeler, 1923 | ✅ Active |
+| Hazel | RCA Quality Control Inspector, 1958 | ✅ Active |
+| Nell | Showers Tube Runner, 1918 | Placeholder |
+| Mae | Monon Depot Clerk, 1918 | Placeholder |
+| Eddie | Showers Pond Kid, 1910s | Placeholder |
+| Cyril | Town Rider, Late 1970s | Placeholder |
+| Elsie | Switchyard Hostler, Mid Century | Placeholder |
+| CCC Worker | Brown County Conservation, 1930s | Suggested |
+
+**HISTORICAL FIGURES** *(Notable Hoosiers)*
+| Name | Role | Status |
+|------|------|--------|
+| James Whitcomb Riley | The Hoosier Poet, 1849-1916 | ✅ Active |
+| Kurt Vonnegut | Indianapolis Author | Placeholder |
+| Hoagy Carmichael | Stardust Composer | Placeholder |
+| Alfred Kinsey | IU Sexologist | Placeholder |
+| Herman B Wells | IU President | Placeholder |
+| Elinor Ostrom | Nobel Economist | Placeholder |
+| Wes Montgomery | Jazz Guitarist | Placeholder |
+| James Dean | Rebel from Fairmount | Placeholder |
+| Carole Lombard | Screwball Actress | Placeholder |
+| Madam C.J. Walker | Entrepreneur | Placeholder |
+| Vivian Carter | Vee-Jay Records | Placeholder |
+| Ryan White | AIDS Activist | Placeholder |
+| George Rogers Clark | Revolutionary War Hero | Placeholder |
+| Ernie Pyle | War Correspondent | Suggested |
+| Oscar Charleston | Negro League Legend | Suggested |
+
+**LIVING LEGENDS** *(Still With Us)*
+| Name | Role | Status |
+|------|------|--------|
+| Larry Bird | French Lick Legend | Placeholder |
+| John Mellencamp | Seymour Rocker | Placeholder |
+| David Letterman | Late-Night Legend | Placeholder |
+| Angela Brown | Opera Singer | Placeholder |
+
+**LORE** *(Folklore & Curiosities)*
+| Name | Role | Status |
+|------|------|--------|
+| Brown County Bigfoot | Trail Sage & Cryptid Teller | ✅ Active |
+| Lil Bub | Internet Sensation | Placeholder |
+
+---
+
+**Special:**
+- Hoosier Oracle - Echoes Guide/Router (meta-persona for navigation)
 
 ## 🛠️ Tech Stack Suggestion
 

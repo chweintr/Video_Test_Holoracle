@@ -93,14 +93,12 @@ See screenshots in `../assets/images and ideas/` for the visual style we're goin
 ### Placeholders (need Simli setup):
 
 **Working-Class Indiana:**
-- Nell - Showers Office Tube Runner, 1918
+- Nell - Showers Tube Runner, 1918
 - Mae - Monon Depot Clerk, 1918
-- Cyril - Town Rider, Late 1970s
-- Louise - RCA Color-TV Assembler, 1954
-- Frank - RCA Shop Steward, Mid 1960s
-- Elsie - Switchyard Hostler, Mid Century
-- Mrs Johnson - Community Guide, Mid Century
 - Eddie - Showers Pond Kid, 1910s
+- Cyril - Town Rider, Late 1970s
+- Elsie - Switchyard Hostler, Mid Century
+- CCC Worker - Brown County Conservation, 1930s *(new suggestion)*
 
 **Famous Hoosiers:**
 - Kurt Vonnegut - Indianapolis Author
@@ -119,7 +117,9 @@ See screenshots in `../assets/images and ideas/` for the visual style we're goin
 - Wes Montgomery - Jazz Guitarist
 - Carole Lombard - Screwball Actress
 - George Rogers Clark - Revolutionary War Hero
-- Herman B Wells - IU President, 1938-1962
+- Herman B Wells - IU President
+- Ernie Pyle - War Correspondent *(new suggestion)*
+- Oscar Charleston - Negro League Legend *(new suggestion)*
 - Hoosier Oracle - Echoes Guide/Router
 
 ## 🛠️ Tech Stack Suggestion

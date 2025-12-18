@@ -265,12 +265,18 @@ body.debug-borders simli-widget {
     height: 100%;
     
     opacity: 0;
-    transition: opacity 0.5s;
+    visibility: hidden; /* ADDED: Completely hide until ready */
+    transition: opacity 0.5s, visibility 0s 0.5s;
     mix-blend-mode: screen;
-    pointer-events: auto;
+    pointer-events: none; /* No interaction until visible */
     overflow: hidden; /* CRITICAL: Clips the scaled widget */
 }
-#simli-mount.active { opacity: 1; }
+#simli-mount.active { 
+    opacity: 1; 
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.5s, visibility 0s 0s; /* Show immediately */
+}
 
 /* =============================================
    SIMLI WIDGET STYLING
@@ -327,12 +333,18 @@ simli-widget [class*="Close"] {
     left: -9999px !important;
 }
 
-/* NUCLEAR OPTION - Hide any button that's NOT the start button */
-simli-widget button:not(:first-of-type),
-#simli-mount button:not(:first-of-type) {
-    display: none !important;
-    visibility: hidden !important;
+/* NUCLEAR OPTION - Hide ALL buttons visually but keep clickable for JS */
+simli-widget button,
+#simli-mount button,
+#simli-mount simli-widget button {
     opacity: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    /* Don't use display:none - we need JS to click it */
 }
 
 /* Hide ALL buttons after video is streaming (class added by JS) */
@@ -637,3 +649,4 @@ simli-widget *[style*="border-radius: 50%"] {
     word-break: break-all;
     color: #0f0;
 }
+

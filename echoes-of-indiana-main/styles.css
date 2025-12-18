@@ -270,6 +270,9 @@ body.debug-borders simli-widget {
     mix-blend-mode: screen;
     pointer-events: none; /* No interaction until visible */
     overflow: hidden; /* CRITICAL: Clips the scaled widget */
+    
+    /* BLACK BACKGROUND - hides dotted placeholder during loading gap */
+    background: #000 !important;
 }
 #simli-mount.active { 
     opacity: 1; 
@@ -399,6 +402,24 @@ simli-widget video {
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
+}
+
+/* BLACK OVERLAY - covers dotted face until video confirmed */
+/* Added via JS when video stream is actually playing */
+#simli-mount::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+#simli-mount.video-confirmed::before {
+    opacity: 0;
 }
 
 /* Hide any dotted/dashed elements */

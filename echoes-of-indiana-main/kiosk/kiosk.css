@@ -129,6 +129,40 @@ body {
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 20px;
+    cursor: default;
+    transition: all 0.4s ease;
+    position: relative;
+    display: inline-block;
+    padding: 8px 20px;
+}
+
+/* Hover glow effect */
+.category-title:hover {
+    color: #d4af37;
+    text-shadow: 
+        0 0 10px rgba(212, 175, 55, 0.8),
+        0 0 20px rgba(212, 175, 55, 0.5),
+        0 0 40px rgba(212, 175, 55, 0.3);
+    letter-spacing: 0.3em;
+    transform: scale(1.05);
+}
+
+/* Underline sweep animation */
+.category-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    transition: all 0.4s ease;
+    transform: translateX(-50%);
+}
+
+.category-title:hover::after {
+    width: 100%;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
 .persona-row {
@@ -210,6 +244,14 @@ body {
     color: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Placeholder for empty categories */
+.placeholder-text {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
 }
 
 /* =============================================

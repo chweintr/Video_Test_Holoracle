@@ -6,6 +6,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[Kiosk] Initialized');
     
+    // Splash screen click handler
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+        splash.addEventListener('click', () => {
+            console.log('[Kiosk] Splash dismissed');
+            splash.classList.add('hidden');
+        });
+    }
+    
     // Handle persona clicks
     document.querySelectorAll('.persona-circle').forEach(btn => {
         btn.addEventListener('click', () => {

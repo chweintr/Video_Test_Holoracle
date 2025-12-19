@@ -7,7 +7,15 @@
     <link rel="stylesheet" href="kiosk.css">
 </head>
 <body>
-    <!-- Ornate Background with Blur + Sharp Frame -->
+    <!-- Splash Screen with Upscale Video -->
+    <div id="splash-screen" class="splash-screen">
+        <video class="splash-video" autoplay loop muted playsinline>
+            <source src="upscale.mp4" type="video/mp4">
+        </video>
+        <div class="splash-prompt">Touch to Enter</div>
+    </div>
+
+    <!-- Ornate Background with Sharp Frame -->
     <div class="bg">
         <div class="frame"></div>
     </div>

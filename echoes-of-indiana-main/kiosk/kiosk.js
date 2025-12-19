@@ -1,0 +1,89 @@
+/**
+ * ECHOES OF INDIANA - KIOSK MENU
+ * Handles persona selection and communication with main display
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('[Kiosk] Initialized');
+    
+    // Handle persona clicks
+    document.querySelectorAll('.persona-circle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const personaId = btn.dataset.persona;
+            console.log('[Kiosk] Selected persona:', personaId);
+            
+            // Visual feedback
+            btn.classList.add('selected');
+            setTimeout(() => btn.classList.remove('selected'), 300);
+            
+            // Communicate with main display
+            // Option 1: postMessage (if in iframe or separate window)
+            if (window.opener) {
+                window.opener.postMessage({ type: 'summon-persona', persona: personaId }, '*');
+            }
+            
+            // Option 2: Direct navigation (if kiosk controls URL params)
+            // window.location.href = `../index.html?summon=${personaId}`;
+            
+            // Option 3: WebSocket/API (for separate devices)
+            // fetch('/api/summon', { method: 'POST', body: JSON.stringify({ persona: personaId }) });
+            
+            // For now, log and show feedback
+            showFeedback(`Summoning ${personaId}...`);
+        });
+    });
+});
+
+function showFeedback(message) {
+    // Create temporary feedback element
+    let feedback = document.querySelector('.feedback');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.className = 'feedback';
+        feedback.style.cssText = `
+            position: fixed;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #d4af37;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        `;
+        document.body.appendChild(feedback);
+    }
+    
+    feedback.textContent = message;
+    feedback.style.opacity = '1';
+    
+    setTimeout(() => {
+        feedback.style.opacity = '0';
+    }, 2000);
+}
+
+// Listen for messages from main display (for two-way communication)
+window.addEventListener('message', (event) => {
+    console.log('[Kiosk] Received message:', event.data);
+    
+    if (event.data.type === 'persona-active') {
+        // Highlight the active persona
+        document.querySelectorAll('.persona-circle').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.persona === event.data.persona);
+        });
+    }
+    
+    if (event.data.type === 'persona-dismissed') {
+        // Clear active state
+        document.querySelectorAll('.persona-circle').forEach(btn => {
+            btn.classList.remove('active');
+        });
+    }
+});
+

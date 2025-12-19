@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana - Kiosk</title>
+    <link rel="stylesheet" href="kiosk.css">
+</head>
+<body>
+    <!-- Ornate Background with Blur + Sharp Frame -->
+    <div class="bg">
+        <div class="frame"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="kiosk-container">
+        <!-- Title -->
+        <header class="title-section">
+            <img src="echoes_title.png" alt="Echoes of Indiana" class="title-image">
+            <!-- Fallback text if image missing -->
+            <h1 class="title-text">Echoes of Indiana</h1>
+        </header>
+
+        <!-- Persona Grid -->
+        <div class="persona-grid">
+            <!-- ARCHETYPES -->
+            <section class="category" data-category="archetypes">
+                <h2 class="category-title">Archetypes</h2>
+                <div class="persona-row">
+                    <button class="persona-circle" data-persona="mabel">
+                        <div class="circle-glow"></div>
+                        <video class="circle-video" autoplay loop muted playsinline>
+                            <source src="../assets/videos/Mabel_Menu.mp4" type="video/mp4">
+                        </video>
+                        <span class="persona-label">Mabel</span>
+                    </button>
+                    <button class="persona-circle" data-persona="tomaz">
+                        <div class="circle-glow"></div>
+                        <video class="circle-video" autoplay loop muted playsinline>
+                            <source src="../assets/videos/Tomaz_Menu.mp4" type="video/mp4">
+                        </video>
+                        <span class="persona-label">Tomaz</span>
+                    </button>
+                    <button class="persona-circle" data-persona="hazel">
+                        <div class="circle-glow"></div>
+                        <video class="circle-video" autoplay loop muted playsinline>
+                            <source src="../assets/videos/Hazel_Menu.mp4" type="video/mp4">
+                        </video>
+                        <span class="persona-label">Hazel</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- HISTORICAL FIGURES -->
+            <section class="category" data-category="historical">
+                <h2 class="category-title">Historical Figures</h2>
+                <div class="persona-row">
+                    <button class="persona-circle" data-persona="riley">
+                        <div class="circle-glow"></div>
+                        <video class="circle-video" autoplay loop muted playsinline>
+                            <source src="../assets/videos/James_Whitcomb_Riley_Menu.mp4" type="video/mp4">
+                        </video>
+                        <span class="persona-label">Riley</span>
+                    </button>
+                    <!-- Add more historical figures as they become active -->
+                </div>
+            </section>
+
+            <!-- LORE -->
+            <section class="category" data-category="lore">
+                <h2 class="category-title">Lore</h2>
+                <div class="persona-row">
+                    <button class="persona-circle" data-persona="bigfoot">
+                        <div class="circle-glow"></div>
+                        <video class="circle-video" autoplay loop muted playsinline>
+                            <source src="../assets/videos/Bigfoot_Menu_Better.mp4" type="video/mp4">
+                        </video>
+                        <span class="persona-label">Bigfoot</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Instructions -->
+        <footer class="instructions">
+            <p>Touch a portrait to begin your conversation</p>
+        </footer>
+    </div>
+
+    <script src="kiosk.js"></script>
+</body>
+</html>
+

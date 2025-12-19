@@ -1,5 +1,27 @@
 # Echoes of Indiana - Kiosk/Menu Interface
 
+## 🌐 About PastPresence
+
+**PastPresence** is an interactive heritage platform that lets visitors talk with the past. Rather than passive exhibits or static text, people engage in real-time dialogue with historical figures, each powered by contextual AI, period-accurate voice synthesis, and expressive avatar technology.
+
+### Echoes of Indiana
+
+The flagship installation surfaces voices from Indiana's layered history. Visitors summon holographic personas and converse with them directly. A 1917 furniture factory worker. A Hoosier poet. A limestone quarry channeler. An RCA quality inspector. Even the legendary Brown County Bigfoot.
+
+Each persona draws from researched historical context, regional dialect, and period-specific knowledge. The result is not a chatbot. It is an **encounter**. A chance to ask questions that textbooks cannot answer: *What did the sawdust smell like? Were you afraid? What did you dream about?*
+
+The framework is designed to scale. Echoes of Uppsala, Echoes of Appalachia, and other regional installations can deploy the same architecture with localized personas and narratives.
+
+### Core Thesis
+
+> *History is not just what happened. It is who was there. PastPresence makes that encounter possible.*
+
+### Companion Projects
+
+- **VonneBot** and similar author-proxy applications extend the PastPresence model to literature. Readers engage with an AI embodiment of an author while reading their work.
+
+---
+
 ## 🎯 Purpose
 
 This is a **separate touch-screen interface** for selecting personas. It displays on a kiosk/tablet while the hologram display runs on a separate screen (LED fan array).

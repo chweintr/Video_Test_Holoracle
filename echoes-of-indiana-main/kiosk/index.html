@@ -22,6 +22,9 @@
 
     <!-- Main Content - Clean Layout -->
     <div class="kiosk-container">
+        <!-- Tagline -->
+        <div class="tagline">Commune with Indiana's past</div>
+
         <!-- Persona Row - Simple horizontal arrangement -->
         <div class="persona-row">
             <button class="persona-circle" data-persona="mabel">
@@ -68,7 +71,23 @@
         <!-- Instructions -->
         <footer class="instructions">
             <p>Touch a portrait to begin</p>
+            <button class="about-btn" id="about-btn">About</button>
         </footer>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="about-modal">
+        <div class="about-content">
+            <button class="about-close" id="about-close">×</button>
+            <h2>PastPresence</h2>
+            <p>An interactive heritage platform that lets visitors talk with the past. Rather than passive exhibits or static text, people engage in real-time dialogue with historical figures, powered by contextual AI, period-accurate voice synthesis, and expressive avatar technology.</p>
+            
+            <h3>Echoes of Indiana</h3>
+            <p>The flagship installation surfaces voices from the state's layered history. A 1917 furniture factory worker. A Hoosier poet. A limestone quarry channeler. An RCA quality inspector. Even the legendary Brown County Bigfoot.</p>
+            <p>Each persona draws from researched historical context, regional dialect, and period-specific knowledge. The result is not a chatbot. It is an encounter. A chance to ask questions that textbooks cannot answer.</p>
+            
+            <p class="about-thesis"><em>History is not just what happened. It is who was there.</em></p>
+        </div>
     </div>
 
     <script src="kiosk.js"></script>

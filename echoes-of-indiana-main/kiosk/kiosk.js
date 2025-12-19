@@ -15,6 +15,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // About modal handlers
+    const aboutBtn = document.getElementById('about-btn');
+    const aboutModal = document.getElementById('about-modal');
+    const aboutClose = document.getElementById('about-close');
+    
+    if (aboutBtn && aboutModal) {
+        aboutBtn.addEventListener('click', () => {
+            aboutModal.classList.add('visible');
+        });
+        
+        aboutClose?.addEventListener('click', () => {
+            aboutModal.classList.remove('visible');
+        });
+        
+        // Click outside to close
+        aboutModal.addEventListener('click', (e) => {
+            if (e.target === aboutModal) {
+                aboutModal.classList.remove('visible');
+            }
+        });
+    }
+    
     // Handle persona clicks
     document.querySelectorAll('.persona-circle').forEach(btn => {
         btn.addEventListener('click', () => {

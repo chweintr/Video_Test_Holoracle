@@ -60,6 +60,18 @@ body {
 }
 
 /* =============================================
+   TAGLINE
+   ============================================= */
+.tagline {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.1em;
+    margin-bottom: 30px;
+    text-shadow: 0 0 15px rgba(200, 150, 255, 0.3);
+}
+
+/* =============================================
    PERSONA ROW - Simple horizontal layout
    ============================================= */
 .persona-row {
@@ -339,6 +351,99 @@ body {
 @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
+}
+
+/* =============================================
+   ABOUT BUTTON & MODAL
+   ============================================= */
+.about-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    padding: 6px 16px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s;
+}
+
+.about-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(200, 150, 255, 0.6);
+    text-shadow: 0 0 10px rgba(200, 150, 255, 0.5);
+}
+
+.about-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.about-modal.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.about-content {
+    max-width: 600px;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: left;
+    position: relative;
+}
+
+.about-content h2 {
+    font-size: 1.8rem;
+    color: #d4af37;
+    margin-bottom: 15px;
+    letter-spacing: 0.15em;
+}
+
+.about-content h3 {
+    font-size: 1.3rem;
+    color: rgba(200, 150, 255, 0.9);
+    margin-top: 25px;
+    margin-bottom: 10px;
+    letter-spacing: 0.1em;
+}
+
+.about-content p {
+    line-height: 1.7;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.about-thesis {
+    margin-top: 25px;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+}
+
+.about-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px;
+    transition: color 0.3s;
+}
+
+.about-close:hover {
+    color: #fff;
 }
 
 /* =============================================

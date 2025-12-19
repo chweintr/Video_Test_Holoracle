@@ -55,7 +55,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    padding: 40px 20px 80px;
+    padding: 40px 20px 60px;
+    padding-top: 55vh; /* Push circles down below the eye area */
     overflow-y: auto;
 }
 
@@ -357,22 +358,38 @@ body {
    ABOUT BUTTON & MODAL
    ============================================= */
 .about-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    padding: 6px 16px;
-    border-radius: 15px;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
+    background: rgba(100, 50, 150, 0.2);
+    border: 1px solid rgba(200, 150, 255, 0.5);
+    color: rgba(255, 200, 255, 0.9);
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     cursor: pointer;
-    margin-top: 15px;
+    margin-top: 20px;
     transition: all 0.3s;
+    text-shadow: 0 0 8px rgba(200, 150, 255, 0.5);
+    box-shadow: 0 0 15px rgba(150, 100, 200, 0.3), inset 0 0 10px rgba(200, 150, 255, 0.1);
+    animation: about-glow 3s ease-in-out infinite;
+}
+
+@keyframes about-glow {
+    0%, 100% { 
+        box-shadow: 0 0 15px rgba(150, 100, 200, 0.3), inset 0 0 10px rgba(200, 150, 255, 0.1);
+    }
+    50% { 
+        box-shadow: 0 0 25px rgba(180, 120, 220, 0.5), inset 0 0 15px rgba(200, 150, 255, 0.2);
+    }
 }
 
 .about-btn:hover {
-    color: rgba(255, 255, 255, 0.9);
-    border-color: rgba(200, 150, 255, 0.6);
-    text-shadow: 0 0 10px rgba(200, 150, 255, 0.5);
+    color: #fff;
+    border-color: rgba(220, 180, 255, 0.8);
+    text-shadow: 0 0 15px rgba(255, 200, 255, 0.8);
+    box-shadow: 0 0 30px rgba(180, 120, 220, 0.6), inset 0 0 15px rgba(220, 180, 255, 0.3);
+    transform: scale(1.05);
 }
 
 .about-modal {
@@ -394,39 +411,51 @@ body {
 }
 
 .about-content {
-    max-width: 600px;
-    padding: 40px;
-    color: rgba(255, 255, 255, 0.85);
+    max-width: 620px;
+    padding: 50px;
+    color: rgba(255, 255, 255, 0.88);
     text-align: left;
     position: relative;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    background: radial-gradient(ellipse at center, rgba(40, 20, 60, 0.4) 0%, transparent 70%);
+    border-radius: 12px;
 }
 
 .about-content h2 {
-    font-size: 1.8rem;
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 400;
     color: #d4af37;
-    margin-bottom: 15px;
-    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
 }
 
 .about-content h3 {
-    font-size: 1.3rem;
-    color: rgba(200, 150, 255, 0.9);
-    margin-top: 25px;
-    margin-bottom: 10px;
-    letter-spacing: 0.1em;
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: rgba(200, 150, 255, 0.95);
+    margin-top: 30px;
+    margin-bottom: 12px;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 15px rgba(200, 150, 255, 0.3);
 }
 
 .about-content p {
-    line-height: 1.7;
-    margin-bottom: 12px;
-    font-size: 0.95rem;
+    line-height: 1.85;
+    margin-bottom: 14px;
+    font-size: 1.1rem;
+    font-weight: 400;
 }
 
 .about-thesis {
-    margin-top: 25px;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.7);
+    margin-top: 30px;
+    font-size: 1.25rem;
+    font-style: italic;
+    color: rgba(255, 220, 200, 0.85);
     text-align: center;
+    text-shadow: 0 0 10px rgba(255, 200, 150, 0.2);
 }
 
 .about-close {
@@ -447,7 +476,8 @@ body {
 }
 
 /* =============================================
-   FONT IMPORT (Cinzel for ornate look)
+   FONT IMPORTS
    ============================================= */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
 

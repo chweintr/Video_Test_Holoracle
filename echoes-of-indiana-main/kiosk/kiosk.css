@@ -18,42 +18,23 @@ body {
 }
 
 /* =============================================
-   ORNATE BACKGROUND - Blur + Sharp Frame
+   BACKGROUND - Single layer with start.png
    ============================================= */
 .bg {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url("ornate_background_base4.PNG");
+    background-image: url("start.png");
     background-size: cover;
     background-position: center;
-    /* No blur - crisp background */
-    filter: saturate(1.1);
+    background-repeat: no-repeat;
 }
 
+/* Frame layer - now just for optional overlay effects */
 .frame {
     position: absolute;
     inset: 0;
-    background-image: url("ornate_background_base4.PNG");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-/* Lights overlay - will activate when ornate_lights_overlay.png is added */
-.frame::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("ornate_lights_overlay.png");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    mix-blend-mode: screen;
-    opacity: .85;
-    animation: glow 1.8s ease-in-out infinite;
-    filter: brightness(1.05) drop-shadow(0 0 16px rgba(255,255,255,.28));
-    will-change: opacity, filter;
+    /* Empty for now - can add overlay later */
 }
 
 @keyframes glow {

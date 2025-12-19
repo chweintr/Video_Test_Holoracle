@@ -478,6 +478,12 @@ simli-widget *[style*="border-radius: 50%"] {
     animation: pulse 2s infinite;
 }
 
+.start-video {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }

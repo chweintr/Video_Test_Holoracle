@@ -27,8 +27,9 @@ body {
     background-image: url("ornate_background_base4.PNG");
     background-size: cover;
     background-position: center;
-    filter: blur(22px) saturate(1.1);
-    transform: scale(1.06);
+    /* Reduced blur - just subtle softening, not heavy blur */
+    filter: blur(3px) saturate(1.1);
+    transform: scale(1.02);
 }
 
 .frame {

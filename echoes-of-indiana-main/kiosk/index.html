@@ -20,73 +20,49 @@
         <div class="frame"></div>
     </div>
 
-    <!-- Main Content - Orbital Layout -->
+    <!-- Main Content - Clean Layout -->
     <div class="kiosk-container">
-        <!-- Orbital System -->
-        <div class="orbital-system">
-            <!-- Center: Title -->
-            <div class="orbital-center">
-                <img src="echoes_of_indiana_text_only.png" alt="Echoes of Indiana" class="title-image">
-            </div>
+        <!-- Persona Row - Simple horizontal arrangement -->
+        <div class="persona-row">
+            <button class="persona-circle" data-persona="mabel">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/Mabel_Menu.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Mabel</span>
+            </button>
 
-            <!-- Orbit Ring 1: Active Personas -->
-            <div class="orbit-ring ring-1">
-                <!-- Position 1: Top -->
-                <button class="persona-circle orbit-pos-1" data-persona="mabel" data-category="Archetype">
-                    <div class="circle-glow"></div>
-                    <video class="circle-video" autoplay loop muted playsinline>
-                        <source src="../assets/videos/Mabel_Menu.mp4" type="video/mp4">
-                    </video>
-                    <span class="persona-label">Mabel</span>
-                </button>
+            <button class="persona-circle" data-persona="tomaz">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/Tomaz_Menu.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Tomaz</span>
+            </button>
 
-                <!-- Position 2: Top-Right -->
-                <button class="persona-circle orbit-pos-2" data-persona="riley" data-category="Historical">
-                    <div class="circle-glow"></div>
-                    <video class="circle-video" autoplay loop muted playsinline>
-                        <source src="../assets/videos/James_Whitcomb_Riley_Menu.mp4" type="video/mp4">
-                    </video>
-                    <span class="persona-label">Riley</span>
-                </button>
+            <button class="persona-circle" data-persona="hazel">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/Hazel_Menu.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Hazel</span>
+            </button>
 
-                <!-- Position 3: Bottom-Right -->
-                <button class="persona-circle orbit-pos-3" data-persona="bigfoot" data-category="Lore">
-                    <div class="circle-glow"></div>
-                    <video class="circle-video" autoplay loop muted playsinline>
-                        <source src="../assets/videos/Bigfoot_Menu_Better.mp4" type="video/mp4">
-                    </video>
-                    <span class="persona-label">Bigfoot</span>
-                </button>
+            <button class="persona-circle" data-persona="riley">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/James_Whitcomb_Riley_Menu.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Riley</span>
+            </button>
 
-                <!-- Position 4: Bottom-Left -->
-                <button class="persona-circle orbit-pos-4" data-persona="tomaz" data-category="Archetype">
-                    <div class="circle-glow"></div>
-                    <video class="circle-video" autoplay loop muted playsinline>
-                        <source src="../assets/videos/Tomaz_Menu.mp4" type="video/mp4">
-                    </video>
-                    <span class="persona-label">Tomaz</span>
-                </button>
-
-                <!-- Position 5: Top-Left -->
-                <button class="persona-circle orbit-pos-5" data-persona="hazel" data-category="Archetype">
-                    <div class="circle-glow"></div>
-                    <video class="circle-video" autoplay loop muted playsinline>
-                        <source src="../assets/videos/Hazel_Menu.mp4" type="video/mp4">
-                    </video>
-                    <span class="persona-label">Hazel</span>
-                </button>
-            </div>
-
-            <!-- Orbit Ring 2: Future personas go here -->
-            <!-- <div class="orbit-ring ring-2">...</div> -->
-        </div>
-
-        <!-- Category Legend -->
-        <div class="category-legend">
-            <span class="legend-item" data-cat="archetype">● Archetypes</span>
-            <span class="legend-item" data-cat="historical">● Historical</span>
-            <span class="legend-item" data-cat="living">● Living Legends</span>
-            <span class="legend-item" data-cat="lore">● Lore</span>
+            <button class="persona-circle" data-persona="bigfoot">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/Bigfoot_Menu_Better.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Bigfoot</span>
+            </button>
         </div>
 
         <!-- Instructions -->

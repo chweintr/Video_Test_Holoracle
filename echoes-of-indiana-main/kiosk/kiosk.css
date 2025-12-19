@@ -54,15 +54,110 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 40px 20px;
+    overflow-y: auto;
 }
 
 /* =============================================
-   TITLE SECTION
+   ORBITAL SYSTEM
+   ============================================= */
+.orbital-system {
+    position: relative;
+    width: min(90vw, 700px);
+    height: min(90vw, 700px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.orbital-center {
+    position: absolute;
+    z-index: 10;
+    text-align: center;
+}
+
+.orbital-center .title-image {
+    max-width: 280px;
+    width: 100%;
+}
+
+/* Orbit Ring */
+.orbit-ring {
+    position: absolute;
+    inset: 0;
+}
+
+/* Orbital Positions - 5 personas evenly distributed */
+.orbit-pos-1 { /* Top */
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.orbit-pos-2 { /* Top-Right */
+    position: absolute;
+    top: 19%;
+    right: 5%;
+}
+
+.orbit-pos-3 { /* Bottom-Right */
+    position: absolute;
+    bottom: 12%;
+    right: 10%;
+}
+
+.orbit-pos-4 { /* Bottom-Left */
+    position: absolute;
+    bottom: 12%;
+    left: 10%;
+}
+
+.orbit-pos-5 { /* Top-Left */
+    position: absolute;
+    top: 19%;
+    left: 5%;
+}
+
+/* Ring 2 positions (for 6-10 personas - outer ring) */
+.ring-2 .orbit-pos-1 { top: -10%; }
+.ring-2 .orbit-pos-2 { top: 10%; right: -5%; }
+.ring-2 .orbit-pos-3 { bottom: 5%; right: -5%; }
+.ring-2 .orbit-pos-4 { bottom: 5%; left: -5%; }
+.ring-2 .orbit-pos-5 { top: 10%; left: -5%; }
+
+/* Category Legend */
+.category-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.legend-item {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.1em;
+}
+
+.legend-item[data-cat="archetype"] { color: rgba(150, 200, 255, 0.7); }
+.legend-item[data-cat="historical"] { color: rgba(255, 200, 150, 0.7); }
+.legend-item[data-cat="living"] { color: rgba(150, 255, 150, 0.7); }
+.legend-item[data-cat="lore"] { color: rgba(200, 150, 255, 0.7); }
+
+/* =============================================
+   TITLE SECTION (used in orbital-center now)
    ============================================= */
 .title-section {
     text-align: center;
     margin-bottom: 40px;
+}
+
+/* Hide old title section - using orbital-center instead */
+.kiosk-container > .title-section {
+    display: none;
 }
 
 .title-image {

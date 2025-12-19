@@ -24,7 +24,7 @@ body {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url("ornate_background_base4.png");
+    background-image: url("ornate_background_base4.PNG");
     background-size: cover;
     background-position: center;
     filter: blur(22px) saturate(1.1);
@@ -34,17 +34,18 @@ body {
 .frame {
     position: absolute;
     inset: 0;
-    background-image: url("ornate_background_base4.png");
+    background-image: url("ornate_background_base4.PNG");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
 
+/* Lights overlay - will activate when ornate_lights_overlay.png is added */
 .frame::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("ornate_lights_overlay4.png");
+    background-image: url("ornate_lights_overlay.png");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;

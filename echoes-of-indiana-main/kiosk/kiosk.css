@@ -61,11 +61,11 @@ body {
 }
 
 /* =============================================
-   TAGLINE - Top position above title
+   TAGLINE - Between eye and ECHOES title
    ============================================= */
 .tagline-top {
     position: fixed;
-    top: 12%;
+    top: 22%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
@@ -282,14 +282,14 @@ body {
 }
 
 /* =============================================
-   INSTRUCTIONS - Bold gold for visibility
+   INSTRUCTIONS - Above circles, bold gold
    ============================================= */
-.instructions {
-    margin-top: 25px;
+.instructions-top {
     text-align: center;
+    margin-bottom: 20px;
 }
 
-.instructions p {
+.instructions-top p {
     font-family: 'Cinzel', serif;
     font-size: 1.15rem;
     font-weight: 500;

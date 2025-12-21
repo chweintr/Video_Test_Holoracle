@@ -479,9 +479,9 @@ simli-widget *[style*="border-radius: 50%"] {
 }
 
 .start-video {
-    max-width: 80%;
-    max-height: 80%;
-    object-fit: contain;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
 }
 
 @keyframes pulse {

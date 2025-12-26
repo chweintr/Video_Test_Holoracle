@@ -444,3 +444,67 @@ All 21 personas are defined in `config.js` - each needs: Agent ID, Face ID, tran
 6. Click "Dismiss" to end
 
 For calibration: Add `?calibrate` to URL
+
+---
+
+# 📄 Report-Ready Descriptions
+
+## Public Version (for Elements)
+
+**Echoes of Indiana — A PastPresence Installation**
+
+Echoes of Indiana is an interactive heritage installation where visitors converse with holographic personas from the state's past. Users select a character—a 1917 furniture worker, a Hoosier poet, a limestone channeler—and engage in real-time voice dialogue powered by AI. Each persona draws from researched historical context and period-appropriate speech, creating encounters rather than exhibits.
+
+The project is the flagship installation of PastPresence, a platform for experiencing history through dialogue. Five personas are currently active, with 25+ planned across four categories: everyday Archetypes, Historical Figures, Living Legends, and regional Lore.
+
+Sole creator: [Your Name]
+
+**Demo:**
+- Kiosk interface: https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/kiosk/
+- Hologram display: https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/
+
+*(Development deployment — full installation hardware pending)*
+
+**Period:** 2024–2025
+
+---
+
+## Technical Version (for Projects Doc)
+
+**Echoes of Indiana — A PastPresence Installation**
+
+**Overview:** Interactive hologram installation using AI-driven talking-head avatars. Visitors select personas via touch kiosk; selected persona appears on holographic display for real-time voice conversation.
+
+**Tech Stack:**
+- Frontend: Vanilla JavaScript, CSS (no framework)
+- Avatar engine: Simli widget SDK (WebRTC-based talking heads)
+- Voice: ElevenLabs TTS integration via Simli
+- Hosting: Railway (Python FastAPI backend for token generation)
+- Architecture: State machine + video compositor pattern
+
+**Current Status:**
+- 5 personas active (Mabel, Tomaz, Hazel, James Whitcomb Riley, Brown County Bigfoot)
+- Kiosk interface complete with animated thumbnails
+- Hologram display functional with transition video system
+- Video sandwich architecture working (layered compositing)
+
+**Known Issues:**
+- Simli WebRTC transport occasionally disconnects ("send transport changed to disconnected")
+- Alignment between transition video and Simli avatar requires per-persona calibration
+
+**Dependencies:**
+- Simli API key (for avatar sessions)
+- ElevenLabs API key (for voice synthesis)
+- Railway environment variables for key management
+
+**Roadmap:**
+- 25+ additional personas planned across 4 categories
+- Kiosk → display auto-summon integration
+- Physical installation on LED fan array / pepper's ghost display
+- Regional expansion framework (Echoes of Uppsala, etc.)
+
+**URLs:**
+- Kiosk: https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/kiosk/
+- Display: https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/
+
+**Period:** 2024–2025

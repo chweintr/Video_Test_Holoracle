@@ -457,7 +457,7 @@ Echoes of Indiana is an interactive heritage installation where visitors convers
 
 The project is the flagship installation of PastPresence, a platform for experiencing history through dialogue. Five personas are currently active, with 25+ planned across four categories: everyday Archetypes, Historical Figures, Living Legends, and regional Lore.
 
-Sole creator: [Your Name]
+Sole creator: Caleb Weintraub
 
 **Demo:**
 - Kiosk interface: https://videotestholoracle-production.up.railway.app/echoes-of-indiana-main/kiosk/

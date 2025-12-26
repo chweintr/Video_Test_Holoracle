@@ -1,4 +1,104 @@
-# Echoes of Indiana - Hologram Display System
+# Echoes of Indiana
+
+> *History is not just what happened. It is who was there.*
+
+---
+
+## 🌐 Vision
+
+**Echoes of Indiana** is an interactive heritage installation where visitors converse with holographic personas from the state's layered past. Rather than reading plaques or watching videos, people engage in real-time dialogue — asking questions that textbooks cannot answer: *What did the sawdust smell like? Were you afraid? What did you dream about?*
+
+Each persona is powered by contextual AI, period-accurate voice synthesis, and expressive avatar technology. The result is not a chatbot. It is an **encounter**.
+
+### Part of PastPresence
+
+Echoes of Indiana is the flagship installation of **PastPresence**, a platform for history through encounter, not observation. The framework is designed to scale regionally — *Echoes of Uppsala*, *Echoes of Appalachia*, and other installations can deploy the same architecture with localized personas and narratives.
+
+**Companion projects** like **VonneBot** extend the model to literature, letting readers engage with AI embodiments of authors while reading their work.
+
+---
+
+## 🎭 Persona Categories
+
+The roster spans four categories, capturing the full spectrum of Hoosier experience:
+
+| Category | Description |
+|----------|-------------|
+| **Archetypes** | Composite everyday Hoosiers — working lives, local voices, the people history often forgets |
+| **Historical Figures** | Notable Hoosiers who have passed — artists, activists, innovators, icons |
+| **Living Legends** | Famous Hoosiers still with us — their stories ongoing |
+| **Lore** | Folklore, curiosities, the unexplained — the stories whispered, not written |
+
+---
+
+## 👥 Current Roster
+
+### ✅ Active (Simli-powered, ready to converse)
+
+| Name | Role | Category |
+|------|------|----------|
+| **Mabel** | Showers Brothers Furniture Worker, 1917 | Archetype |
+| **Tomaz** | Limestone Channeler, 1923 | Archetype |
+| **Hazel** | RCA Quality Control Inspector, 1958 | Archetype |
+| **James Whitcomb Riley** | The Hoosier Poet, 1849-1916 | Historical |
+| **Brown County Bigfoot** | Trail Sage & Cryptid Teller | Lore |
+
+### 📋 Planned Personas
+
+**ARCHETYPES**
+- Nell — Showers Tube Runner, 1918
+- Mae — Monon Depot Clerk, 1918
+- Eddie — Showers Pond Kid, 1910s
+- Cyril — Town Rider, Late 1970s
+- Elsie — Switchyard Hostler, Mid Century
+- CCC Worker — Brown County Conservation, 1930s
+
+**HISTORICAL FIGURES**
+- Kurt Vonnegut — Indianapolis Author
+- Hoagy Carmichael — Stardust Composer
+- James Dean — Rebel from Fairmount
+- Madam C.J. Walker — Entrepreneur
+- Wes Montgomery — Jazz Guitarist
+- Alfred Kinsey — IU Sexologist
+- Herman B Wells — IU President
+- Elinor Ostrom — Nobel Economist
+- Carole Lombard — Screwball Actress
+- Vivian Carter — Vee-Jay Records
+- Ryan White — AIDS Activist
+- George Rogers Clark — Revolutionary War Hero
+- Ernie Pyle — War Correspondent
+- Oscar Charleston — Negro League Legend
+
+**LIVING LEGENDS**
+- Larry Bird — French Lick Legend
+- John Mellencamp — Seymour Rocker
+- David Letterman — Late-Night Legend
+- Angela Brown — Opera Singer
+
+**LORE**
+- Lil Bub — Internet Sensation
+- Hoosier Oracle — Echoes Guide/Router (meta-persona)
+
+---
+
+## 🖥️ How It Works
+
+1. **Kiosk Interface** — Visitors select a persona from animated circular portraits
+2. **Transition Video** — A cinematic reveal as the persona materializes
+3. **Holographic Conversation** — Real-time AI dialogue via Simli talking-head technology
+4. **Dismiss & Return** — End the encounter, return to selection
+
+The display architecture uses a **video sandwich** — idle loops, transition animations, and the Simli avatar layered with blend modes for a seamless holographic effect.
+
+---
+
+## 🎨 Aesthetic
+
+Baroque. Theatrical. Neon tubing on velvet curtains. Tom Waits meets Thom Browne meets Delicatessen. Not clean, not minimal — stylized strangeness that honors the uncanny nature of talking to the past.
+
+---
+
+# Technical Documentation
 
 ---
 

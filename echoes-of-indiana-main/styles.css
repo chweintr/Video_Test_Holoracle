@@ -499,8 +499,10 @@ simli-widget *[style*="border-radius: 50%"] {
     font-family: monospace;
     font-size: 11px;
     color: #0f0;
+    display: none; /* Hidden by default - use ?debug to show */
 }
 
+.debug-panel.visible { display: block; }
 .debug-panel.hidden { display: none; }
 .hidden { display: none !important; }
 

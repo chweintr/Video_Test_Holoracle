@@ -142,6 +142,11 @@
     <script src="compositor.js"></script>
     
     <script>
+        // Show debug panel only with ?debug URL param
+        if (window.location.search.includes('debug')) {
+            document.getElementById('debug-panel').classList.add('visible');
+        }
+        
         let isStarted = false;
         
         document.getElementById('click-to-start').addEventListener('click', () => {

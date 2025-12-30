@@ -1,0 +1,328 @@
+/* =============================================
+   ECHOES OF INDIANA — TOUCHSCREEN INTERFACE
+   Target: Transparent OLED 1366×768 (16:9)
+   Pure black (#000) = transparent on OLED
+   ============================================= */
+
+/* =============================================
+   CSS VARIABLES — Layout Regions (percentages)
+   ============================================= */
+:root {
+    --safe-inset: 5%;
+    --avatar-width: 50%;
+    --avatar-height: 60%;
+    --menu-header-height: 15%;
+    --menu-footer-height: 10%;
+    --persona-size: min(18vw, 18vh);
+    
+    /* Colors */
+    --transparent: #000000;
+    --glow-primary: rgba(100, 180, 255, 0.6);
+    --glow-secondary: rgba(200, 150, 255, 0.5);
+    --text-primary: rgba(255, 255, 255, 0.9);
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --gold: #d4af37;
+}
+
+/* =============================================
+   RESET & BASE
+   ============================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--transparent);
+    font-family: 'Cinzel', Georgia, serif;
+    color: var(--text-primary);
+    touch-action: manipulation; /* Disable double-tap zoom */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* =============================================
+   STAGE — Full viewport container
+   ============================================= */
+#stage {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =============================================
+   BACKGROUND LAYER
+   ============================================= */
+#background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Portrait mode: still use same image, CSS handles it */
+@media (orientation: portrait) {
+    .bg-image {
+        object-fit: cover;
+        object-position: center top;
+    }
+}
+
+/* =============================================
+   STATE MANAGEMENT
+   ============================================= */
+.state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+}
+
+.state.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* =============================================
+   MENU STATE
+   ============================================= */
+#menu-state {
+    padding: var(--safe-inset);
+    justify-content: space-between;
+}
+
+.menu-header {
+    text-align: center;
+    padding-top: 2%;
+}
+
+.menu-header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px var(--glow-primary), 0 0 40px var(--glow-secondary);
+}
+
+.tagline {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(0.9rem, 2vw, 1.3rem);
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-top: 0.5em;
+    letter-spacing: 0.1em;
+}
+
+/* =============================================
+   PERSONA GRID
+   ============================================= */
+#persona-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(15px, 3vw, 30px);
+    max-width: 90%;
+    padding: 2% 0;
+}
+
+.persona-circle {
+    width: var(--persona-size);
+    height: var(--persona-size);
+    border-radius: 50%;
+    border: none;
+    background: var(--transparent);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.persona-circle::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--glow-primary), var(--glow-secondary));
+    z-index: -1;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.persona-circle:hover,
+.persona-circle:active {
+    transform: scale(1.08);
+}
+
+.persona-circle:hover::before,
+.persona-circle:active::before {
+    opacity: 1;
+    box-shadow: 0 0 30px var(--glow-primary), 0 0 60px var(--glow-secondary);
+}
+
+.persona-circle video,
+.persona-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.persona-label {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+    white-space: nowrap;
+    color: var(--text-primary);
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+/* =============================================
+   MENU FOOTER
+   ============================================= */
+.menu-footer {
+    text-align: center;
+    padding-bottom: 2%;
+}
+
+.menu-footer p {
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* =============================================
+   ACTIVE STATE (Simli Conversation)
+   ============================================= */
+#active-state {
+    background: var(--transparent);
+}
+
+#simli-container {
+    width: var(--avatar-width);
+    height: var(--avatar-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#simli-container simli-widget {
+    width: 100% !important;
+    height: 100% !important;
+    background: var(--transparent) !important;
+}
+
+/* Hide Simli internals */
+#simli-container simli-widget button,
+#simli-container simli-widget [class*="close"],
+#simli-container simli-widget svg:not(video *) {
+    display: none !important;
+}
+
+/* =============================================
+   DISMISS BUTTON
+   ============================================= */
+.dismiss-btn {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(80, 40, 40, 0.6);
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: 25px;
+    padding: 12px 35px;
+    color: var(--text-primary);
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.dismiss-btn:hover,
+.dismiss-btn:active {
+    background: rgba(120, 50, 50, 0.8);
+    border-color: rgba(255, 120, 120, 0.6);
+    box-shadow: 0 0 20px rgba(255, 100, 100, 0.3);
+}
+
+/* =============================================
+   PORTRAIT MODE ADJUSTMENTS
+   ============================================= */
+@media (orientation: portrait) {
+    :root {
+        --persona-size: min(25vw, 12vh);
+    }
+    
+    #persona-grid {
+        max-width: 95%;
+    }
+    
+    #simli-container {
+        width: 80%;
+        height: 50%;
+    }
+    
+    .menu-header h1 {
+        font-size: clamp(1.2rem, 5vw, 2rem);
+    }
+}
+
+/* =============================================
+   SMALL SCREENS (phones/small tablets)
+   ============================================= */
+@media (max-width: 600px) {
+    :root {
+        --persona-size: 22vw;
+        --safe-inset: 3%;
+    }
+    
+    .menu-header h1 {
+        letter-spacing: 0.08em;
+    }
+}
+
+/* =============================================
+   LARGE SCREENS (target OLED)
+   ============================================= */
+@media (min-width: 1200px) {
+    :root {
+        --persona-size: 140px;
+    }
+}
+
+/* =============================================
+   FONT IMPORTS
+   ============================================= */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap');
+

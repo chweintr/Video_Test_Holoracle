@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Echoes of Indiana — Touchscreen</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://app.simli.com/simli-widget/index.js" defer></script>
+</head>
+<body>
+    <!-- Stage: The entire visible area -->
+    <div id="stage">
+        
+        <!-- Background Layer (black = transparent on OLED) -->
+        <div id="background">
+            <img src="../kiosk/start.png" alt="" class="bg-image">
+        </div>
+
+        <!-- Menu State -->
+        <div id="menu-state" class="state active">
+            <header class="menu-header">
+                <h1>Echoes of Indiana</h1>
+                <p class="tagline">Commune with Indiana's past</p>
+            </header>
+
+            <div id="persona-grid">
+                <!-- Personas injected by JS from shared config -->
+            </div>
+
+            <footer class="menu-footer">
+                <p>Touch a portrait to begin</p>
+            </footer>
+        </div>
+
+        <!-- Active State (Simli conversation) -->
+        <div id="active-state" class="state">
+            <div id="simli-container">
+                <!-- Simli widget spawns here -->
+            </div>
+            
+            <button id="dismiss-btn" class="dismiss-btn">
+                <span>Return</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Shared config from parent project -->
+    <script src="../config.js"></script>
+    
+    <!-- Local touchscreen logic -->
+    <script src="touchscreen.js"></script>
+</body>
+</html>
+

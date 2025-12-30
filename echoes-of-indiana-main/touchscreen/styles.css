@@ -108,12 +108,12 @@ html, body {
    ============================================= */
 #menu-state {
     padding: var(--safe-inset);
-    justify-content: space-between;
+    justify-content: flex-end; /* Push content to bottom */
+    padding-bottom: 8%;
 }
 
 .menu-header {
-    text-align: center;
-    padding-top: 2%;
+    display: none; /* Hide header - title is in background image */
 }
 
 .menu-header h1 {
@@ -140,10 +140,11 @@ html, body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    gap: clamp(15px, 3vw, 30px);
-    max-width: 90%;
+    align-items: flex-start;
+    gap: clamp(25px, 4vw, 50px);
+    max-width: 95%;
     padding: 2% 0;
+    margin-bottom: 60px; /* Space for role text below circles */
 }
 
 .persona-circle {
@@ -190,13 +191,27 @@ html, body {
 
 .persona-label {
     position: absolute;
-    bottom: -25px;
+    bottom: -28px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+    font-size: clamp(0.8rem, 1.8vw, 1rem);
+    font-weight: 500;
     white-space: nowrap;
     color: var(--text-primary);
-    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.persona-role {
+    position: absolute;
+    bottom: -48px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.6rem, 1.2vw, 0.75rem);
+    font-style: italic;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    text-shadow: 0 0 8px rgba(0,0,0,0.9);
 }
 
 /* =============================================
@@ -225,6 +240,8 @@ html, body {
    ============================================= */
 #active-state {
     background: var(--transparent);
+    justify-content: center;
+    align-items: center;
 }
 
 #simli-container {
@@ -237,16 +254,35 @@ html, body {
 }
 
 #simli-container simli-widget {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     width: 100% !important;
     height: 100% !important;
     background: var(--transparent) !important;
 }
 
-/* Hide Simli internals */
+/* Hide ALL Simli internals except video */
 #simli-container simli-widget button,
 #simli-container simli-widget [class*="close"],
-#simli-container simli-widget svg:not(video *) {
+#simli-container simli-widget [class*="Close"],
+#simli-container simli-widget svg,
+#simli-container simli-widget canvas,
+#simli-container simli-widget [class*="placeholder"],
+#simli-container simli-widget [class*="loading"],
+#simli-container simli-widget div:not(:has(video)) {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Ensure video is visible */
+#simli-container simli-widget video {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: var(--transparent) !important;
 }
 
 /* =============================================

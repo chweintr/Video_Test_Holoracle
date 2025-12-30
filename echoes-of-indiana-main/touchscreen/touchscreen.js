@@ -27,6 +27,15 @@ const TouchscreenApp = {
             return;
         }
 
+        // Map persona IDs to their actual menu video files
+        const menuVideoMap = {
+            'mabel': 'Mabel_Menu.mp4',
+            'tomaz': 'Tomaz_Menu.mp4',
+            'hazel': 'Hazel_Menu.mp4',
+            'riley': 'James_Whitcomb_Riley_Menu.mp4',
+            'bigfoot': 'Bigfoot_Menu_Better.mp4'
+        };
+
         // Get active personas from config
         const personas = CONFIG.personas;
         
@@ -38,14 +47,21 @@ const TouchscreenApp = {
             button.className = 'persona-circle';
             button.dataset.persona = id;
 
-            // Try to use menu video, fallback to placeholder
-            const menuVideo = persona.menuVideo || `../assets/videos/${persona.name}_Menu.mp4`;
+            // Use mapped video file or fallback
+            const videoFile = menuVideoMap[id] || `${id}_Menu.mp4`;
+            const menuVideo = `../assets/videos/${videoFile}`;
+            
+            // Get short name for display
+            const shortName = persona.name.split(' ').slice(-1)[0]; // Last word
+            const displayName = id === 'bigfoot' ? 'Bigfoot' : 
+                               id === 'riley' ? 'Riley' : persona.name;
             
             button.innerHTML = `
                 <video autoplay loop muted playsinline>
                     <source src="${menuVideo}" type="video/mp4">
                 </video>
-                <span class="persona-label">${persona.name}</span>
+                <span class="persona-label">${displayName}</span>
+                <span class="persona-role">${persona.fullTitle || ''}</span>
             `;
 
             grid.appendChild(button);

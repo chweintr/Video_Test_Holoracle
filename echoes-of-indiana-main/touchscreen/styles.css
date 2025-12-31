@@ -108,8 +108,19 @@ html, body {
    ============================================= */
 #menu-state {
     padding: var(--safe-inset);
-    justify-content: flex-end; /* Push content to bottom */
-    padding-bottom: 8%;
+    padding-bottom: 4%;
+    /* Use flexbox to push content to bottom */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Title Safe Zone: Invisible spacer that reserves top area for title */
+#menu-state::before {
+    content: '';
+    flex: 0 0 55vh; /* Reserve top 55% of viewport height for title */
+    min-height: 55vh;
 }
 
 .menu-header {
@@ -141,10 +152,11 @@ html, body {
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
-    gap: clamp(25px, 4vw, 50px);
-    max-width: 95%;
-    padding: 2% 0;
-    margin-bottom: 60px; /* Space for role text below circles */
+    gap: clamp(15px, 2.5vw, 35px);
+    max-width: 98%;
+    padding: 0;
+    margin-bottom: 50px; /* Space for role text below circles */
+    flex-shrink: 0; /* Don't shrink the grid */
 }
 
 .persona-circle {
@@ -223,13 +235,14 @@ html, body {
    ============================================= */
 .menu-footer {
     text-align: center;
-    padding-bottom: 2%;
+    padding: 1% 0;
+    flex-shrink: 0;
 }
 
 .menu-footer p {
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-size: clamp(0.75rem, 1.5vw, 1rem);
     color: var(--gold);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     animation: pulse 2.5s ease-in-out infinite;
 }
@@ -321,11 +334,29 @@ html, body {
    ============================================= */
 @media (orientation: portrait) {
     :root {
-        --persona-size: min(25vw, 12vh);
+        --persona-size: min(18vw, 10vh);
+    }
+    
+    /* In portrait, title takes less vertical space relative to height */
+    #menu-state::before {
+        flex: 0 0 50vh;
+        min-height: 50vh;
     }
     
     #persona-grid {
-        max-width: 95%;
+        max-width: 98%;
+        gap: clamp(10px, 2vw, 25px);
+        margin-bottom: 40px;
+    }
+    
+    .persona-label {
+        font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+        bottom: -22px;
+    }
+    
+    .persona-role {
+        font-size: clamp(0.5rem, 1vw, 0.65rem);
+        bottom: -38px;
     }
     
     #simli-container {
@@ -353,11 +384,39 @@ html, body {
 }
 
 /* =============================================
+   LANDSCAPE MODE (wider screens)
+   ============================================= */
+@media (orientation: landscape) {
+    /* In landscape, title area is proportionally taller */
+    #menu-state::before {
+        flex: 0 0 58vh;
+        min-height: 58vh;
+    }
+    
+    :root {
+        --persona-size: min(12vw, 14vh);
+    }
+    
+    #persona-grid {
+        flex-wrap: nowrap; /* Keep all circles in one row */
+        gap: clamp(20px, 3vw, 40px);
+    }
+    
+    .persona-label {
+        font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+    }
+    
+    .persona-role {
+        font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+    }
+}
+
+/* =============================================
    LARGE SCREENS (target OLED)
    ============================================= */
 @media (min-width: 1200px) {
     :root {
-        --persona-size: 140px;
+        --persona-size: min(120px, 12vh);
     }
 }
 

@@ -588,7 +588,7 @@ async def simli_compose_speak(request: dict):
 
 @app.get("/simli-token")
 @app.post("/simli-token")
-async def create_simli_session_token(request: Request, agentId: Optional[str] = None, persona: Optional[str] = None):
+async def create_simli_session_token(request: Request, agentId: Optional[str] = None, faceId: Optional[str] = None, persona: Optional[str] = None):
     """Create a short-lived Simli session token using SIMLI_API_KEY.
 
     Priority of agent selection:
@@ -596,6 +596,8 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
     2) persona→agent mapping from /personas
     3) env SIMLI_AGENT_ID or SIMLI_FACE_ID
     4) default hoosier fallback id
+    
+    faceId is also accepted and passed to Simli API for avatar selection.
     """
     api_key = get_simli_api_key()
     elevenlabs_key = (os.getenv("ELEVENLABS_API_KEY") or "").strip()
@@ -673,6 +675,11 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
                 "agentId": resolved_agent_id  # Include agentId in token request
             }
             
+            # Include faceId if provided (for avatar selection)
+            if faceId:
+                json_payload["faceId"] = faceId
+                logger.info(f"Including faceId in token request: {faceId}")
+            
             # Only add ttsAPIKey for personas that actually need ElevenLabs voices
             # Agents configured with ElevenLabs voices on Simli dashboard
             elevenlabs_agents = [
@@ -728,7 +735,7 @@ async def create_simli_session_token(request: Request, agentId: Optional[str] = 
                            data.get("meetingUrl") or 
                            data.get("meeting_url"))
                 
-                response = {"token": token, "agentId": resolved_agent_id, "source": "api"}
+                response = {"token": token, "agentId": resolved_agent_id, "faceId": faceId, "source": "api"}
                 
                 if room_url:
                     response["roomUrl"] = room_url

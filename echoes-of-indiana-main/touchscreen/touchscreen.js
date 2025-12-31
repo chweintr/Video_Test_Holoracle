@@ -111,8 +111,10 @@ const TouchscreenApp = {
         container.innerHTML = ''; // Clear any existing widget
 
         try {
-            // Fetch session token
+            // Fetch session token (same endpoint as main app)
             const tokenUrl = `https://videotestholoracle-production.up.railway.app/simli-token?agentId=${persona.agentId}&faceId=${persona.faceId}`;
+            console.log('[Touchscreen] Fetching token for', persona.name, 'agentId:', persona.agentId, 'faceId:', persona.faceId);
+            
             const response = await fetch(tokenUrl);
             
             if (!response.ok) {
@@ -120,13 +122,33 @@ const TouchscreenApp = {
             }
             
             const data = await response.json();
-            console.log('[Touchscreen] Token received');
+            console.log('[Touchscreen] Token received:', data);
 
-            // Create widget
+            // Create widget - match EXACT format from main simli-integration.js
             const widget = document.createElement('simli-widget');
-            widget.setAttribute('session-token', data.token);
+            
+            // Set token (NOT session-token)
+            widget.setAttribute('token', data.token);
+            
+            // Set ALL possible attribute formats (Simli docs are inconsistent)
+            widget.setAttribute('agentid', persona.agentId);
             widget.setAttribute('agent-id', persona.agentId);
-            widget.setAttribute('face-id', persona.faceId);
+            widget.setAttribute('agentId', persona.agentId);
+            if (persona.faceId) {
+                widget.setAttribute('faceid', persona.faceId);
+                widget.setAttribute('face-id', persona.faceId);
+                widget.setAttribute('faceId', persona.faceId);
+            }
+            
+            // Also set as properties (belt and suspenders approach)
+            widget.agentId = persona.agentId;
+            widget.agentid = persona.agentId;
+            if (persona.faceId) {
+                widget.faceId = persona.faceId;
+                widget.faceid = persona.faceId;
+            }
+            
+            console.log('[Touchscreen] Widget configured - agentId:', persona.agentId, 'faceId:', persona.faceId);
             
             container.appendChild(widget);
             this.simliWidget = widget;
@@ -134,6 +156,7 @@ const TouchscreenApp = {
             // Auto-click start button if it appears
             setTimeout(() => this.tryClickStart(), 500);
             setTimeout(() => this.tryClickStart(), 1500);
+            setTimeout(() => this.tryClickStart(), 3000);
 
         } catch (error) {
             console.error('[Touchscreen] Simli error:', error);

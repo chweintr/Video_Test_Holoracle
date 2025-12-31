@@ -155,7 +155,7 @@ html, body {
     background: var(--transparent);
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Allow labels to show outside circle */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -183,10 +183,14 @@ html, body {
 
 .persona-circle video,
 .persona-circle img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+    clip-path: circle(50%); /* Clip media to circle while allowing labels to overflow */
 }
 
 .persona-label {

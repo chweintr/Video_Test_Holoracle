@@ -119,8 +119,8 @@ html, body {
 /* Title Safe Zone: Invisible spacer that reserves top area for title */
 #menu-state::before {
     content: '';
-    flex: 0 0 55vh; /* Reserve top 55% of viewport height for title */
-    min-height: 55vh;
+    flex: 1 1 auto; /* Take up all available space, pushing content to bottom */
+    min-height: 0; /* Allow shrinking if needed */
 }
 
 .menu-header {
@@ -334,38 +334,32 @@ html, body {
    ============================================= */
 @media (orientation: portrait) {
     :root {
-        --persona-size: min(18vw, 10vh);
-    }
-    
-    /* In portrait, title takes less vertical space relative to height */
-    #menu-state::before {
-        flex: 0 0 50vh;
-        min-height: 50vh;
+        --persona-size: min(18vw, 9vh);
     }
     
     #persona-grid {
         max-width: 98%;
-        gap: clamp(10px, 2vw, 25px);
-        margin-bottom: 40px;
+        gap: clamp(8px, 1.5vw, 20px);
+        margin-bottom: 35px;
     }
     
     .persona-label {
-        font-size: clamp(0.65rem, 1.5vw, 0.85rem);
-        bottom: -22px;
+        font-size: clamp(0.6rem, 1.3vw, 0.8rem);
+        bottom: -20px;
     }
     
     .persona-role {
-        font-size: clamp(0.5rem, 1vw, 0.65rem);
-        bottom: -38px;
+        font-size: clamp(0.45rem, 0.9vw, 0.6rem);
+        bottom: -34px;
+    }
+    
+    .menu-footer p {
+        font-size: clamp(0.65rem, 1.2vw, 0.85rem);
     }
     
     #simli-container {
         width: 80%;
         height: 50%;
-    }
-    
-    .menu-header h1 {
-        font-size: clamp(1.2rem, 5vw, 2rem);
     }
 }
 
@@ -387,27 +381,28 @@ html, body {
    LANDSCAPE MODE (wider screens)
    ============================================= */
 @media (orientation: landscape) {
-    /* In landscape, title area is proportionally taller */
-    #menu-state::before {
-        flex: 0 0 58vh;
-        min-height: 58vh;
-    }
-    
     :root {
-        --persona-size: min(12vw, 14vh);
+        --persona-size: min(10vw, 12vh);
     }
     
     #persona-grid {
         flex-wrap: nowrap; /* Keep all circles in one row */
-        gap: clamp(20px, 3vw, 40px);
+        gap: clamp(15px, 2vw, 30px);
+        margin-bottom: 40px;
     }
     
     .persona-label {
-        font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+        font-size: clamp(0.65rem, 1vw, 0.85rem);
+        bottom: -24px;
     }
     
     .persona-role {
-        font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+        font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+        bottom: -42px;
+    }
+    
+    .menu-footer p {
+        font-size: clamp(0.7rem, 1.3vw, 0.95rem);
     }
 }
 

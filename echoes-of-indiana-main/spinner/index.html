@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana — Persona Spinner Prototype</title>
+    
+    <!-- Tailwind CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        
+        /* 3D reel enhancements */
+        .reel-container {
+            perspective: 900px;
+        }
+        .reel-drum {
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .reel-symbol {
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+    <div id="root"></div>
+
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script>
+        // ═══════════════════════════════════════════
+        // PERSONA DATA
+        // ═══════════════════════════════════════════
+        const CATEGORIES = {
+            archetypes: { id: 'archetypes', name: 'Composite Archetypes', color: '#7c3aed' },
+            historical: { id: 'historical', name: 'Historical Figures', color: '#0891b2' },
+            living: { id: 'living', name: 'Living Legends', color: '#059669' },
+            lore: { id: 'lore', name: 'Local Lore', color: '#dc2626' },
+        };
+
+        const PERSONAS = [
+            // ARCHETYPES
+            { id: 'mabel', name: 'Mabel', category: 'archetypes', title: 'Showers Worker, 1917', status: 'active' },
+            { id: 'tomaz', name: 'Tomaz', category: 'archetypes', title: 'Limestone Channeler, 1923', status: 'active' },
+            { id: 'hazel', name: 'Hazel', category: 'archetypes', title: 'RCA Inspector, 1958', status: 'active' },
+            { id: 'nell', name: 'Nell', category: 'archetypes', title: 'Telephone Operator, 1942', status: 'placeholder' },
+            { id: 'mae', name: 'Mae', category: 'archetypes', title: 'Ball Jar Canner, 1910', status: 'placeholder' },
+            { id: 'cyril', name: 'Cyril', category: 'archetypes', title: 'Interurban Motorman, 1925', status: 'placeholder' },
+            { id: 'eddie', name: 'Eddie', category: 'archetypes', title: 'Auto Worker, 1955', status: 'placeholder' },
+            { id: 'ccc', name: 'CCC Worker', category: 'archetypes', title: 'Conservation Corps, 1935', status: 'placeholder' },
+            
+            // HISTORICAL
+            { id: 'riley', name: 'J.W. Riley', category: 'historical', title: 'Hoosier Poet, 1849-1916', status: 'active' },
+            { id: 'vonnegut', name: 'K. Vonnegut', category: 'historical', title: 'Author, 1922-2007', status: 'placeholder' },
+            { id: 'wells', name: 'H.B. Wells', category: 'historical', title: 'IU President, 1902-2000', status: 'placeholder' },
+            { id: 'walker', name: 'Madam Walker', category: 'historical', title: 'Entrepreneur, 1867-1919', status: 'placeholder' },
+            { id: 'dean', name: 'James Dean', category: 'historical', title: 'Actor, 1931-1955', status: 'placeholder' },
+            { id: 'carmichael', name: 'Hoagy C.', category: 'historical', title: 'Composer, 1899-1981', status: 'placeholder' },
+            { id: 'kinsey', name: 'A. Kinsey', category: 'historical', title: 'Researcher, 1894-1956', status: 'placeholder' },
+            { id: 'lombard', name: 'C. Lombard', category: 'historical', title: 'Actress, 1908-1942', status: 'placeholder' },
+            { id: 'pyle', name: 'Ernie Pyle', category: 'historical', title: 'Correspondent, 1900-1945', status: 'placeholder' },
+            { id: 'charleston', name: 'O. Charleston', category: 'historical', title: 'Baseball, 1896-1954', status: 'placeholder' },
+            { id: 'montgomery', name: 'Wes M.', category: 'historical', title: 'Jazz Guitar, 1923-1968', status: 'placeholder' },
+            { id: 'ostrom', name: 'E. Ostrom', category: 'historical', title: 'Nobel, 1933-2012', status: 'placeholder' },
+            { id: 'white', name: 'Ryan White', category: 'historical', title: 'Activist, 1971-1990', status: 'placeholder' },
+            
+            // LIVING
+            { id: 'bird', name: 'Larry Bird', category: 'living', title: 'French Lick, 1956-', status: 'placeholder' },
+            { id: 'mellencamp', name: 'Mellencamp', category: 'living', title: 'Seymour, 1951-', status: 'placeholder' },
+            { id: 'letterman', name: 'Letterman', category: 'living', title: 'Late Night, 1947-', status: 'placeholder' },
+            { id: 'carter', name: 'V. Carter', category: 'living', title: 'Vee-Jay, 1921-1989', status: 'placeholder' },
+            { id: 'brown', name: 'A. Brown', category: 'living', title: 'Opera, 1964-', status: 'placeholder' },
+            
+            // LORE
+            { id: 'bigfoot', name: 'Bigfoot', category: 'lore', title: 'Brown County Cryptid', status: 'active' },
+            { id: 'oracle', name: 'Oracle', category: 'lore', title: 'Echoes Guide', status: 'placeholder' },
+            { id: 'ghostlight', name: "Moody's Light", category: 'lore', title: 'Francesville Phantom', status: 'placeholder' },
+            { id: 'lilbub', name: 'Lil Bub', category: 'lore', title: 'Cosmic Cat, 2011-2019', status: 'placeholder' },
+        ];
+
+        function getPersonasByCategory(cat) {
+            if (cat === 'all') return PERSONAS;
+            return PERSONAS.filter(p => p.category === cat);
+        }
+
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        // ═══════════════════════════════════════════
+        // CONFIGURATION
+        // ═══════════════════════════════════════════
+        const REELS = 5;
+        const SYMBOLS_PER_REEL = 6;
+        const CELL = 100;
+
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+        function mod(n, m) { return ((n % m) + m) % m; }
+        function radiusFor(n, cell) { return Math.round((cell / 2) / Math.tan(Math.PI / n)); }
+        function colorFromId(id) {
+            let hash = 0;
+            for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
+            return `hsl(${Math.abs(hash) % 360} 55% 40%)`;
+        }
+
+        const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+        // ═══════════════════════════════════════════
+        // PERSONA CARD
+        // ═══════════════════════════════════════════
+        function PersonaCard({ persona, size, onClick, isPayline }) {
+            const catColor = CATEGORIES[persona.category]?.color || '#666';
+            const isActive = persona.status === 'active';
+            
+            return React.createElement('div', {
+                onClick: () => onClick?.(persona),
+                className: `relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200 
+                    ${isPayline ? 'ring-2 ring-amber-400' : ''} 
+                    ${!isActive ? 'opacity-50' : ''}`,
+                style: { width: size, height: size, background: colorFromId(persona.id), boxShadow: '0 6px 20px rgba(0,0,0,0.4)' }
+            },
+                React.createElement('div', { 
+                    className: 'absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full',
+                    style: { background: catColor }
+                }),
+                React.createElement('div', { 
+                    className: 'absolute inset-0 flex items-center justify-center text-3xl opacity-20'
+                }, '👤'),
+                React.createElement('div', { 
+                    className: 'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5'
+                },
+                    React.createElement('div', { className: 'text-white text-[10px] font-semibold truncate' }, persona.name),
+                    isPayline && React.createElement('div', { className: 'text-white/60 text-[8px] truncate' }, persona.title)
+                ),
+                !isActive && React.createElement('div', {
+                    className: 'absolute top-1.5 right-1.5 px-1 py-0.5 bg-zinc-800/80 rounded text-[7px] text-zinc-400'
+                }, 'SOON')
+            );
+        }
+
+        // ═══════════════════════════════════════════
+        // SPIN MODE
+        // ═══════════════════════════════════════════
+        function SpinMode({ onSelectPersona }) {
+            const step = 360 / SYMBOLS_PER_REEL;
+            const radius = useMemo(() => radiusFor(SYMBOLS_PER_REEL, CELL), []);
+            
+            const reelsSymbols = useMemo(() => {
+                const shuffled = shuffleArray(PERSONAS);
+                const out = [];
+                for (let r = 0; r < REELS; r++) {
+                    const reel = [];
+                    for (let s = 0; s < SYMBOLS_PER_REEL; s++) {
+                        reel.push(shuffled[(r * SYMBOLS_PER_REEL + s) % shuffled.length]);
+                    }
+                    out.push(reel);
+                }
+                return out;
+            }, []);
+
+            const [rotations, setRotations] = useState(() => Array(REELS).fill(0));
+            const [spinning, setSpinning] = useState(false);
+            const [result, setResult] = useState(() => Array(REELS).fill(null));
+            const animRef = useRef(null);
+            const spinPlanRef = useRef(null);
+
+            function frontIdx(rot) {
+                return mod(Math.round(-mod(rot, 360) / step), SYMBOLS_PER_REEL);
+            }
+            function getPayline(rots) {
+                return rots.map((r, i) => reelsSymbols[i][frontIdx(r)]);
+            }
+
+            function spin() {
+                if (spinning) return;
+                const now = performance.now();
+                const plan = Array.from({ length: REELS }, (_, r) => {
+                    const startRot = rotations[r];
+                    const stopIdx = Math.floor(Math.random() * SYMBOLS_PER_REEL);
+                    const target = -stopIdx * step;
+                    const delta = mod(mod(target, 360) - mod(startRot, 360), 360);
+                    const endRot = startRot + (3 + Math.floor(Math.random() * 3)) * 360 + delta;
+                    const duration = 900 + r * 100 + Math.floor(Math.random() * 250);
+                    return { startRot, endRot, duration, startTime: now };
+                });
+                setSpinning(true);
+                setResult(Array(REELS).fill(null));
+                spinPlanRef.current = plan;
+                
+                const tick = (t) => {
+                    const p = spinPlanRef.current;
+                    if (!p) return;
+                    let done = true;
+                    const next = [];
+                    for (let r = 0; r < REELS; r++) {
+                        const { startRot, endRot, duration, startTime } = p[r];
+                        const u = Math.min(Math.max((t - startTime) / duration, 0), 1);
+                        next[r] = startRot + (endRot - startRot) * easeOutCubic(u);
+                        if (u < 1) done = false;
+                    }
+                    setRotations(next);
+                    if (!done) {
+                        animRef.current = requestAnimationFrame(tick);
+                    } else {
+                        animRef.current = null;
+                        spinPlanRef.current = null;
+                        setSpinning(false);
+                        setResult(getPayline(next));
+                    }
+                };
+                animRef.current = requestAnimationFrame(tick);
+            }
+
+            useEffect(() => {
+                setRotations(prev => prev.map((_, r) => -(r % SYMBOLS_PER_REEL) * step));
+            }, [step]);
+
+            useEffect(() => {
+                const kd = (e) => { if (e.code === 'Space') { e.preventDefault(); spin(); } };
+                window.addEventListener('keydown', kd);
+                return () => window.removeEventListener('keydown', kd);
+            }, [spinning, rotations]);
+
+            useEffect(() => () => { if (animRef.current) cancelAnimationFrame(animRef.current); }, []);
+
+            const frameW = REELS * CELL;
+            const frameH = Math.round(CELL * 2.5);
+
+            return React.createElement('div', { className: 'flex flex-col items-center gap-4' },
+                // Spin button
+                React.createElement('div', { className: 'flex gap-2' },
+                    React.createElement('button', {
+                        onClick: spin,
+                        disabled: spinning,
+                        className: 'px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold disabled:opacity-50 transition-colors'
+                    }, spinning ? 'Spinning...' : '🎰 SPIN'),
+                ),
+                React.createElement('div', { className: 'text-xs text-zinc-500' }, 'Press SPACE or click Spin'),
+                
+                // Reels
+                React.createElement('div', {
+                    className: 'relative rounded-2xl border border-zinc-800 bg-zinc-900/50 shadow-xl overflow-hidden',
+                },
+                    React.createElement('div', { 
+                        className: 'mx-auto relative',
+                        style: { width: frameW, height: frameH }
+                    },
+                        React.createElement('div', { className: 'absolute inset-0 flex' },
+                            reelsSymbols.map((reel, r) => 
+                                React.createElement('div', {
+                                    key: r,
+                                    className: 'relative border-r border-zinc-800 last:border-r-0 reel-container',
+                                    style: { width: CELL, height: frameH }
+                                },
+                                    React.createElement('div', {
+                                        className: 'absolute inset-0 reel-drum',
+                                        style: { transform: `translateZ(${-radius}px) rotateX(${rotations[r]}deg)` }
+                                    },
+                                        reel.map((p, i) => 
+                                            React.createElement('div', {
+                                                key: p.id,
+                                                className: 'absolute left-0 reel-symbol',
+                                                style: {
+                                                    width: CELL,
+                                                    height: CELL,
+                                                    top: '50%',
+                                                    transform: `translateY(${-CELL/2}px) rotateX(${i * step}deg) translateZ(${radius}px)`
+                                                }
+                                            },
+                                                React.createElement(PersonaCard, { persona: p, size: CELL - 6, onClick: onSelectPersona })
+                                            )
+                                        )
+                                    ),
+                                    // Vignette
+                                    React.createElement('div', {
+                                        className: 'pointer-events-none absolute inset-0',
+                                        style: { background: 'linear-gradient(to bottom, rgba(9,9,11,0.9), transparent 30%, transparent 70%, rgba(9,9,11,0.9))' }
+                                    })
+                                )
+                            )
+                        ),
+                        // Payline
+                        React.createElement('div', {
+                            className: 'pointer-events-none absolute left-0 right-0 border-y-2 border-amber-400/70',
+                            style: { top: (frameH - CELL) / 2, height: CELL, background: 'linear-gradient(to right, rgba(245,158,11,0.05), rgba(245,158,11,0.12), rgba(245,158,11,0.05))' }
+                        })
+                    )
+                ),
+                
+                // Result
+                React.createElement('div', { className: 'w-full max-w-xl rounded-xl border border-zinc-800 bg-zinc-950/60 p-3' },
+                    React.createElement('div', { className: 'text-xs text-zinc-400 mb-2' }, '✨ Payline Result'),
+                    result[0] 
+                        ? React.createElement('div', { className: 'flex flex-wrap gap-1.5 justify-center' },
+                            result.map((p, i) => 
+                                React.createElement('button', {
+                                    key: i,
+                                    onClick: () => p.status === 'active' && onSelectPersona?.(p),
+                                    className: `px-2 py-1.5 rounded-lg border text-xs ${
+                                        p.status === 'active' 
+                                            ? 'border-amber-600/50 bg-amber-900/30 hover:bg-amber-800/40' 
+                                            : 'border-zinc-700 bg-zinc-800/50 opacity-50 cursor-not-allowed'
+                                    }`
+                                }, p.name, p.status !== 'active' && React.createElement('span', { className: 'ml-1 text-zinc-500' }, '(soon)'))
+                            )
+                        )
+                        : React.createElement('div', { className: 'text-zinc-500 text-center text-sm' }, 'Spin to discover!')
+                )
+            );
+        }
+
+        // ═══════════════════════════════════════════
+        // BROWSE MODE
+        // ═══════════════════════════════════════════
+        function BrowseMode({ onSelectPersona, category, setCategory }) {
+            const personas = useMemo(() => getPersonasByCategory(category), [category]);
+            
+            return React.createElement('div', { className: 'flex flex-col gap-4' },
+                React.createElement('div', { className: 'flex items-center gap-3' },
+                    React.createElement('label', { className: 'text-zinc-400 text-sm' }, 'Category:'),
+                    React.createElement('select', {
+                        value: category,
+                        onChange: (e) => setCategory(e.target.value),
+                        className: 'px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm'
+                    },
+                        React.createElement('option', { value: 'all' }, `All (${PERSONAS.length})`),
+                        ...Object.values(CATEGORIES).map(c => 
+                            React.createElement('option', { key: c.id, value: c.id }, `${c.name} (${getPersonasByCategory(c.id).length})`)
+                        )
+                    )
+                ),
+                React.createElement('div', { className: 'grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3' },
+                    personas.map(p => 
+                        React.createElement('div', { key: p.id, className: 'flex flex-col items-center gap-1' },
+                            React.createElement(PersonaCard, { persona: p, size: 80, onClick: (x) => x.status === 'active' && onSelectPersona?.(x) }),
+                            React.createElement('div', { className: 'text-[10px] text-white truncate max-w-[80px]' }, p.name)
+                        )
+                    )
+                )
+            );
+        }
+
+        // ═══════════════════════════════════════════
+        // MAIN APP
+        // ═══════════════════════════════════════════
+        function App() {
+            const [mode, setMode] = useState('spin');
+            const [category, setCategory] = useState('all');
+            const [selected, setSelected] = useState(null);
+
+            return React.createElement('div', { className: 'min-h-screen p-4 md:p-6' },
+                React.createElement('div', { className: 'max-w-4xl mx-auto' },
+                    // Header
+                    React.createElement('div', { className: 'flex items-center justify-between mb-6' },
+                        React.createElement('div', {},
+                            React.createElement('h1', { className: 'text-xl md:text-2xl font-semibold' }, 'Echoes of Indiana'),
+                            React.createElement('p', { className: 'text-zinc-500 text-xs md:text-sm' }, 'Persona Spinner Prototype')
+                        ),
+                        React.createElement('div', { className: 'flex rounded-lg overflow-hidden border border-zinc-700' },
+                            React.createElement('button', {
+                                onClick: () => setMode('spin'),
+                                className: `px-3 py-1.5 text-xs font-medium ${mode === 'spin' ? 'bg-amber-600 text-white' : 'bg-zinc-800 text-zinc-400'}`
+                            }, '🎰 Spin'),
+                            React.createElement('button', {
+                                onClick: () => setMode('browse'),
+                                className: `px-3 py-1.5 text-xs font-medium ${mode === 'browse' ? 'bg-amber-600 text-white' : 'bg-zinc-800 text-zinc-400'}`
+                            }, '📋 Browse')
+                        )
+                    ),
+                    // Content
+                    mode === 'spin' 
+                        ? React.createElement(SpinMode, { onSelectPersona: setSelected })
+                        : React.createElement(BrowseMode, { onSelectPersona: setSelected, category, setCategory }),
+                    // Selected indicator
+                    selected && React.createElement('div', {
+                        className: 'fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-amber-600 text-white text-sm shadow-lg z-50'
+                    }, 'Selected: ', React.createElement('strong', {}, selected.name)),
+                    // Stats
+                    React.createElement('div', { className: 'mt-6 text-center text-[10px] text-zinc-600' },
+                        `${PERSONAS.filter(p => p.status === 'active').length} active / ${PERSONAS.length} total`
+                    )
+                )
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+    </script>
+</body>
+</html>
+

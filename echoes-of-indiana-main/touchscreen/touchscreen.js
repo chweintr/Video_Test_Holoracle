@@ -153,10 +153,16 @@ const TouchscreenApp = {
             container.appendChild(widget);
             this.simliWidget = widget;
 
-            // Auto-click start button if it appears
+            // Auto-click start button AGGRESSIVELY - try many times
+            // Simli's button may appear at unpredictable times
+            setTimeout(() => this.tryClickStart(), 100);
+            setTimeout(() => this.tryClickStart(), 300);
             setTimeout(() => this.tryClickStart(), 500);
-            setTimeout(() => this.tryClickStart(), 1500);
+            setTimeout(() => this.tryClickStart(), 800);
+            setTimeout(() => this.tryClickStart(), 1200);
+            setTimeout(() => this.tryClickStart(), 2000);
             setTimeout(() => this.tryClickStart(), 3000);
+            setTimeout(() => this.tryClickStart(), 5000);
 
         } catch (error) {
             console.error('[Touchscreen] Simli error:', error);
@@ -168,13 +174,33 @@ const TouchscreenApp = {
     tryClickStart() {
         if (!this.simliWidget) return;
         
-        const buttons = this.simliWidget.querySelectorAll('button');
-        buttons.forEach(btn => {
-            const text = btn.textContent.toLowerCase();
-            if (text.includes('start') || text.includes('begin') || text.includes('connect')) {
-                console.log('[Touchscreen] Clicking start button');
-                btn.click();
-            }
+        // Try within shadow DOM if present
+        const roots = [this.simliWidget, this.simliWidget.shadowRoot].filter(Boolean);
+        
+        roots.forEach(root => {
+            const buttons = root.querySelectorAll('button');
+            buttons.forEach(btn => {
+                const text = (btn.textContent || '').toLowerCase();
+                const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
+                
+                if (text.includes('start') || text.includes('begin') || text.includes('connect') ||
+                    ariaLabel.includes('start') || ariaLabel.includes('begin')) {
+                    console.log('[Touchscreen] Clicking start button:', btn.textContent);
+                    btn.click();
+                    // Also try to hide it after clicking
+                    btn.style.display = 'none';
+                    btn.style.opacity = '0';
+                    btn.style.pointerEvents = 'none';
+                }
+            });
+        });
+        
+        // Also look for any blue buttons (Simli's default style)
+        const allButtons = document.querySelectorAll('#simli-container button');
+        allButtons.forEach(btn => {
+            console.log('[Touchscreen] Found button, clicking:', btn.textContent);
+            btn.click();
+            btn.style.display = 'none';
         });
     },
 

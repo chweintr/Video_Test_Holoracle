@@ -387,26 +387,75 @@ html, body {
     background: var(--transparent) !important;
 }
 
-/* Hide ALL Simli internals except video */
+/* =============================================
+   HIDE ALL SIMLI INTERNALS - AGGRESSIVE
+   ============================================= */
+
+/* Hide Simli's Start button */
 #simli-container simli-widget button,
-#simli-container simli-widget [class*="close"],
-#simli-container simli-widget [class*="Close"],
+#simli-container button,
+simli-widget button {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+}
+
+/* Hide the dotted face placeholder */
 #simli-container simli-widget svg,
 #simli-container simli-widget canvas,
-#simli-container simli-widget [class*="placeholder"],
-#simli-container simli-widget [class*="loading"],
-#simli-container simli-widget div:not(:has(video)) {
+#simli-container svg,
+#simli-container canvas,
+simli-widget svg,
+simli-widget canvas {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
 }
 
-/* Ensure video is visible */
+/* Hide any div that looks like a placeholder (dots pattern) */
+#simli-container simli-widget [class*="placeholder"],
+#simli-container simli-widget [class*="loading"],
+#simli-container simli-widget [class*="close"],
+#simli-container simli-widget [class*="Close"],
+#simli-container simli-widget [class*="avatar"],
+#simli-container simli-widget [class*="Avatar"],
+#simli-container simli-widget [style*="border-radius: 50%"],
+#simli-container simli-widget div[style*="background: rgb(0, 0, 0)"],
+#simli-container simli-widget div[style*="background-color: black"],
+#simli-container simli-widget div[style*="background: black"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Nuclear option: hide everything that doesn't contain a video */
+#simli-container simli-widget > div:not(:has(video)),
+#simli-container simli-widget > div > div:not(:has(video)) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* But ensure the video wrapper is visible */
+#simli-container simli-widget div:has(> video),
+#simli-container simli-widget div:has(video) {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: transparent !important;
+}
+
+/* Ensure video itself is visible and centered */
 #simli-container simli-widget video {
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
     background: var(--transparent) !important;
+    position: relative !important;
+    z-index: 10 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
 }
 
 /* =============================================

@@ -20,10 +20,16 @@
 
         <!-- Menu State -->
         <div id="menu-state" class="state active">
+            <!-- Hidden header (title is in background) -->
             <header class="menu-header">
                 <h1>Echoes of Indiana</h1>
-                <p class="tagline">Commune with Indiana's past</p>
             </header>
+
+            <!-- Visible tagline above personas -->
+            <div class="tagline-bar">
+                <p class="tagline">Commune with Indiana's past</p>
+                <button class="about-btn" id="about-btn">About</button>
+            </div>
 
             <div id="persona-grid">
                 <!-- Personas injected by JS from shared config -->
@@ -32,6 +38,22 @@
             <footer class="menu-footer">
                 <p>Touch a portrait to begin</p>
             </footer>
+        </div>
+
+        <!-- About Modal -->
+        <div id="about-modal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close" id="modal-close">&times;</button>
+                <h2>Echoes of Indiana</h2>
+                <p>A PastPresence installation by Caleb Weintraub</p>
+                <p class="modal-body">
+                    Echoes of Indiana brings together historical figures, cultural icons, 
+                    and local legends through AI-powered conversations. Each persona is 
+                    crafted from historical research, oral traditions, and creative interpretation 
+                    to offer visitors a unique window into Indiana's rich heritage.
+                </p>
+                <p class="modal-footer">Touch outside to close</p>
+            </div>
         </div>
 
         <!-- Active State (Simli conversation) -->

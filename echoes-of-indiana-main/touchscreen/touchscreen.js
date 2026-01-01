@@ -205,5 +205,27 @@ const TouchscreenApp = {
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     TouchscreenApp.init();
+    
+    // About modal handlers
+    const aboutBtn = document.getElementById('about-btn');
+    const aboutModal = document.getElementById('about-modal');
+    const modalClose = document.getElementById('modal-close');
+    
+    if (aboutBtn && aboutModal) {
+        aboutBtn.addEventListener('click', () => {
+            aboutModal.classList.remove('hidden');
+        });
+        
+        modalClose.addEventListener('click', () => {
+            aboutModal.classList.add('hidden');
+        });
+        
+        // Close on background click
+        aboutModal.addEventListener('click', (e) => {
+            if (e.target === aboutModal) {
+                aboutModal.classList.add('hidden');
+            }
+        });
+    }
 });
 

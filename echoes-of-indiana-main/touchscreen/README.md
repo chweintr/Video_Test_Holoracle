@@ -88,3 +88,86 @@ Works on any device with a browser:
 
 For best experience, use full-screen mode (Add to Home Screen on iPad).
 
+---
+
+## FUTURE: Rolodex/Slot Machine Interface (30+ Personas)
+
+When the persona count grows beyond what fits on screen (20-30+), consider a **cylinder/rolodex** navigation pattern inspired by slot machines.
+
+### Concept
+
+```
+Current:  ○ ○ ○ ○ ○  (all visible, gets crowded)
+
+Future:   ┌─────────────────────────────┐
+          │  ↑ Scroll/Spin indicators ↑ │
+          │  ○   ○   ○   ○   ○   ○     │  ← 6 visible slots
+          │  ↓                       ↓ │
+          └─────────────────────────────┘
+          (30 total, 5 per "reel", 6 reels)
+```
+
+### Design Goals
+
+| Goal | Solution |
+|------|----------|
+| Show many personas | 6 visible "slots", others scroll into view |
+| Don't cover title | Personas stay in bottom zone |
+| Fun interaction | Swipe to "spin" or auto-rotate |
+| Visual continuity | Invisible cylinder core (just floating circles) |
+
+### Implementation Options
+
+1. **Vertical Reels** (slot machine style)
+   - 6 columns, each scrolls independently
+   - 5 personas per column = 30 total
+   - Swipe or tap arrows to cycle
+   - Could add "spin" animation for discovery mode
+
+2. **Horizontal Carousel** (simpler)
+   - Single row of 5-6 visible personas
+   - Swipe left/right to see more
+   - Pagination dots below
+
+3. **Grid with Pagination**
+   - Show 6-9 at a time
+   - Swipe to next "page" of personas
+   - Category tabs (Archetypes, Historical, Living, Lore)
+
+### Technical Notes
+
+```javascript
+// Pseudo-code for reel system
+const reels = [
+    ['mabel', 'tomaz', 'hazel', 'eddie', 'cyril'],      // Reel 1: Archetypes
+    ['riley', 'vonnegut', 'wells', 'kinsey', 'walker'], // Reel 2: Historical
+    ['bird', 'mellencamp', 'letterman', 'carter'],      // Reel 3: Living
+    ['bigfoot', 'oracle', 'ghostlight'],                // Reel 4: Lore
+    // etc.
+];
+
+// Each reel loops independently
+// Touch/swipe triggers smooth scroll animation
+// Only center persona per reel is "active" (larger, glowing)
+```
+
+### Visual Inspiration
+
+- Classic slot machines (but personas not symbols)
+- Contact picker wheels (iOS style)
+- Carousel menus in streaming apps
+- Physical rolodex rotating cards
+
+### Priority
+
+**LOW** — Current grid works well for 5-10 personas. Implement when:
+- Roster exceeds 15-20 active personas
+- User testing shows discovery issues
+- Want to add "random encounter" / spin-for-persona feature
+
+### References
+
+- CSS Scroll Snap for smooth carousel
+- Framer Motion / GSAP for reel animations
+- Swiper.js for touch carousels
+

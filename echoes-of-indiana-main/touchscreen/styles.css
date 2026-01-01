@@ -486,6 +486,66 @@ simli-widget canvas {
 }
 
 /* =============================================
+   VOLUME CONTROLS
+   ============================================= */
+#volume-controls {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(20, 15, 25, 0.7);
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(200, 150, 255, 0.2);
+    z-index: 500;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+#volume-controls:hover {
+    opacity: 1;
+}
+
+#volume-toggle {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+#volume-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+}
+
+#volume-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: none;
+}
+
+/* =============================================
    PORTRAIT MODE ADJUSTMENTS
    ============================================= */
 @media (orientation: portrait) {

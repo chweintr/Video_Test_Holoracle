@@ -253,5 +253,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // =========================================
+    // MUSIC CONTROLS
+    // =========================================
+    const bgMusic = document.getElementById('bg-music');
+    const volumeToggle = document.getElementById('volume-toggle');
+    const volumeSlider = document.getElementById('volume-slider');
+    let musicStarted = false;
+    
+    if (bgMusic && volumeToggle && volumeSlider) {
+        bgMusic.volume = 0.05; // Start at 5%
+        
+        volumeToggle.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                volumeToggle.textContent = '🔊';
+            } else {
+                bgMusic.pause();
+                volumeToggle.textContent = '🔇';
+            }
+        });
+        
+        volumeSlider.addEventListener('input', (e) => {
+            bgMusic.volume = e.target.value / 100;
+            volumeToggle.textContent = bgMusic.volume > 0 ? '🔊' : '🔇';
+        });
+        
+        // Start music on first persona click
+        document.getElementById('persona-grid').addEventListener('click', () => {
+            if (!musicStarted) {
+                musicStarted = true;
+                bgMusic.play().catch(e => console.log('Music autoplay blocked:', e));
+            }
+        });
+    }
 });
 

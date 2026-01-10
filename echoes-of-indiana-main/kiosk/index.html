@@ -33,30 +33,16 @@
             <p>Touch a portrait to begin</p>
         </div>
 
-        <!-- Persona Row - Simple horizontal arrangement -->
-        <div class="persona-row">
+        <!-- Persona Row - Responsive horizontal arrangement -->
+        <!-- Set --persona-count CSS variable to match number of personas -->
+        <div class="persona-row" style="--persona-count: 5;">
             <button class="persona-circle" data-persona="mabel">
                 <div class="circle-glow"></div>
                 <video class="circle-video" autoplay loop muted playsinline>
                     <source src="../assets/videos/Mabel_Menu.mp4" type="video/mp4">
                 </video>
                 <span class="persona-label">Mabel</span>
-            </button>
-
-            <button class="persona-circle" data-persona="tomaz">
-                <div class="circle-glow"></div>
-                <video class="circle-video" autoplay loop muted playsinline>
-                    <source src="../assets/videos/Tomaz_Menu.mp4" type="video/mp4">
-                </video>
-                <span class="persona-label">Tomaz</span>
-            </button>
-
-            <button class="persona-circle" data-persona="hazel">
-                <div class="circle-glow"></div>
-                <video class="circle-video" autoplay loop muted playsinline>
-                    <source src="../assets/videos/Hazel_Menu.mp4" type="video/mp4">
-                </video>
-                <span class="persona-label">Hazel</span>
+                <span class="persona-role">Showers Finishing Worker, 1917</span>
             </button>
 
             <button class="persona-circle" data-persona="riley">
@@ -65,6 +51,7 @@
                     <source src="../assets/videos/James_Whitcomb_Riley_Menu.mp4" type="video/mp4">
                 </video>
                 <span class="persona-label">Riley</span>
+                <span class="persona-role">The Hoosier Poet, 1849-1916</span>
             </button>
 
             <button class="persona-circle" data-persona="bigfoot">
@@ -73,6 +60,25 @@
                     <source src="../assets/videos/Bigfoot_Menu_Better.mp4" type="video/mp4">
                 </video>
                 <span class="persona-label">Bigfoot</span>
+                <span class="persona-role">Trail Sage & Cryptid Teller</span>
+            </button>
+
+            <button class="persona-circle" data-persona="tomaz">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/Tomaz_Menu.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Tomaz</span>
+                <span class="persona-role">Limestone Channeler, 1923</span>
+            </button>
+
+            <button class="persona-circle" data-persona="hazel">
+                <div class="circle-glow"></div>
+                <video class="circle-video" autoplay loop muted playsinline>
+                    <source src="../assets/videos/Hazel_Menu.mp4" type="video/mp4">
+                </video>
+                <span class="persona-label">Hazel</span>
+                <span class="persona-role">RCA Quality Control Inspector, 1958</span>
             </button>
         </div>
 

@@ -55,9 +55,17 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    padding: 40px 20px 60px;
-    padding-top: 55vh; /* Push circles down below the eye area */
+    padding: 20px 40px 5vh;
+    padding-top: 52vh; /* Push circles down below the eye/title area */
     overflow-y: auto;
+}
+
+/* Landscape mode: tighter vertical fit */
+@media (orientation: landscape) {
+    .kiosk-container {
+        padding-top: 48vh;
+        padding-bottom: 4vh;
+    }
 }
 
 /* =============================================
@@ -65,12 +73,12 @@ body {
    ============================================= */
 .tagline-top {
     position: fixed;
-    top: 32%;
+    top: 30%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 1.4rem;
+    font-size: clamp(1rem, 2vw, 1.4rem);
     font-style: italic;
     color: rgba(255, 230, 200, 0.85);
     letter-spacing: 0.12em;
@@ -78,15 +86,34 @@ body {
     white-space: nowrap;
 }
 
+/* Landscape: position relative to viewport height */
+@media (orientation: landscape) {
+    .tagline-top {
+        top: 28%;
+    }
+}
+
 /* =============================================
-   PERSONA ROW - Simple horizontal layout
+   PERSONA ROW - Responsive horizontal layout
+   Scales for 5-10+ personas
    ============================================= */
 .persona-row {
     display: flex;
-    gap: 25px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Keep all in one row for horizontal kiosk */
     justify-content: center;
-    max-width: 900px;
+    align-items: flex-start;
+    gap: clamp(15px, 3vw, 40px); /* Responsive gap */
+    max-width: 95vw;
+    padding: 0 20px;
+}
+
+/* Allow wrap on very narrow/portrait screens */
+@media (orientation: portrait), (max-width: 800px) {
+    .persona-row {
+        flex-wrap: wrap;
+        gap: clamp(12px, 4vw, 30px);
+        max-width: 90vw;
+    }
 }
 
 /* Title not needed - using background image */
@@ -195,17 +222,26 @@ body {
 }
 
 /* =============================================
-   PERSONA CIRCLES - Glowing White Border
+   PERSONA CIRCLES - Responsive sizing
+   Uses CSS custom property for persona count scaling
+   Set --persona-count on .persona-row via JS for dynamic sizing
    ============================================= */
+.persona-row {
+    --persona-count: 5; /* Default, can be overridden by JS */
+}
+
 .persona-circle {
     position: relative;
-    width: 140px;
-    height: 140px;
+    /* Responsive size: scales based on viewport and persona count */
+    --circle-size: clamp(80px, calc(70vw / var(--persona-count)), 140px);
+    width: var(--circle-size);
+    height: var(--circle-size);
     border-radius: 50%;
     border: none;
     background: transparent;
     cursor: pointer;
     transition: transform 0.3s ease;
+    flex-shrink: 0;
 }
 
 .persona-circle:hover {
@@ -214,6 +250,20 @@ body {
 
 .persona-circle:active {
     transform: scale(0.98);
+}
+
+/* Landscape: slightly larger circles, more horizontal space */
+@media (orientation: landscape) and (min-width: 1000px) {
+    .persona-circle {
+        --circle-size: clamp(100px, calc(65vw / var(--persona-count)), 150px);
+    }
+}
+
+/* Wide screens: cap maximum size */
+@media (min-width: 1600px) {
+    .persona-circle {
+        --circle-size: clamp(110px, calc(60vw / var(--persona-count)), 160px);
+    }
 }
 
 /* Glowing ring - Neon tube effect */
@@ -259,18 +309,33 @@ body {
     background: #1a1a1a;
 }
 
-/* Label below circle */
+/* Label below circle - responsive sizing */
 .persona-label {
     position: absolute;
-    bottom: -30px;
+    bottom: -28px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 1.2vw, 0.95rem);
     font-weight: 400;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
     white-space: nowrap;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Role/subtitle below name */
+.persona-role {
+    position: absolute;
+    bottom: -48px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    color: rgba(255, 220, 180, 0.7);
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 /* Placeholder for empty categories */
@@ -286,12 +351,12 @@ body {
    ============================================= */
 .instructions-top {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: clamp(12px, 2vh, 25px);
 }
 
 .instructions-top p {
     font-family: 'Cinzel', serif;
-    font-size: 1.15rem;
+    font-size: clamp(0.9rem, 1.5vw, 1.15rem);
     font-weight: 500;
     color: #d4af37;
     letter-spacing: 0.12em;
@@ -312,22 +377,61 @@ body {
 }
 
 /* =============================================
-   RESPONSIVE
+   RESPONSIVE - Tablet/Phone adjustments
    ============================================= */
 @media (max-width: 768px) {
+    .persona-row {
+        --persona-count: 5;
+    }
+    
     .persona-circle {
-        width: 100px;
-        height: 100px;
+        --circle-size: clamp(70px, calc(85vw / var(--persona-count)), 100px);
     }
     
     .persona-label {
-        font-size: 0.75rem;
-        bottom: -25px;
+        font-size: clamp(0.6rem, 2.5vw, 0.8rem);
+        bottom: -22px;
+    }
+    
+    .persona-role {
+        font-size: clamp(0.5rem, 2vw, 0.65rem);
+        bottom: -38px;
     }
     
     .title-text {
         font-size: 2rem;
         letter-spacing: 0.2em;
+    }
+}
+
+/* =============================================
+   LANDSCAPE MODE - Horizontal kiosk primary target
+   ============================================= */
+@media (orientation: landscape) and (min-height: 400px) {
+    .kiosk-container {
+        padding-top: 50vh;
+        padding-bottom: 3vh;
+    }
+    
+    .persona-row {
+        gap: clamp(20px, 4vw, 50px);
+        margin-bottom: 55px; /* Space for role text */
+    }
+    
+    .instructions-top {
+        margin-bottom: clamp(10px, 1.5vh, 20px);
+    }
+}
+
+/* Very wide screens (ultrawide monitors) */
+@media (min-aspect-ratio: 21/9) {
+    .persona-row {
+        max-width: 80vw;
+        gap: clamp(25px, 3vw, 60px);
+    }
+    
+    .persona-circle {
+        --circle-size: clamp(100px, calc(55vw / var(--persona-count)), 140px);
     }
 }
 

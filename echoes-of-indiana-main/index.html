@@ -156,6 +156,43 @@
             Compositor.startIdleLoop();
         });
         
+        // AUTO-SUMMON: Check for ?summon=personaId URL parameter
+        // Used by kiosk to trigger personas on the main display
+        function autoSummonFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const summonId = params.get('summon');
+            
+            if (summonId) {
+                console.log('[AutoSummon] Detected summon param:', summonId);
+                
+                // Skip splash screen
+                isStarted = true;
+                document.getElementById('click-to-start').classList.add('hidden');
+                
+                // Start idle loop then immediately summon
+                Compositor.startIdleLoop();
+                
+                // Small delay to let idle loop initialize
+                setTimeout(() => {
+                    console.log('[AutoSummon] Invoking:', summonId);
+                    document.getElementById('loading-msg').classList.remove('hidden');
+                    
+                    // Highlight the persona button if visible
+                    const btn = document.querySelector(`[data-persona="${summonId}"]`);
+                    if (btn) btn.classList.add('active');
+                    
+                    // Try to start music (may be blocked by autoplay policy)
+                    const bgMusic = document.getElementById('bg-music');
+                    if (bgMusic) {
+                        bgMusic.play().catch(e => console.log('[AutoSummon] Music autoplay blocked:', e));
+                    }
+                    
+                    Compositor.invokePersona(summonId);
+                }, 500);
+            }
+        }
+        autoSummonFromUrl();
+        
         // MUSIC CONTROLS
         const bgMusic = document.getElementById('bg-music');
         const volumeToggle = document.getElementById('volume-toggle');

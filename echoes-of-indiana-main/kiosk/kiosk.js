@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Handle persona clicks
+    // Track the main display window so we can reuse it
+    let mainDisplayWindow = null;
+    
     document.querySelectorAll('.persona-circle').forEach(btn => {
         btn.addEventListener('click', () => {
             const personaId = btn.dataset.persona;
@@ -47,19 +50,25 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('selected');
             setTimeout(() => btn.classList.remove('selected'), 300);
             
-            // Communicate with main display
-            // Option 1: postMessage (if in iframe or separate window)
-            if (window.opener) {
-                window.opener.postMessage({ type: 'summon-persona', persona: personaId }, '*');
+            // Open/reuse the main display window with summon parameter
+            const mainDisplayUrl = `../index.html?summon=${personaId}`;
+            
+            // Check if we have an existing window that's still open
+            if (mainDisplayWindow && !mainDisplayWindow.closed) {
+                // Window exists - navigate it to the new persona
+                mainDisplayWindow.location.href = mainDisplayUrl;
+                mainDisplayWindow.focus();
+                console.log('[Kiosk] Reusing existing window for:', personaId);
+            } else {
+                // Open new window (fullscreen for hologram display)
+                mainDisplayWindow = window.open(
+                    mainDisplayUrl,
+                    'EchoesMainDisplay',
+                    'fullscreen=yes,menubar=no,toolbar=no,location=no,status=no'
+                );
+                console.log('[Kiosk] Opened new window for:', personaId);
             }
             
-            // Option 2: Direct navigation (if kiosk controls URL params)
-            // window.location.href = `../index.html?summon=${personaId}`;
-            
-            // Option 3: WebSocket/API (for separate devices)
-            // fetch('/api/summon', { method: 'POST', body: JSON.stringify({ persona: personaId }) });
-            
-            // For now, log and show feedback
             showFeedback(`Summoning ${personaId}...`);
         });
     });

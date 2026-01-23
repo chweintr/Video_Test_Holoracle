@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Indiana — Alignment Tool</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        /* PREVIEW AREA */
+        .preview {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .preview-container {
+            width: 80%;
+            height: 80%;
+            position: relative;
+            border: 1px dashed rgba(255,255,255,0.2);
+        }
+        
+        /* Video layer (transition video) */
+        .video-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        
+        .video-layer video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Simli placeholder layer */
+        .simli-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+        
+        .simli-head {
+            position: absolute;
+            /* Defaults - will be modified by sliders */
+            left: 50%;
+            top: 50%;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%);
+            
+            /* Visual placeholder */
+            border: 3px dashed #f0f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f0f;
+            font-size: 12px;
+            text-align: center;
+            background: rgba(255, 0, 255, 0.1);
+        }
+        
+        /* Center crosshairs */
+        .crosshair {
+            position: absolute;
+            pointer-events: none;
+        }
+        .crosshair-h {
+            width: 100%; height: 1px;
+            background: rgba(255,0,0,0.3);
+            top: 50%; left: 0;
+        }
+        .crosshair-v {
+            height: 100%; width: 1px;
+            background: rgba(255,0,0,0.3);
+            left: 50%; top: 0;
+        }
+        
+        /* CONTROL PANEL */
+        .controls {
+            width: 350px;
+            background: #1a1a1a;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid #333;
+        }
+        
+        h1 {
+            font-size: 16px;
+            color: #d4af37;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        
+        h2 {
+            font-size: 12px;
+            color: #888;
+            letter-spacing: 1px;
+            margin: 20px 0 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        label span {
+            color: #0af;
+            font-family: monospace;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: #0af;
+            color: #000;
+        }
+        
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* CSS Output */
+        .css-output {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 11px;
+            color: #0f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+        
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: 8px;
+            background: #222;
+            border: 1px solid #444;
+            color: #888;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+        
+        .toggle-btn.active {
+            background: #0af;
+            color: #000;
+            border-color: #0af;
+        }
+        
+        .instructions {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview">
+        <div class="preview-container" id="preview-container">
+            <!-- Crosshairs for center reference -->
+            <div class="crosshair crosshair-h"></div>
+            <div class="crosshair crosshair-v"></div>
+            
+            <!-- Video layer -->
+            <div class="video-layer" id="video-layer">
+                <video id="video" loop muted playsinline>
+                    <source src="" type="video/mp4">
+                </video>
+            </div>
+            
+            <!-- Simli placeholder layer -->
+            <div class="simli-layer" id="simli-layer">
+                <div class="simli-head" id="simli-head">
+                    SIMLI<br>HEAD<br>POSITION
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <h1>ALIGNMENT TOOL</h1>
+        
+        <div class="instructions">
+            <strong>How to use:</strong><br>
+            1. Select a persona video below<br>
+            2. Adjust the pink "SIMLI HEAD" to match where the face appears in the video<br>
+            3. Copy the generated CSS values
+        </div>
+        
+        <h2>VIDEO SOURCE</h2>
+        <div class="control-group">
+            <select id="video-select">
+                <option value="">-- Select a video --</option>
+                <option value="../assets/videos/Idle_to_Mabel_loop.mp4">Idle → Mabel</option>
+                <option value="../assets/videos/Idle_to_Riley_loop.mp4">Idle → Riley</option>
+                <option value="../assets/videos/Idle_to_Bigfoot_loop.mp4">Idle → Bigfoot</option>
+                <option value="../assets/videos/Idle_to_Tomaz_loop.mp4">Idle → Tomaz</option>
+                <option value="../assets/videos/Idle_to_Hazel_loop.mp4">Idle → Hazel</option>
+                <option value="../assets/videos/Mabel_to_Idle_loop.mp4">Mabel → Idle</option>
+                <option value="../assets/videos/Riley_to_Idle_loop.mp4">Riley → Idle</option>
+                <option value="../assets/videos/Bigfoot_to_Idle_loop.mp4">Bigfoot → Idle</option>
+                <option value="../assets/videos/Tomaz_to_Idle_loop.mp4">Tomaz → Idle</option>
+                <option value="../assets/videos/Hazel_to_Idle_loop.mp4">Hazel → Idle</option>
+            </select>
+        </div>
+        
+        <div class="toggle-group">
+            <button class="toggle-btn active" id="show-video">Show Video</button>
+            <button class="toggle-btn active" id="show-simli">Show Simli Marker</button>
+        </div>
+        
+        <h2>SIMLI POSITION</h2>
+        
+        <div class="control-group">
+            <label>X Position <span id="val-x">50%</span></label>
+            <input type="range" id="simli-x" min="0" max="100" value="50" step="0.5">
+        </div>
+        
+        <div class="control-group">
+            <label>Y Position <span id="val-y">50%</span></label>
+            <input type="range" id="simli-y" min="0" max="100" value="50" step="0.5">
+        </div>
+        
+        <div class="control-group">
+            <label>Scale <span id="val-scale">1.0</span></label>
+            <input type="range" id="simli-scale" min="0.5" max="3" value="1" step="0.05">
+        </div>
+        
+        <h2>ADVANCED (for CSS transform)</h2>
+        
+        <div class="control-group">
+            <label>Translate X <span id="val-tx">0%</span></label>
+            <input type="range" id="translate-x" min="-50" max="50" value="0" step="1">
+        </div>
+        
+        <div class="control-group">
+            <label>Translate Y <span id="val-ty">0%</span></label>
+            <input type="range" id="translate-y" min="-50" max="50" value="0" step="1">
+        </div>
+        
+        <h2>TARGET</h2>
+        <div class="toggle-group">
+            <button class="toggle-btn" id="target-main">Main Display</button>
+            <button class="toggle-btn active" id="target-touch">Touchscreen</button>
+        </div>
+        
+        <button class="btn btn-secondary" id="reset-btn">Reset to Center</button>
+        
+        <h2>GENERATED CSS</h2>
+        <div class="css-output" id="css-output">/* Adjust sliders above */</div>
+        
+        <button class="btn btn-primary" id="copy-btn">📋 Copy CSS</button>
+    </div>
+    
+    <script>
+        // Elements
+        const video = document.getElementById('video');
+        const videoSelect = document.getElementById('video-select');
+        const simliHead = document.getElementById('simli-head');
+        const videoLayer = document.getElementById('video-layer');
+        const simliLayer = document.getElementById('simli-layer');
+        const cssOutput = document.getElementById('css-output');
+        
+        // Sliders
+        const sliderX = document.getElementById('simli-x');
+        const sliderY = document.getElementById('simli-y');
+        const sliderScale = document.getElementById('simli-scale');
+        const sliderTX = document.getElementById('translate-x');
+        const sliderTY = document.getElementById('translate-y');
+        
+        // Values displays
+        const valX = document.getElementById('val-x');
+        const valY = document.getElementById('val-y');
+        const valScale = document.getElementById('val-scale');
+        const valTX = document.getElementById('val-tx');
+        const valTY = document.getElementById('val-ty');
+        
+        // Target mode
+        let targetMode = 'touchscreen'; // or 'main'
+        
+        // Video source change
+        videoSelect.addEventListener('change', () => {
+            video.src = videoSelect.value;
+            if (videoSelect.value) {
+                video.play();
+            }
+        });
+        
+        // Toggle visibility
+        document.getElementById('show-video').addEventListener('click', function() {
+            this.classList.toggle('active');
+            videoLayer.style.display = this.classList.contains('active') ? 'block' : 'none';
+        });
+        
+        document.getElementById('show-simli').addEventListener('click', function() {
+            this.classList.toggle('active');
+            simliLayer.style.display = this.classList.contains('active') ? 'block' : 'none';
+        });
+        
+        // Target buttons
+        document.getElementById('target-main').addEventListener('click', function() {
+            targetMode = 'main';
+            document.getElementById('target-main').classList.add('active');
+            document.getElementById('target-touch').classList.remove('active');
+            updateOutput();
+        });
+        
+        document.getElementById('target-touch').addEventListener('click', function() {
+            targetMode = 'touchscreen';
+            document.getElementById('target-touch').classList.add('active');
+            document.getElementById('target-main').classList.remove('active');
+            updateOutput();
+        });
+        
+        // Update function
+        function updatePosition() {
+            const x = parseFloat(sliderX.value);
+            const y = parseFloat(sliderY.value);
+            const scale = parseFloat(sliderScale.value);
+            const tx = parseFloat(sliderTX.value);
+            const ty = parseFloat(sliderTY.value);
+            
+            // Update display values
+            valX.textContent = x + '%';
+            valY.textContent = y + '%';
+            valScale.textContent = scale.toFixed(2);
+            valTX.textContent = tx + '%';
+            valTY.textContent = ty + '%';
+            
+            // Update visual
+            const baseSize = 150; // px for preview
+            simliHead.style.left = x + '%';
+            simliHead.style.top = y + '%';
+            simliHead.style.width = (baseSize * scale) + 'px';
+            simliHead.style.height = (baseSize * scale) + 'px';
+            
+            // Calculate transform with translate offset
+            const offsetX = -50 + tx;
+            const offsetY = -50 + ty;
+            simliHead.style.transform = `translate(${offsetX}%, ${offsetY}%)`;
+            
+            updateOutput();
+        }
+        
+        function updateOutput() {
+            const x = parseFloat(sliderX.value);
+            const y = parseFloat(sliderY.value);
+            const scale = parseFloat(sliderScale.value);
+            const tx = parseFloat(sliderTX.value);
+            const ty = parseFloat(sliderTY.value);
+            
+            let css = '';
+            
+            if (targetMode === 'main') {
+                // For main display - uses transform on simli-widget
+                css = `/* Main Display - styles.css */
+simli-widget {
+    transform: translateX(${tx}%) translateY(${ty}%) scale(${scale}) !important;
+}`;
+            } else {
+                // For touchscreen - uses container positioning
+                css = `/* Touchscreen - touchscreen/styles.css */
+#simli-container simli-widget {
+    position: absolute !important;
+    top: ${y}% !important;
+    left: ${x}% !important;
+    transform: translate(${-50 + tx}%, ${-50 + ty}%) scale(${scale}) !important;
+}`;
+            }
+            
+            cssOutput.textContent = css;
+        }
+        
+        // Reset button
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            sliderX.value = 50;
+            sliderY.value = 50;
+            sliderScale.value = 1;
+            sliderTX.value = 0;
+            sliderTY.value = 0;
+            updatePosition();
+        });
+        
+        // Copy button
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(cssOutput.textContent);
+            document.getElementById('copy-btn').textContent = '✓ Copied!';
+            setTimeout(() => {
+                document.getElementById('copy-btn').textContent = '📋 Copy CSS';
+            }, 2000);
+        });
+        
+        // Slider listeners
+        [sliderX, sliderY, sliderScale, sliderTX, sliderTY].forEach(slider => {
+            slider.addEventListener('input', updatePosition);
+        });
+        
+        // Initial update
+        updatePosition();
+    </script>
+</body>
+</html>

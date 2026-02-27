@@ -149,15 +149,9 @@ const TouchscreenApp = {
             }
             
             console.log('[Touchscreen] Widget configured - agentId:', persona.agentId, 'faceId:', persona.faceId);
-
-            // Force absolute positioning via inline style (highest specificity)
-            widget.style.cssText = 'position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 1 !important;';
             
             container.appendChild(widget);
             this.simliWidget = widget;
-
-            // Reach into the shadow DOM and force the widget to fill our container
-            this.forceWidgetFullscreen(widget);
 
             // Auto-click start button AGGRESSIVELY - try many times
             setTimeout(() => this.tryClickStart(), 100);
@@ -173,88 +167,6 @@ const TouchscreenApp = {
             console.error('[Touchscreen] Simli error:', error);
             this.dismissPersona();
         }
-    },
-
-    // Force the Simli widget to fill the entire container by injecting
-    // styles into its shadow DOM and overriding its hardcoded 480px width
-    forceWidgetFullscreen(widget) {
-        const applyStyles = () => {
-            const shadow = widget.shadowRoot;
-            if (!shadow) {
-                console.log('[Touchscreen] No shadow root yet, retrying...');
-                return false;
-            }
-
-            // Inject a style override into the shadow DOM
-            let injectedStyle = shadow.querySelector('#touchscreen-override');
-            if (!injectedStyle) {
-                injectedStyle = document.createElement('style');
-                injectedStyle.id = 'touchscreen-override';
-                injectedStyle.textContent = `
-                    :host {
-                        position: absolute !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        bottom: 0 !important;
-                        right: 0 !important;
-                        width: 100% !important;
-                        height: 100% !important;
-                        z-index: 1 !important;
-                    }
-                    .widget-container, .widget-container.expanded {
-                        width: 100% !important;
-                        height: 100% !important;
-                        max-width: none !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                    }
-                    .video-container {
-                        width: 100% !important;
-                        height: 100% !important;
-                        border-radius: 0 !important;
-                        background-color: transparent !important;
-                        box-shadow: none !important;
-                    }
-                    video {
-                        width: 100% !important;
-                        height: 100% !important;
-                        object-fit: contain !important;
-                    }
-                    .controls-container, .start-button, button, .logo, .dotted-face, img[alt="Simli"] {
-                        display: none !important;
-                    }
-                `;
-                shadow.appendChild(injectedStyle);
-                console.log('[Touchscreen] Injected fullscreen styles into shadow DOM');
-            }
-
-            // Also directly modify elements we find
-            const allDivs = shadow.querySelectorAll('div');
-            allDivs.forEach(div => {
-                const style = div.style;
-                if (style.width === '480px' || getComputedStyle(div).width === '480px') {
-                    div.style.width = '100%';
-                    div.style.height = '100%';
-                    div.style.maxWidth = 'none';
-                    console.log('[Touchscreen] Expanded 480px container');
-                }
-            });
-
-            return true;
-        };
-
-        // Try immediately and keep trying as the widget initializes
-        applyStyles();
-        const interval = setInterval(() => {
-            if (this.currentState !== 'active') {
-                clearInterval(interval);
-                return;
-            }
-            applyStyles();
-        }, 300);
-
-        // Stop after 15 seconds
-        setTimeout(() => clearInterval(interval), 15000);
     },
 
     // Try to click Simli's internal start button

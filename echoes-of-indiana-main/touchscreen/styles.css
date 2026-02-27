@@ -379,13 +379,15 @@ html, body {
 
 #simli-container simli-widget {
     position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    transform: scale(1.5) !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 480px !important;
+    height: 480px !important;
+    transform: translate(-50%, -50%) scale(2) !important;
     transform-origin: center center !important;
     background: #000 !important;
     mix-blend-mode: screen !important;
+    overflow: visible !important;
 }
 
 /* =============================================

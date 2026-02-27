@@ -129,10 +129,6 @@ const TouchscreenApp = {
             
             // Set token (NOT session-token)
             widget.setAttribute('token', data.token);
-            
-            // CRITICAL: Set position to "relative" so widget flows inside our
-            // container instead of being fixed to the viewport
-            widget.setAttribute('position', 'relative');
 
             // Set ALL possible attribute formats (Simli docs are inconsistent)
             widget.setAttribute('agentid', persona.agentId);
@@ -153,6 +149,9 @@ const TouchscreenApp = {
             }
             
             console.log('[Touchscreen] Widget configured - agentId:', persona.agentId, 'faceId:', persona.faceId);
+
+            // Force absolute positioning via inline style (highest specificity)
+            widget.style.cssText = 'position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 1 !important;';
             
             container.appendChild(widget);
             this.simliWidget = widget;

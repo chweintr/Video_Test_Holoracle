@@ -153,8 +153,20 @@ const TouchscreenApp = {
             container.appendChild(widget);
             this.simliWidget = widget;
 
+            // Force the widget to scale up large and center -- Simli renders the face
+            // small and offset internally, so we scale the entire widget
+            widget.style.cssText = `
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                transform: scale(3.0) !important;
+                transform-origin: center center !important;
+                background: #000 !important;
+            `;
+
             // Auto-click start button AGGRESSIVELY - try many times
-            // Simli's button may appear at unpredictable times
             setTimeout(() => this.tryClickStart(), 100);
             setTimeout(() => this.tryClickStart(), 300);
             setTimeout(() => this.tryClickStart(), 500);

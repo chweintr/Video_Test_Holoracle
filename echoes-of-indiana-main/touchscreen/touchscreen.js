@@ -150,7 +150,9 @@ const TouchscreenApp = {
             
             console.log('[Touchscreen] Widget configured - agentId:', persona.agentId, 'faceId:', persona.faceId);
             
-            // Wrap widget in a scaling container that Simli can't override
+            // Wrap widget in a scaling container that Simli can't override.
+            // The face renders at roughly 38% from left, 32% from top within
+            // the widget, so we scale from that point to keep it centered on screen.
             const scaleWrapper = document.createElement('div');
             scaleWrapper.id = 'simli-scale-wrapper';
             scaleWrapper.style.cssText = `
@@ -158,7 +160,7 @@ const TouchscreenApp = {
                 top: 0; left: 0;
                 width: 100%; height: 100%;
                 transform: scale(3.5);
-                transform-origin: center center;
+                transform-origin: 38% 32%;
                 overflow: visible;
             `;
             scaleWrapper.appendChild(widget);

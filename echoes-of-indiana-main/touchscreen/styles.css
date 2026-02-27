@@ -384,7 +384,7 @@ html, body {
     width: 100%;
     height: 100%;
     transform: scale(3.5);
-    transform-origin: center center;
+    transform-origin: 38% 32%;
 }
 
 #simli-container simli-widget {

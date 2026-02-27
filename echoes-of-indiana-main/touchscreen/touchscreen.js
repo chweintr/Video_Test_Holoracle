@@ -130,6 +130,10 @@ const TouchscreenApp = {
             // Set token (NOT session-token)
             widget.setAttribute('token', data.token);
             
+            // CRITICAL: Set position to "relative" so widget flows inside our
+            // container instead of being fixed to the viewport
+            widget.setAttribute('position', 'relative');
+
             // Set ALL possible attribute formats (Simli docs are inconsistent)
             widget.setAttribute('agentid', persona.agentId);
             widget.setAttribute('agent-id', persona.agentId);
@@ -150,17 +154,15 @@ const TouchscreenApp = {
             
             console.log('[Touchscreen] Widget configured - agentId:', persona.agentId, 'faceId:', persona.faceId);
             
-            // Wrap widget in a scaling container that Simli can't override.
-            // The face renders at roughly 38% from left, 32% from top within
-            // the widget, so we scale from that point to keep it centered on screen.
+            // Widget is now position:relative (not fixed), so it flows inside
+            // our container. Center it and scale to fill the viewport.
             const scaleWrapper = document.createElement('div');
             scaleWrapper.id = 'simli-scale-wrapper';
             scaleWrapper.style.cssText = `
                 position: absolute;
-                top: 0; left: 0;
-                width: 100%; height: 100%;
-                transform: scale(2.0);
-                transform-origin: 38% 35%;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%) scale(2.0);
+                transform-origin: center center;
                 overflow: visible;
             `;
             scaleWrapper.appendChild(widget);

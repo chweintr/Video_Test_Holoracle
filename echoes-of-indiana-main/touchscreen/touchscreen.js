@@ -150,21 +150,20 @@ const TouchscreenApp = {
             
             console.log('[Touchscreen] Widget configured - agentId:', persona.agentId, 'faceId:', persona.faceId);
             
-            container.appendChild(widget);
-            this.simliWidget = widget;
-
-            // Force the widget to scale up large and center -- Simli renders the face
-            // small and offset internally, so we scale the entire widget
-            widget.style.cssText = `
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                transform: scale(3.0) !important;
-                transform-origin: center center !important;
-                background: #000 !important;
+            // Wrap widget in a scaling container that Simli can't override
+            const scaleWrapper = document.createElement('div');
+            scaleWrapper.id = 'simli-scale-wrapper';
+            scaleWrapper.style.cssText = `
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                transform: scale(3.5);
+                transform-origin: center center;
+                overflow: visible;
             `;
+            scaleWrapper.appendChild(widget);
+            container.appendChild(scaleWrapper);
+            this.simliWidget = widget;
 
             // Auto-click start button AGGRESSIVELY - try many times
             setTimeout(() => this.tryClickStart(), 100);

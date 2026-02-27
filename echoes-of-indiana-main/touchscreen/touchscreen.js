@@ -159,8 +159,8 @@ const TouchscreenApp = {
                 position: absolute;
                 top: 0; left: 0;
                 width: 100%; height: 100%;
-                transform: scale(3.5);
-                transform-origin: 38% 32%;
+                transform: scale(2.0);
+                transform-origin: 38% 35%;
                 overflow: visible;
             `;
             scaleWrapper.appendChild(widget);
